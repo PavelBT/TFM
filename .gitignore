@@ -1,5 +1,5 @@
 # ignorar todos los __pycache__ recurrente en tdoos los directorios
-models/
+/models/
 .DS_Store/
 __pycache__/
 *.pt
