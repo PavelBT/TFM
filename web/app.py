@@ -13,8 +13,12 @@ def index():
         file = request.files["document"]
         if file:
             response = requests.post("http://api:8000/api/analyze", files={"file": file})
-            data = response.json()
-            return render_template("index.html", fields=data.get("fields", {}))
+            if response.ok:
+                data = response.json()
+                return render_template("index.html", fields=data.get("fields", {}))
+            else:
+                print("Error en la API:", response.status_code, response.text)
+                return render_template("index.html", fields={}, error="Error al procesar el documento.")
 
     print("Rendering index.html")
     # Si es una solicitud GET, renderizar el formulario

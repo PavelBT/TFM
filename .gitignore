@@ -1,4 +1,4 @@
-# ignorar todos los __pycache__ recurrente en tdoos los directorios
+.env
 /models/
 .DS_Store/
 __pycache__/

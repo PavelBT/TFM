@@ -13,8 +13,8 @@ services:
       - ~/.aws:/root/.aws  # Para que el contenedor acceda a tus credenciales
     depends_on:
       - db
-    environment:
-      - DATABASE_URL=postgresql://user:password@db:5432/ocrdata
+    env_file:
+      - .env  # ← carga las variables del archivo .env
 
   web:
     build:

@@ -6,7 +6,6 @@ import time
 from typing import Dict
 from fastapi import UploadFile
 from interfaces.ocr_service import OCRService
-from services.postprocessor import StructuredPostProcessor
 
 class AWSTextractOCRService(OCRService):
     def __init__(self, region_name="us-east-2", bucket_name="ocr-bucket-pbt-devop"):
@@ -50,9 +49,7 @@ class AWSTextractOCRService(OCRService):
             # Eliminar después de procesar
             self.s3.delete_object(Bucket=self.bucket, Key=s3_key)
 
-            processor = StructuredPostProcessor()
-            cleaned_fields = processor.process(fields)
-            return {"fields": cleaned_fields}
+            return {"fields": fields}
         
 
         else:
@@ -62,9 +59,7 @@ class AWSTextractOCRService(OCRService):
                 FeatureTypes=["FORMS"]
             )
             fields = self._extract_fields(result.get("Blocks", []))
-            processor = StructuredPostProcessor()
-            cleaned_fields = processor.process(fields)
-            return {"fields": cleaned_fields}
+            return {"fields": fields}
 
     def _extract_fields(self, blocks: list) -> Dict[str, str]:
         key_map = {}

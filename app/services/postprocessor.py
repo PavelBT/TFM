@@ -1,28 +1,37 @@
-# app/services/postprocessor.py
-
 from typing import Dict
 from interfaces.postprocessor import PostProcessor
 from services.field_correctors.structured_cleaner import StructuredFieldCorrector
-from services.ai_refiners.huggingface_refiner import HuggingFaceRefiner
-
+from services.ai_refiners.factory import get_ai_refiner
+import logging
 
 class StructuredPostProcessor(PostProcessor):
-    def __init__(self):
+    def __init__(self, refiner_type):
         self.corrector = StructuredFieldCorrector()
-        self.refiner = HuggingFaceRefiner()
+        self.refiner = get_ai_refiner(refiner_type)
 
     def process(self, fields: Dict[str, str]) -> Dict:
         """
         Limpia, transforma, organiza, mejora con IA los campos extraídos del OCR.
         """
-        # Paso 1: estructura, agrupa y limpia
         structured = self.corrector.transform(fields)
 
-        # Paso 2: refinar por secciones
         for section, content in structured.items():
-            if isinstance(content, dict):
-                structured[section] = self.refiner.refine(content)  # refinamos subcampos
-            elif isinstance(content, str):
-                structured[section] = self.refiner.refine({section: content})[section]
+            try:
+                if isinstance(content, dict):
+                    # Refinamos el bloque completo y tomamos el primer valor
+                    refined_result = self.refiner.refine({section: content})
+                    if isinstance(refined_result, dict) and refined_result:
+                        structured[section] = next(iter(refined_result.values()))
+                    else:
+                        structured[section] = content  # fallback
+                elif isinstance(content, str):
+                    refined_result = self.refiner.refine({section: content})
+                    if isinstance(refined_result, dict) and section in refined_result:
+                        structured[section] = refined_result[section]
+                    else:
+                        structured[section] = content  # fallback
+            except Exception as e:
+                logging.warning(f"[PostProcessor] Error al refinar sección '{section}': {e}")
+                structured[section] = content  # fallback
 
         return structured

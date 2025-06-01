@@ -10,3 +10,5 @@ transformers
 torch
 protobuf>=3.20
 sentencepiece
+openai
+python-dotenv
