@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>OCR Web Interface</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2em;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        h1, h2 {
+            color: #2c3e50;
+        }
+
+        form {
+            background: #fff;
+            padding: 1em;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            margin-bottom: 2em;
+        }
+
+        input[type="file"] {
+            margin: 0.5em 0;
+        }
+
+        button {
+            background-color: #2c3e50;
+            color: white;
+            padding: 0.5em 1em;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        ul {
+            list-style-type: none;
+            padding-left: 1em;
+        }
+
+        li {
+            margin: 6px 0;
+        }
+
+        .section-title {
+            margin-top: 1em;
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #1a73e8;
+        }
+
+        .field-key {
+            font-weight: bold;
+        }
+
+        .field-value {
+            color: #555;
+        }
+
+        .subsection {
+            margin-left: 1em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sube un documento de solicitud</h1>
+    <form action="/" method="post" enctype="multipart/form-data">
+        <input type="file" name="document" accept="image/*,.pdf" required>
+        <button type="submit">Enviar</button>
+    </form>
+
+    {% if fields %}
+        <h2>Resultados OCR</h2>
+
+        {% macro render_fields(data, level=0) %}
+        <ul class="{{ 'subsection' if level > 0 }}">
+            {% for key, value in data.items() %}
+                {% if value is mapping %}
+                    <li>
+                        <div class="section-title">{{ key.replace('_', ' ').capitalize() }}</div>
+                        {{ render_fields(value, level + 1) }}
+                    </li>
+                {% else %}
+                    <li><span class="field-key">{{ key.replace('_', ' ').capitalize() }}:</span> <span class="field-value">{{ value }}</span></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        {% endmacro %}
+
+        {{ render_fields(fields) }}
+    {% endif %}
+</body>
+</html>

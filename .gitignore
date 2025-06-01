@@ -1,0 +1,8 @@
+# ignorar todos los __pycache__ recurrente en tdoos los directorios
+models/
+.DS_Store/
+__pycache__/
+*.pt
+*.bin
+*.h5
+*.ckpt
