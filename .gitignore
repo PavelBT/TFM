@@ -1,4 +1,6 @@
 .env
+.env.*
+*.pem
 /models/
 .DS_Store/
 __pycache__/
