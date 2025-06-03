@@ -1,12 +1,12 @@
 from typing import Dict
 from interfaces.postprocessor import PostProcessor
-from services.field_correctors.structured_cleaner import StructuredFieldCorrector
+from services.field_correctors.generic_cleaner import GenericFieldCleaner
 from services.ai_refiners.factory import get_ai_refiner
 import logging
 
 class StructuredPostProcessor(PostProcessor):
     def __init__(self, refiner_type):
-        self.corrector = StructuredFieldCorrector()
+        self.corrector = GenericFieldCleaner()
         self.refiner = get_ai_refiner(refiner_type)
 
     def process(self, fields: Dict[str, str]) -> Dict:
