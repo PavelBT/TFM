@@ -2,6 +2,7 @@
 
 from abc import ABC, abstractmethod
 from typing import Dict
+from models.data_response import DataResponse
 
 class PostProcessor(ABC):
     """
@@ -9,11 +10,11 @@ class PostProcessor(ABC):
     """
 
     @abstractmethod
-    def process(self, fields: Dict[str, str]) -> Dict:
+    def process(self, data: DataResponse) -> DataResponse:
         """
         Procesa los resultados planos extraídos por OCR y devuelve una estructura limpia o enriquecida.
 
-        :param fields: Diccionario plano de campos extraídos por OCR
+        :param data: Diccionario plano de campos extraídos por OCR
         :return: Diccionario procesado y potencialmente estructurado
         """
         pass

@@ -1,100 +1,52 @@
 # Ruta: services/field_correctors/generic_cleaner.py
 
-import re
-from typing import Optional, Dict
+import logging
+from typing import Dict, Optional
 from interfaces.field_corrector import FieldCorrector
 from services.field_correctors.basic_cleaner import BasicFieldCorrector
 
 class GenericFieldCleaner(FieldCorrector):
+    """
+    Aplica limpieza básica a los datos OCR sin agrupar ni reorganizar.
+    Se utiliza como paso previo o como fallback para formularios no identificados.
+    """
+
     def __init__(self):
         self.basic = BasicFieldCorrector()
 
-    def _clean_key(self, key: str) -> str:
-        return re.sub(r"[:\-\.]", "", key).strip().lower()
-
-    def _is_selected(self, value: str) -> bool:
-        return "[x]" in value.lower()
-
     def correct(self, key: str, value: str) -> Optional[str]:
-        return self.basic.correct(key, value)
+        try:
+            return self.basic.correct(key, value)
+        except Exception as e:
+            logging.warning(f"[GenericCleaner] Error al corregir campo '{key}': {e}")
+            return None
 
-    def transform(self, raw_data: Dict[str, str]) -> Dict:
-        structured = {
-            "datos_personales": {},
-            "contacto": {},
-            "empleo": {},
-            "finanzas": {},
-            "plazo_credito": None,
-            "genero": None,
-            "estado_civil": None,
-            "regimen_matrimonial": None,
-            "tipo_propiedad": None,
-            "otros_ingresos": None,
-            "tipo_ingreso": None
-        }
+    def _flatten_value(self, value) -> str:
+        """
+        Convierte un valor que puede ser dict, list o str en un str plano.
+        """
+        if isinstance(value, str):
+            return value
+        elif isinstance(value, dict):
+            return next(iter(value.values()), "")
+        elif isinstance(value, list):
+            return " ".join(str(v) for v in value)
+        else:
+            return str(value)
 
-        plazos_detectados = set()
-        genero_detectado = None
+    def transform(self, raw_data: Dict[str, object]) -> Dict[str, str]:
+        """
+        Aplica limpieza básica clave-valor.
+        """
+        cleaned = {}
 
         for key, value in raw_data.items():
-            clean_key = self._clean_key(key)
-            corrected_value = self.correct(key, value)
+            key = key.strip()
 
-            if not clean_key or not corrected_value:
-                continue
+            value_flat = self._flatten_value(value)
+            cleaned_value = self.correct(key, value_flat)
 
-            if clean_key in {"12", "18", "24", "36"} and self._is_selected(corrected_value):
-                plazos_detectados.add(clean_key)
-            elif "femenino" in clean_key and self._is_selected(corrected_value):
-                genero_detectado = "Femenino"
-            elif "masculino" in clean_key and self._is_selected(corrected_value):
-                genero_detectado = "Masculino"
-            elif any(et in clean_key for et in ["soltero", "casado", "unión libre", "divorciado", "viudo"]):
-                if self._is_selected(corrected_value):
-                    structured["estado_civil"] = key.strip().split()[0]
-            elif "sociedad conyugal" in clean_key and self._is_selected(corrected_value):
-                structured["regimen_matrimonial"] = "Sociedad Conyugal"
-            elif "separación de bienes" in clean_key and self._is_selected(corrected_value):
-                structured["regimen_matrimonial"] = "Separación de Bienes"
-            elif "propia" in clean_key and self._is_selected(corrected_value):
-                structured["tipo_propiedad"] = "Propia"
-            elif "rentada" in clean_key and self._is_selected(corrected_value):
-                structured["tipo_propiedad"] = "Rentada"
-            elif "hipotecada" in clean_key and self._is_selected(corrected_value):
-                structured["tipo_propiedad"] = "Hipotecada"
-            elif "de familiares" in clean_key and self._is_selected(corrected_value):
-                structured["tipo_propiedad"] = "De familiares"
-            elif "otros ingresos" in clean_key:
-                if "no" in clean_key and self._is_selected(corrected_value):
-                    structured["otros_ingresos"] = "No"
-                elif "sí" in clean_key and self._is_selected(corrected_value):
-                    structured["otros_ingresos"] = "Sí"
-            elif "asalariado" in clean_key and self._is_selected(corrected_value):
-                structured["tipo_ingreso"] = "Asalariado"
-            elif "honorarios" in clean_key and self._is_selected(corrected_value):
-                structured["tipo_ingreso"] = "Honorarios"
-            elif "sueldo mensual" in clean_key:
-                sueldo = re.sub(r"[^\d]", "", corrected_value)
-                structured["finanzas"]["sueldo_mensual"] = int(sueldo) if sueldo.isdigit() else None
-            elif any(x in clean_key for x in ["nombre", "apellido", "curp", "rfc"]):
-                structured["datos_personales"][clean_key] = corrected_value
-            elif any(x in clean_key for x in ["teléfono", "celular", "correo", "email"]):
-                structured["contacto"][clean_key] = corrected_value
-            elif any(x in clean_key for x in ["empresa", "puesto"]):
-                structured["empleo"][clean_key] = corrected_value
-            elif any(x in clean_key for x in ["monto", "nómina"]):
-                structured["finanzas"][clean_key] = corrected_value
-            else:
-                structured["datos_personales"][clean_key] = corrected_value
+            if cleaned_value is not None:
+                cleaned[key] = cleaned_value
 
-        structured["plazo_credito"] = max(plazos_detectados, key=int) if plazos_detectados else ""
-        structured["genero"] = genero_detectado or ""
-
-        for key in ["regimen_matrimonial", "otros_ingresos", "tipo_ingreso", "estado_civil", "tipo_propiedad"]:
-            if structured[key] is None:
-                structured[key] = ""
-
-        for k, v in structured["finanzas"].items():
-            structured["finanzas"][k] = str(v) if v is not None else ""
-
-        return structured
+        return cleaned

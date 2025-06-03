@@ -1,0 +1,149 @@
+folio:
+- Folio
+- 'Folio:'
+fecha_solicitud.dia:
+- Día
+fecha_solicitud.mes:
+- Mes
+fecha_solicitud.año:
+- Año
+no_cliente:
+- No. de Cliente
+- No. de cliente
+- 'No. de Cliente:'
+sucursal:
+- Sucursal
+nombre_ejecutivo:
+- Nombre del Ejecutivo
+- Nombre del ejecutivo
+no_nomina:
+- No. de Nómina
+- No. de nómina
+zona_region:
+- Zona/Región
+- Zona/región
+monto_solicitado:
+- Monto Solicitado
+- Monto solicitado
+plazo_credito:
+- '12'
+- '18'
+- '24'
+- '36'
+cuenta_cliente:
+- Cuenta Cliente
+- Cuenta cliente
+nombre:
+- Nombre(s) (sin abreviaturas)
+apellido_paterno:
+- Apellido Paterno
+- Apellido paterno
+apellido_materno:
+- Apellido Materno
+- Apellido materno
+genero.femenino:
+- Femenino
+genero.masculino:
+- Masculino
+estado_civil:
+- Soltero (a)
+- Casado (a)
+- Unión Libre
+- Divorciado (a)
+- Viudo (a)
+regimen_matrimonial:
+- Sociedad Conyugal
+- Separación de Bienes
+rfc:
+- R.F.C. con homoclave
+- R.f.c. con homoclave
+curp:
+- CURP
+- Curp
+nacionalidad:
+- Nacionalidad
+pais_nacimiento:
+- País de Nacimiento
+- País
+entidad_nacimiento:
+- Entidad Federativa/Estado
+- Entidad federativa/estado
+grado_estudios:
+- Máximo grado de estudios
+tipo_identificacion:
+- Tipo de Identificación
+- Tipo de identificación
+numero_identificacion:
+- Número de Identificación
+domicilio.calle:
+- Domicilio (Calle y número exterior e interior)
+- Domicilio (calle y número exterior e interior)
+domicilio.colonia:
+- Colonia/Urbanización
+- Colonia/urbanización
+domicilio.municipio:
+- Delegación/Municipio/Demarcación política
+- Delegación/municipio/demarcación política
+domicilio.estado:
+- Entidad Federativa/Estado
+- Entidad federativa/estado
+domicilio.cp:
+- C.P
+- C.P.
+- Cp
+telefono_casa:
+- Teléfono de Casa
+- Teléfono de casa
+telefono_celular:
+- Teléfono celular
+otro_telefono:
+- Otro teléfono
+tiempo_residencia:
+- Años de Residencia
+- Años de residencia
+empresa:
+- Empresa donde trabaja
+domicilio_laboral:
+- Domicilio Laboral (Calle y número exterior e interior, Col., Ciudad, Edo. y C.P.)
+- Domicilio laboral (calle y número exterior e interior, col, ciudad, edo y cp)
+telefono_empresa:
+- Teléfono oficina
+giro_empresa:
+- Actividad 0 Giro del Negocio
+- Actividad 0 giro del negocio
+puesto:
+- Puesto que ocupa actualmente en la empresa
+nombre_jefe:
+- Nombre y puesto del jefe inmediato
+tipo_ingreso.asalariado:
+- Asalariado
+tipo_ingreso.honorarios:
+- Honorarios
+ingreso_mensual:
+- Sueldo mensual
+otros_ingresos.si:
+- Sí
+otros_ingresos.no:
+- 'No'
+origen_otros_ingresos:
+- Fuente de otros ingresos (Opcional)
+- Fuente de otros ingresos (opcional)
+gastos_mensuales:
+- Gastos mensuales
+tipo_propiedad:
+- Propia
+- Rentada
+- Hipotecada
+- De familiares
+referencia_1.nombre:
+- Nombre Referencia 1
+referencia_1.parentesco:
+- Parentesco Referencia 1
+referencia_1.telefono:
+- Teléfono Referencia 1
+referencia_2.nombre:
+- Nombre Referencia 2
+referencia_2.parentesco:
+- Parentesco Referencia 2
+referencia_2.telefono:
+- Teléfono Referencia 2
