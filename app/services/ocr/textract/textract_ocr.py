@@ -6,7 +6,7 @@ from fastapi import UploadFile
 from interfaces.ocr_service import OCRService
 from services.storage.s3_uploader import S3Uploader
 from services.ocr.form_identifier import FormIdentifier
-from services.ocr.textract_extractor import TextractKeyValueExtractor
+from services.ocr.textract.textract_extractor import TextractKeyValueExtractor
 
 class AWSTextractOCRService(OCRService):
     
@@ -61,6 +61,8 @@ class AWSTextractOCRService(OCRService):
         # Renombrar el archivo con tipo correcto y re-subirlo
         new_s3_key = f"uploads/{form_type}-{timestamp}-{base_name}"
         self.uploader.upload_file(contents, new_s3_key)
+        # Eliminar el archivo temporal
+        self.uploader.delete_file(s3_key)
 
         # USAMOS el extractor
         extractor = TextractKeyValueExtractor(blocks)

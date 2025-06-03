@@ -1,5 +1,5 @@
 # app/services/factory.py
-from app.services.ocr.textract.textract_ocr import AWSTextractOCRService
+from services.ocr.textract.textract_ocr import AWSTextractOCRService
 from interfaces.ocr_service import OCRService
 
 def get_ocr_service(service: str = "aws") -> OCRService:
