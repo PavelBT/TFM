@@ -8,18 +8,66 @@ class BanorteCreditoFormProcessor:
         self.mapper = AliasMapper("services/field_correctors/aliases/banorte_credito.yaml")
 
     def transform(self, fields: Dict[str, str]) -> Dict:
-        get = lambda k: self.mapper.get(fields, k)
+        get = lambda k: self.mapper.get(fields, k) or ""
+        get_checked = lambda keys: self.mapper.get_checked(fields, keys)
+
+        # Fecha de solicitud
+        fecha_solicitud = {
+            "dia": get("fecha_solicitud.dia"),
+            "mes": get("fecha_solicitud.mes"),
+            "año": get("fecha_solicitud.año")
+        }
+        if all(fecha_solicitud.values()):
+            fecha_solicitud_str = f"{fecha_solicitud['año']}-{fecha_solicitud['mes'].zfill(2)}-{fecha_solicitud['dia'].zfill(2)}"
+        else:
+            fecha_solicitud_str = ""
+
+        # Género
+        genero = ""
+        if get_checked(["genero.femenino"]) == "Sí":
+            genero = "F"
+        elif get_checked(["genero.masculino"]) == "Sí":
+            genero = "M"
+
+        # Estado civil
+        estado_civil = get_checked([
+            "estado_civil.soltero (a)", "estado_civil.casado (a)", "estado_civil.unión libre",
+            "estado_civil.divorciado (a)", "estado_civil.viudo (a)"
+        ]) or get_checked([
+            "soltero", "casado", "unión libre", "divorciado", "viudo"
+        ])
+
+        # Régimen matrimonial
+        regimen_matrimonial = get_checked([
+            "regimen_matrimonial.sociedad conyugal", "regimen_matrimonial.separación de bienes"
+        ]) or get_checked([
+            "sociedad conyugal", "separación de bienes"
+        ])
+
+        # Plazo crédito
+        plazo_credito = get_checked(["12", "18", "24", "36"])
+
+        # Tipo ingreso
+        tipo_ingreso = get_checked(["asalariado", "honorarios"])
+
+        # Tipo propiedad
+        tipo_propiedad = get_checked(["propia", "rentada", "hipotecada", "de familiares"])
+
+        # Otros ingresos
+        otros_ingresos = get_checked(["sí", "no"])
+
+        # Montos
+        def clean_monto(val):
+            if not val:
+                return ""
+            return val.replace("$", "").replace(",", "").replace(".", "")
 
         return {
             "tipo_formulario": "solicitud_credito_personal_banorte",
 
             "datos_control": {
                 "folio": get("folio"),
-                "fecha_solicitud": {
-                    "dia": get("dia"),
-                    "mes": get("mes"),
-                    "año": get("año")
-                },
+                "fecha_solicitud": fecha_solicitud_str,
                 "no_cliente": get("no_cliente"),
                 "sucursal": get("sucursal"),
                 "nombre_ejecutivo": get("nombre_ejecutivo"),
@@ -28,8 +76,8 @@ class BanorteCreditoFormProcessor:
             },
 
             "credito": {
-                "monto_solicitado": get("monto_solicitado").replace("$", "").replace(",", ""),
-                "plazo_credito": self.mapper.get_checked(fields, ["12", "18", "24", "36"]),
+                "monto_solicitado": clean_monto(get("monto_solicitado")),
+                "plazo_credito": plazo_credito,
                 "cuenta_cliente": get("cuenta_cliente")
             },
 
@@ -37,15 +85,15 @@ class BanorteCreditoFormProcessor:
                 "nombre": get("nombre").title(),
                 "apellido_paterno": get("apellido_paterno").title(),
                 "apellido_materno": get("apellido_materno").title(),
-                "genero": self.mapper.get_checked(fields, ["femenino", "masculino"]),
+                "genero": genero,
                 "fecha_nacimiento": {
                     "dia": get("nacimiento_dia"),
                     "mes": get("nacimiento_mes"),
                     "año": get("nacimiento_año")
                 },
                 "edad": get("edad"),
-                "estado_civil": self.mapper.get_checked(fields, ["soltero", "casado", "unión libre", "divorciado", "viudo"]),
-                "regimen_matrimonial": self.mapper.get_checked(fields, ["sociedad conyugal", "separación de bienes"]),
+                "estado_civil": estado_civil,
+                "regimen_matrimonial": regimen_matrimonial,
                 "rfc": get("rfc"),
                 "curp": get("curp"),
                 "nacionalidad": get("nacionalidad"),
@@ -55,11 +103,11 @@ class BanorteCreditoFormProcessor:
                 "tipo_identificacion": get("tipo_identificacion"),
                 "numero_identificacion": get("numero_identificacion"),
                 "domicilio": {
-                    "calle": get("domicilio_calle"),
-                    "colonia": get("domicilio_colonia"),
-                    "municipio": get("domicilio_municipio"),
-                    "estado": get("domicilio_estado"),
-                    "cp": get("domicilio_cp")
+                    "calle": get("domicilio.calle"),
+                    "colonia": get("domicilio.colonia"),
+                    "municipio": get("domicilio.municipio"),
+                    "estado": get("domicilio.estado"),
+                    "cp": get("domicilio.cp")
                 },
                 "telefono_casa": get("telefono_casa"),
                 "telefono_celular": get("telefono_celular"),
@@ -75,27 +123,27 @@ class BanorteCreditoFormProcessor:
                 "puesto": get("puesto"),
                 "nombre_jefe": get("nombre_jefe"),
                 "antiguedad_meses": get("antiguedad_meses"),
-                "tipo_ingreso": self.mapper.get_checked(fields, ["asalariado", "honorarios"])
+                "tipo_ingreso": tipo_ingreso
             },
 
             "finanzas": {
-                "ingreso_mensual": get("ingreso_mensual").replace("$", "").replace(",", ""),
-                "otros_ingresos": self.mapper.get_checked(fields, ["sí", "no"]),
+                "ingreso_mensual": clean_monto(get("ingreso_mensual")),
+                "otros_ingresos": otros_ingresos,
                 "origen_otros_ingresos": get("origen_otros_ingresos"),
                 "gastos_mensuales": get("gastos_mensuales"),
-                "tipo_propiedad": self.mapper.get_checked(fields, ["propia", "rentada", "hipotecada", "de familiares"])
+                "tipo_propiedad": tipo_propiedad
             },
 
             "referencias": {
                 "referencia_1": {
-                    "nombre": get("referencia1_nombre"),
-                    "parentesco": get("referencia1_parentesco"),
-                    "telefono": get("referencia1_telefono")
+                    "nombre": get("referencia_1.nombre"),
+                    "parentesco": get("referencia_1.parentesco"),
+                    "telefono": get("referencia_1.telefono")
                 },
                 "referencia_2": {
-                    "nombre": get("referencia2_nombre"),
-                    "parentesco": get("referencia2_parentesco"),
-                    "telefono": get("referencia2_telefono")
+                    "nombre": get("referencia_2.nombre"),
+                    "parentesco": get("referencia_2.parentesco"),
+                    "telefono": get("referencia_2.telefono")
                 }
             },
 

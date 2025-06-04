@@ -1,149 +1,320 @@
 folio:
-- Folio
-- 'Folio:'
+  - Folio
+  - 'Folio:'
+  - folio
+
 fecha_solicitud.dia:
-- Día
+  - Día
+  - Dia
+  - dia
+
 fecha_solicitud.mes:
-- Mes
+  - Mes
+  - mes
+
 fecha_solicitud.año:
-- Año
+  - Año
+  - Ano
+  - año
+  - ano
+
 no_cliente:
-- No. de Cliente
-- No. de cliente
-- 'No. de Cliente:'
+  - No. de Cliente
+  - No. de cliente
+  - 'No. de Cliente:'
+  - no de cliente
+  - no_cliente
+
 sucursal:
-- Sucursal
+  - Sucursal
+  - sucursal
+
 nombre_ejecutivo:
-- Nombre del Ejecutivo
-- Nombre del ejecutivo
+  - Nombre del Ejecutivo
+  - Nombre del ejecutivo
+  - nombre del ejecutivo
+  - nombre_ejecutivo
+
 no_nomina:
-- No. de Nómina
-- No. de nómina
+  - No. de Nómina
+  - No. de nómina
+  - no de nomina
+  - no_nomina
+
 zona_region:
-- Zona/Región
-- Zona/región
+  - Zona/Región
+  - Zona/región
+  - zona region
+  - zona_region
+
 monto_solicitado:
-- Monto Solicitado
-- Monto solicitado
+  - Monto Solicitado
+  - Monto solicitado
+  - monto solicitado
+  - monto_solicitado
+
 plazo_credito:
-- '12'
-- '18'
-- '24'
-- '36'
+  - '12'
+  - '18'
+  - '24'
+  - '36'
+  - plazo_credito
+
 cuenta_cliente:
-- Cuenta Cliente
-- Cuenta cliente
+  - Cuenta Cliente
+  - Cuenta cliente
+  - cuenta cliente
+  - cuenta_cliente
+
 nombre:
-- Nombre(s) (sin abreviaturas)
+  - Nombre(s) (sin abreviaturas)
+  - nombre
+
 apellido_paterno:
-- Apellido Paterno
-- Apellido paterno
+  - Apellido Paterno
+  - Apellido paterno
+  - apellido paterno
+  - apellido_paterno
+
 apellido_materno:
-- Apellido Materno
-- Apellido materno
+  - Apellido Materno
+  - Apellido materno
+  - apellido materno
+  - apellido_materno
+
 genero.femenino:
-- Femenino
+  - Femenino
+  - femenino
+
 genero.masculino:
-- Masculino
+  - Masculino
+  - masculino
+
 estado_civil:
-- Soltero (a)
-- Casado (a)
-- Unión Libre
-- Divorciado (a)
-- Viudo (a)
+  - Soltero (a)
+  - Casado (a)
+  - Unión Libre
+  - Divorciado (a)
+  - Viudo (a)
+  - soltero
+  - casado
+  - union libre
+  - divorciado
+  - viudo
+  - estado civil
+  - estado_civil
+
 regimen_matrimonial:
-- Sociedad Conyugal
-- Separación de Bienes
+  - Sociedad Conyugal
+  - Separación de Bienes
+  - sociedad conyugal
+  - separacion de bienes
+  - regimen matrimonial
+  - regimen_matrimonial
+
 rfc:
-- R.F.C. con homoclave
-- R.f.c. con homoclave
+  - R.F.C. con homoclave
+  - R.f.c. con homoclave
+  - rfc con homoclave
+  - rfc
+
 curp:
-- CURP
-- Curp
+  - CURP
+  - Curp
+  - curp
+
 nacionalidad:
-- Nacionalidad
+  - Nacionalidad
+  - nacionalidad
+
 pais_nacimiento:
-- País de Nacimiento
-- País
+  - País de Nacimiento
+  - País
+  - pais de nacimiento
+  - pais
+
 entidad_nacimiento:
-- Entidad Federativa/Estado
-- Entidad federativa/estado
+  - Entidad Federativa/Estado
+  - Entidad federativa/estado
+  - entidad federativa estado
+  - entidad_nacimiento
+
 grado_estudios:
-- Máximo grado de estudios
+  - Máximo grado de estudios
+  - maximo grado de estudios
+  - grado_estudios
+
 tipo_identificacion:
-- Tipo de Identificación
-- Tipo de identificación
+  - Tipo de Identificación
+  - Tipo de identificación
+  - tipo de identificacion
+  - tipo_identificacion
+
 numero_identificacion:
-- Número de Identificación
+  - Número de Identificación
+  - numero de identificacion
+  - numero_identificacion
+
 domicilio.calle:
-- Domicilio (Calle y número exterior e interior)
-- Domicilio (calle y número exterior e interior)
+  - Domicilio (Calle y número exterior e interior)
+  - Domicilio (calle y número exterior e interior)
+  - domicilio calle y numero exterior e interior
+  - domicilio.calle
+
 domicilio.colonia:
-- Colonia/Urbanización
-- Colonia/urbanización
+  - Colonia/Urbanización
+  - Colonia/urbanización
+  - coloniaurbanizacion
+  - colonia urbanizacion
+  - colonia_urbanizacion
+  - domicilio.colonia
+
 domicilio.municipio:
-- Delegación/Municipio/Demarcación política
-- Delegación/municipio/demarcación política
+  - Delegación/Municipio/Demarcación política
+  - Delegación/municipio/demarcación política
+  - delegacionmunicipiodemarcacion politica
+  - delegacion municipio demarcacion politica
+  - delegacion_municipio_demarcacion_politica
+  - domicilio.municipio
+
 domicilio.estado:
-- Entidad Federativa/Estado
-- Entidad federativa/estado
+  - Entidad Federativa/Estado
+  - Entidad federativa/estado
+  - entidad federativa estado
+  - domicilio.estado
+
 domicilio.cp:
-- C.P
-- C.P.
-- Cp
+  - C.P
+  - C.P.
+  - Cp
+  - cp
+  - domicilio.cp
+
 telefono_casa:
-- Teléfono de Casa
-- Teléfono de casa
+  - Teléfono de Casa
+  - Teléfono de casa
+  - telefono de casa
+  - telefono_casa
+
 telefono_celular:
-- Teléfono celular
+  - Teléfono celular
+  - telefono celular
+  - telefono_celular
+
 otro_telefono:
-- Otro teléfono
+  - Otro teléfono
+  - otro telefono
+  - otro_telefono
+
 tiempo_residencia:
-- Años de Residencia
-- Años de residencia
+  - Años de Residencia
+  - Años de residencia
+  - anos de residencia
+  - tiempo_residencia
+
 empresa:
-- Empresa donde trabaja
+  - Empresa donde trabaja
+  - empresa donde trabaja
+  - empresa
+
 domicilio_laboral:
-- Domicilio Laboral (Calle y número exterior e interior, Col., Ciudad, Edo. y C.P.)
-- Domicilio laboral (calle y número exterior e interior, col, ciudad, edo y cp)
+  - Domicilio Laboral (Calle y número exterior e interior, Col., Ciudad, Edo. y C.P.)
+  - Domicilio laboral (calle y número exterior e interior, col, ciudad, edo y cp)
+  - domicilio laboral
+  - domicilio_laboral
+
 telefono_empresa:
-- Teléfono oficina
+  - Teléfono oficina
+  - telefono oficina
+  - telefono_empresa
+
 giro_empresa:
-- Actividad 0 Giro del Negocio
-- Actividad 0 giro del negocio
+  - Actividad 0 Giro del Negocio
+  - Actividad 0 giro del negocio
+  - giro empresa
+  - giro_empresa
+
 puesto:
-- Puesto que ocupa actualmente en la empresa
+  - Puesto que ocupa actualmente en la empresa
+  - puesto que ocupa actualmente en la empresa
+  - puesto
+
 nombre_jefe:
-- Nombre y puesto del jefe inmediato
+  - Nombre y puesto del jefe inmediato
+  - nombre y puesto del jefe inmediato
+  - nombre_jefe
+
 tipo_ingreso.asalariado:
-- Asalariado
+  - Asalariado
+  - asalariado
+
 tipo_ingreso.honorarios:
-- Honorarios
+  - Honorarios
+  - honorarios
+
 ingreso_mensual:
-- Sueldo mensual
+  - Sueldo mensual
+  - sueldo mensual
+  - ingreso_mensual
+
 otros_ingresos.si:
-- Sí
+  - Sí
+  - si
+  - otros_ingresos.si
+
 otros_ingresos.no:
-- 'No'
+  - 'No'
+  - no
+  - otros_ingresos.no
+
 origen_otros_ingresos:
-- Fuente de otros ingresos (Opcional)
-- Fuente de otros ingresos (opcional)
+  - Fuente de otros ingresos (Opcional)
+  - Fuente de otros ingresos (opcional)
+  - fuente de otros ingresos
+  - origen_otros_ingresos
+
 gastos_mensuales:
-- Gastos mensuales
+  - Gastos mensuales
+  - gastos mensuales
+  - gastos_mensuales
+
 tipo_propiedad:
-- Propia
-- Rentada
-- Hipotecada
-- De familiares
+  - Propia
+  - Rentada
+  - Hipotecada
+  - De familiares
+  - propia
+  - rentada
+  - hipotecada
+  - de familiares
+  - tipo_propiedad
+
 referencia_1.nombre:
-- Nombre Referencia 1
+  - Nombre Referencia 1
+  - nombre referencia 1
+  - referencia_1.nombre
+
 referencia_1.parentesco:
-- Parentesco Referencia 1
+  - Parentesco Referencia 1
+  - parentesco referencia 1
+  - referencia_1.parentesco
+
 referencia_1.telefono:
-- Teléfono Referencia 1
+  - Teléfono Referencia 1
+  - telefono referencia 1
+  - referencia_1.telefono
+
 referencia_2.nombre:
-- Nombre Referencia 2
+  - Nombre Referencia 2
+  - nombre referencia 2
+  - referencia_2.nombre
+
 referencia_2.parentesco:
-- Parentesco Referencia 2
+  - Parentesco Referencia 2
+  - parentesco referencia 2
+  - referencia_2.parentesco
+
 referencia_2.telefono:
-- Teléfono Referencia 2
+  - Teléfono Referencia 2
+  - telefono referencia 2
+  - referencia_2.telefono
