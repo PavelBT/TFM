@@ -1,4 +1,5 @@
-# app/services/ai_refiners/huggingface_refiner.py
+"""HuggingFace based refiner used for grammar correction."""
+
 import logging
 logging.basicConfig(level=logging.INFO)
 

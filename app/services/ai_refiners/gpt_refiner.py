@@ -1,3 +1,5 @@
+"""GPT-based field refiner used to polish OCR results."""
+
 import openai
 import json
 import logging
