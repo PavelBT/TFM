@@ -3,9 +3,11 @@ from fastapi import APIRouter, UploadFile, File, HTTPException
 from services.ocr.factory import get_ocr_service
 from models.data_response import DataResponse
 from services.postprocessors.postprocessor import StructuredPostProcessor
+import os
 
-service_name = "aws"  # "aws"
-refiener_type = "gpt"  # "gpt", "huggingface" or None
+# Leer configuraciones de variables de entorno con valores por defecto
+service_name = os.getenv("OCR_SERVICE", "aws")
+refiner_type = os.getenv("REFINER_TYPE", "gpt")
 
 router = APIRouter()
 
@@ -22,7 +24,7 @@ async def analyze_document(file: UploadFile = File(...)):
     if "fields" not in data:
         raise HTTPException(status_code=500, detail="No fields extracted from the document.")
     else:
-         # postprocesamiento de los campos extraídos
-        processor = StructuredPostProcessor(data= data, refiner_type=refiener_type)
+        # postprocesamiento de los campos extraídos
+        processor = StructuredPostProcessor(data=data, refiner_type=refiner_type)
         processed_fields = processor.process()
         return processed_fields

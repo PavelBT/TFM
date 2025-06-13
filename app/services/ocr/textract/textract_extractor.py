@@ -14,13 +14,20 @@ class TextractFullExtractor:
         self.selection_elements = [block for block in blocks if block["BlockType"] == "SELECTION_ELEMENT"]
 
     def extract(self) -> Dict[str, str]:
-        # 1. Extraer pares clave-valor usando los mapas
+        """Extrae y normaliza los campos detectados por Textract."""
+        self._extract_kv_pairs()
+        self._add_inline_pairs()
+        self._extract_consecutive_fields()
+        self._extract_checkboxes()
+        return self.field_dict
+
+    def _extract_kv_pairs(self):
         kv_map = self._get_final_kv_map(self.key_map, self.value_map)
         for key, value in kv_map.items():
             key_norm = self._normalize_key(key)
             self.field_dict[key_norm] = value if value else "VALUE_NOT_FOUND"
 
-        # 2. Agregar líneas sueltas tipo "clave: valor"
+    def _add_inline_pairs(self):
         for block in self.lines:
             text = block.get("Text", "")
             if ":" in text:
@@ -28,14 +35,6 @@ class TextractFullExtractor:
                 key_norm = self._normalize_key(key)
                 if key and key_norm not in self.field_dict:
                     self.field_dict[key_norm] = value
-
-        # 3. Agrupar líneas consecutivas campo-valor
-        self._extract_consecutive_fields()
-
-        # 4. Detectar checkboxes en campos conocidos
-        self._extract_checkboxes()
-
-        return self.field_dict
 
     def _build_word_map(self) -> Dict[str, str]:
         word_map = {}
