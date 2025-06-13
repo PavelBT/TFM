@@ -1,4 +1,4 @@
-# app/postprocessing/interfaces/postprocessor.py
+# app/interfaces/postprocessor.py
 
 from abc import ABC, abstractmethod
 from typing import Dict

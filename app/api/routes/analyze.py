@@ -5,7 +5,7 @@ from models.ocr_response import OCRResponse
 from services.postprocessor import StructuredPostProcessor
 
 service_name = "aws"  # "aws"
-refiener_type = "gpt"  # "gpt", "huggingface" or None
+refiner_type = "gpt"  # "gpt", "huggingface" or None
 
 router = APIRouter()
 
@@ -16,10 +16,10 @@ async def analyze_document(file: UploadFile = File(...)):
     
     service = get_ocr_service(service_name)
     raw_fields = await service.analyze(file)
-    if refiener_type is None:
+    if refiner_type is None:
         return {"fields": raw_fields}
     else:
-        processor = StructuredPostProcessor(refiner_type = "gpt")
+        processor = StructuredPostProcessor(refiner_type=refiner_type)
         processed_fields = processor.process(raw_fields["fields"])
 
         return {"fields": processed_fields}
