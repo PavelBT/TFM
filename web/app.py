@@ -1,13 +1,21 @@
 # web/app.py
 from flask import Flask, render_template, request
+import logging
 import requests
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+)
+
+logger = logging.getLogger(__name__)
+
 app = Flask(__name__, template_folder="templates")
-print("Starting Flask app...")
+logger.info("Starting Flask app...")
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    print("Received request:", request.method)
+    logger.info("Received request: %s", request.method)
     # Si es una solicitud POST, procesar el archivo
     if request.method == "POST":
         file = request.files["document"]
@@ -17,10 +25,10 @@ def index():
                 data = response.json()
                 return render_template("index.html", fields=data.get("fields", {}))
             else:
-                print("Error en la API:", response.status_code, response.text)
+                logger.error("Error en la API: %s %s", response.status_code, response.text)
                 return render_template("index.html", fields={}, error="Error al procesar el documento.")
 
-    print("Rendering index.html")
+    logger.info("Rendering index.html")
     # Si es una solicitud GET, renderizar el formulario
     return render_template("index.html", fields={})
 
