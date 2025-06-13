@@ -1,4 +1,4 @@
-# Ruta: services/field_correctors/generic_cleaner.py
+# services/field_correctors/generic_cleaner.py
 
 import logging
 from typing import Dict, Optional
@@ -17,6 +17,10 @@ class GenericFieldCleaner(FieldCorrector):
 
     def correct(self, key: str, value: str) -> Optional[str]:
         try:
+            # Eliminar basura común que no debería ser procesada
+            if isinstance(value, str) and value.strip().lower() in ["--", "valor:", "n/a", "na", "none", "", "null"]:
+                return None
+
             return self.basic.correct(key, value)
         except Exception as e:
             logging.warning(f"[GenericCleaner] Error al corregir campo '{key}' (valor: '{value}'): {e}")

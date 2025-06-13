@@ -8,3 +8,4 @@ __pycache__/
 *.bin
 *.h5
 *.ckpt
+app/*test.py
