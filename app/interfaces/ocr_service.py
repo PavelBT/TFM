@@ -1,4 +1,6 @@
 # app/interfaces/ocr_service.py
+"""Base interface for OCR implementations."""
+
 from abc import ABC, abstractmethod
 from typing import Dict
 from fastapi import UploadFile

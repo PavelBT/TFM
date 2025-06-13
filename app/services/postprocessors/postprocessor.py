@@ -1,3 +1,5 @@
+"""Helpers to post-process OCR results into structured data."""
+
 import logging
 from models.data_response import DataResponse
 from interfaces.postprocessor import PostProcessor
