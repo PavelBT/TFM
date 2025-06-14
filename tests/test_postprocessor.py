@@ -4,6 +4,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app"))
 
 from services.postprocessors.generic_postprocessor import GenericPostProcessor
+from services.postprocessors.form_postprocessor.banorte_credito import BanorteCreditoPostProcessor
 
 
 def test_generic_postprocessor():
@@ -21,3 +22,26 @@ def test_generic_postprocessor():
     assert result["apellido_paterno"] == "Perez"
     assert "casado" in result["checklist"]
     assert "12" in result["checklist"]
+
+def test_banorte_postprocessor_checklist():
+    processor = BanorteCreditoPostProcessor()
+    raw = {
+        "12": "[X]",
+        "24": "[X]",
+        "48": "[X]",
+        "Femenino": "[X]",
+        "Soltero": "[X]",
+        "Propia": "[X]",
+        "Asalariado": "[X]",
+        "No": "[X]",
+    }
+    result = processor.process(raw)
+    assert result["checklist"] == {
+        "plazo_de_credito": "48",
+        "genero": "femenino",
+        "estado_civil": "soltero",
+        "vivienda": "propia",
+        "tipo_de_empleo": "asalariado",
+        "politicamente_expuesto": "no",
+    }
+
