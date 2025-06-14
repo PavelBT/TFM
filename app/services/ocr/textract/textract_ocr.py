@@ -5,23 +5,21 @@ job. When the job finishes the detected blocks are post processed to extract
 key/value pairs. Using :mod:`aioboto3` prevents blocking the event loop while we
 wait for the Textract job to complete.
 """
-
-import asyncio
-import time
+# app/services/aws_textract.py
 import magic
+import time
 from models.data_response import DataResponse
 from fastapi import UploadFile
 from interfaces.ocr_service import OCRService
 from services.storage.s3_uploader import S3Uploader
 from services.ocr.form_identifier import FormIdentifier
 from services.ocr.textract.textract_extractor import TextractFullExtractor
-import aioboto3
 
 class AWSTextractOCRService(OCRService):
-    """Service that orchestrates OCR extraction using AWS Textract."""
-
-    def __init__(self, region_name: str = "us-east-2", bucket_name: str = "ocr-bucket-pbt-devop"):
-        self.region = region_name
+    
+    def __init__(self, region_name="us-east-2", bucket_name="ocr-bucket-pbt-devop"):
+        import boto3
+        self.client = boto3.client("textract", region_name=region_name)
         self.bucket = bucket_name
         self.uploader = S3Uploader(bucket_name, region_name)
 
@@ -38,33 +36,31 @@ class AWSTextractOCRService(OCRService):
         # Subir archivo a S3
         self.uploader.upload_file(contents, s3_key)
 
-        async with aioboto3.client("textract", region_name=self.region) as client:
-            if is_pdf:
-                start_response = await client.start_document_analysis(
-                    DocumentLocation={"S3Object": {"Bucket": self.bucket, "Name": s3_key}},
-                    FeatureTypes=["FORMS"]
-                )
-                job_id = start_response["JobId"]
+        if is_pdf:
+            start_response = self.client.start_document_analysis(
+                DocumentLocation={"S3Object": {"Bucket": self.bucket, "Name": s3_key}},
+                FeatureTypes=["FORMS"]
+            )
+            job_id = start_response["JobId"]
 
-                status = "IN_PROGRESS"
-                tries = 0
-                result = None
-                while status == "IN_PROGRESS" and tries < 20:
-                    await asyncio.sleep(3)
-                    result = await client.get_document_analysis(JobId=job_id)
-                    status = result["JobStatus"]
-                    tries += 1
+            status = "IN_PROGRESS"
+            tries = 0
+            while status == "IN_PROGRESS" and tries < 20:
+                time.sleep(3)
+                result = self.client.get_document_analysis(JobId=job_id)
+                status = result["JobStatus"]
+                tries += 1
 
-                if status != "SUCCEEDED":
-                    raise RuntimeError(f"Textract job failed with status: {status}")
+            if status != "SUCCEEDED":
+                raise RuntimeError(f"Textract job failed with status: {status}")
 
-                blocks = result.get("Blocks", []) if result else []
-            else:
-                result = await client.analyze_document(
-                    Document={"Bytes": contents},
-                    FeatureTypes=["FORMS"]
-                )
-                blocks = result.get("Blocks", [])
+            blocks = result.get("Blocks", [])
+        else:
+            result = self.client.analyze_document(
+                Document={"Bytes": contents},
+                FeatureTypes=["FORMS"]
+            )
+            blocks = result.get("Blocks", [])
 
         # Detectar tipo de formulario
         form_type = FormIdentifier.identify_form(blocks) or "desconocido"

@@ -1,7 +1,6 @@
 fastapi
 uvicorn
 boto3
-aioboto3
 flask
 requests
 pydantic
