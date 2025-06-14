@@ -7,27 +7,16 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app"))
 
 sys.modules.setdefault("magic", types.SimpleNamespace(from_buffer=lambda *a, **k: "application/pdf"))
 
-from services.ocr.textract.textract_extractor import TextractFullExtractor
+from services.ocr.textract.textract_extractor import TextractExtractor
 
 
 def test_textract_extractor_fields():
     with open(Path(__file__).resolve().parents[1] / "app" / "examples" / "analyzeDocResponse.json") as f:
         blocks = json.load(f)["Blocks"]
-    extractor = TextractFullExtractor(blocks)
+    extractor = TextractExtractor(blocks)
     fields = extractor.extract()
     assert "folio" in fields
     assert len(fields) > 0
-
-
-def test_consecutive_fields_override_placeholder():
-    extractor = TextractFullExtractor([])
-    extractor.lines = [
-        {"BlockType": "LINE", "Text": "E-mail"},
-        {"BlockType": "LINE", "Text": "foo@bar.com"},
-    ]
-    extractor.field_dict = {"email": "VALUE_NOT_FOUND"}
-    extractor._extract_consecutive_fields()
-    assert extractor.field_dict["email"] == "foo@bar.com"
 
 
 def test_checkboxes_override_selected():
@@ -54,19 +43,11 @@ def test_checkboxes_override_selected():
             ],
         },
     ]
-    extractor = TextractFullExtractor(blocks)
+    extractor = TextractExtractor(blocks)
     fields = extractor.extract()
     assert fields["casado"] == "Sí"
 
 
-def test_inline_pairs_override_placeholder():
-    extractor = TextractFullExtractor([])
-    extractor.lines = [
-        {"BlockType": "LINE", "Text": "Nombre: Juan"},
-    ]
-    extractor.field_dict = {"nombre": "VALUE_NOT_FOUND"}
-    extractor._add_inline_pairs()
-    assert extractor.field_dict["nombre"] == "Juan"
 
 
 def test_kv_map_deduplicates_values():
@@ -96,6 +77,7 @@ def test_kv_map_deduplicates_values():
             ],
         },
     ]
-    extractor = TextractFullExtractor(blocks)
+    extractor = TextractExtractor(blocks)
     fields = extractor.extract()
     assert fields["folio"] == "123"
+

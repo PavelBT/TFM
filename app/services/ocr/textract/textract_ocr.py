@@ -15,7 +15,7 @@ from fastapi import UploadFile
 from interfaces.ocr_service import OCRService
 from services.storage.s3_uploader import S3Uploader
 from services.ocr.form_identifier import FormIdentifier
-from services.ocr.textract.textract_extractor import TextractFullExtractor
+from services.ocr.textract.textract_extractor import TextractExtractor
 
 class AWSTextractOCRService(OCRService):
     
@@ -98,7 +98,7 @@ class AWSTextractOCRService(OCRService):
         await run_in_threadpool(self.uploader.delete_file, s3_key)
 
         # USAMOS el extractor
-        extractor = TextractFullExtractor(blocks)
+        extractor = TextractExtractor(blocks)
         fields = extractor.extract()
 
         return {
