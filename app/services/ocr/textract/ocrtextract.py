@@ -22,14 +22,21 @@ class OcrTextract:
         if not blocks:
             raise RuntimeError("Textract returned no blocks")
 
+        print("blocks:", blocks)
+
         form_type = FormIdentifier.identify_form(blocks) or "desconocido"
 
         parser = TextractBlockParser(blocks, track_sources=self.track_sources)
         fields = parser.extract()
+        print("fields:", fields)
+
         sources = parser.get_sources() if self.track_sources else None
+        print("sources:", sources)
 
         layout_parser = TextractLayoutParser(blocks)
         sections = layout_parser.parse()
+        print("sections:", sections)
+
         if sections:
             fields.update(sections)
 
@@ -38,7 +45,8 @@ class OcrTextract:
             extra = banorte_parser.parse()
             if extra:
                 fields.update(extra)
-
+                
+        print("BanorteLayoutParser fields:", fields)
         data = {
             "form_type": form_type,
             "file_name": ocr_result.get("s3_path"),
