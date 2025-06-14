@@ -1,7 +1,7 @@
 # ai_models/app/main.py
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
-from app.model_service import GrammarCorrector
+from .model_service import GrammarCorrector
 
 app = FastAPI()
 model = GrammarCorrector()
@@ -11,5 +11,5 @@ class TextIn(BaseModel):
 
 @app.post("/correct")
 def correct_text(data: TextIn):
-    result = model.correct_text(data.text)
+    result = model.correct(data.text)
     return {"corrected": result}

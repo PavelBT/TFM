@@ -48,9 +48,12 @@ class AWSTextractOCRService(OCRService):
 
             status = "IN_PROGRESS"
             tries = 0
+            result = {}
             while status == "IN_PROGRESS" and tries < 20:
                 await asyncio.sleep(3)
-                result = await run_in_threadpool(self.client.get_document_analysis, JobId=job_id)
+                result = await run_in_threadpool(
+                    self.client.get_document_analysis, JobId=job_id
+                )
                 status = result["JobStatus"]
                 tries += 1
 
@@ -58,6 +61,15 @@ class AWSTextractOCRService(OCRService):
                 raise RuntimeError(f"Textract job failed with status: {status}")
 
             blocks = result.get("Blocks", [])
+            next_token = result.get("NextToken")
+            while next_token:
+                result = await run_in_threadpool(
+                    self.client.get_document_analysis,
+                    JobId=job_id,
+                    NextToken=next_token,
+                )
+                blocks.extend(result.get("Blocks", []))
+                next_token = result.get("NextToken")
         else:
             result = await run_in_threadpool(
                 self.client.analyze_document,
@@ -65,6 +77,16 @@ class AWSTextractOCRService(OCRService):
                 FeatureTypes=["FORMS"]
             )
             blocks = result.get("Blocks", [])
+            next_token = result.get("NextToken")
+            while next_token:
+                result = await run_in_threadpool(
+                    self.client.analyze_document,
+                    Document={"Bytes": contents},
+                    FeatureTypes=["FORMS"],
+                    NextToken=next_token,
+                )
+                blocks.extend(result.get("Blocks", []))
+                next_token = result.get("NextToken")
 
         # Detectar tipo de formulario
         form_type = FormIdentifier.identify_form(blocks) or "desconocido"

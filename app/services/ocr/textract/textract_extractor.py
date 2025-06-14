@@ -1,9 +1,10 @@
 from typing import Dict, List
 import uuid
 from services.utils.normalization import normalize_key
+from pathlib import Path
 
 class TextractFullExtractor:
-    def __init__(self, blocks: List[Dict]):
+    def __init__(self, blocks: List[Dict], alias_file: str = None):
         self.blocks = blocks
         self.block_map = {block["Id"]: block for block in blocks if "Id" in block}
         self.word_map = self._build_word_map()
@@ -11,6 +12,12 @@ class TextractFullExtractor:
         self.field_dict = {}
         self.lines = [block for block in blocks if block["BlockType"] == "LINE"]
         self.selection_elements = [block for block in blocks if block["BlockType"] == "SELECTION_ELEMENT"]
+        self.alias_mapper = None
+        if alias_file is None:
+            alias_file = str(Path(__file__).resolve().parent / "aliases" / "consecutive_aliases.yaml")
+        if alias_file:
+            from services.field_correctors.alias_mapper import AliasMapper
+            self.alias_mapper = AliasMapper(alias_file)
 
     def extract(self) -> Dict[str, str]:
         """Extrae y normaliza los campos detectados por Textract."""
@@ -101,20 +108,82 @@ class TextractFullExtractor:
             "entidad federativa/estado", "pais", "cp", "anos de residencia"
         ]
         campos_norm = [normalize_key(c) for c in campos]
+        alias_map = {}
+        if self.alias_mapper:
+            alias_map = {
+                normalize_key(base): [normalize_key(a) for a in aliases]
+                for base, aliases in self.alias_mapper.aliases.items()
+            }
 
         i = 0
         while i < len(self.lines) - 1:
-            key = normalize_key(self.lines[i].get("Text", ""))
-            value = self.lines[i+1].get("Text", "")
-            if key in campos_norm and normalize_key(value) not in campos_norm:
-                if key not in self.field_dict:
-                    self.field_dict[key] = value
-                i += 2
+            key_raw = self.lines[i].get("Text", "")
+            key = normalize_key(key_raw)
+            campo = None
+            if key in campos_norm:
+                campo = key
+            else:
+                for base, aliases in alias_map.items():
+                    if base in campos_norm and key in aliases:
+                        campo = base
+                        break
+            if campo:
+                for offset in range(1, 3):
+                    if i + offset >= len(self.lines):
+                        break
+                    value = self.lines[i + offset].get("Text", "")
+                    if normalize_key(value) in campos_norm:
+                        continue
+                    if campo not in self.field_dict:
+                        self.field_dict[campo] = value
+                    i += offset + 1
+                    break
+                else:
+                    i += 1
             else:
                 i += 1
 
     def _extract_checkboxes(self):
-        selected_ids = {block["Id"] for block in self.selection_elements if block.get("SelectionStatus") == "SELECTED"}
+        selected_ids = {
+            block["Id"]
+            for block in self.selection_elements
+            if block.get("SelectionStatus") == "SELECTED"
+        }
+
+        # Primero usar relaciones VALUE de Textract
+        for block in self.blocks:
+            if (
+                block["BlockType"] == "KEY_VALUE_SET"
+                and "KEY" in block.get("EntityTypes", [])
+            ):
+                key_text = self._get_text(block)
+                value_ids = []
+                for rel in block.get("Relationships", []):
+                    if rel["Type"] == "VALUE":
+                        value_ids.extend(rel["Ids"])
+                if not key_text or not value_ids:
+                    continue
+                selected = False
+                for val_id in value_ids:
+                    val_block = self.block_map.get(val_id)
+                    if not val_block:
+                        continue
+                    for rel in val_block.get("Relationships", []):
+                        if rel["Type"] == "CHILD":
+                            for child_id in rel["Ids"]:
+                                if child_id in selected_ids:
+                                    selected = True
+                                    break
+                        if selected:
+                            break
+                    if selected:
+                        break
+                if selected:
+                    campo = normalize_key(key_text)
+                    if campo not in self.field_dict:
+                        self.field_dict[campo] = "Sí"
+
+        # Fallback: línea previa al checkbox
         for line in self.lines:
             rels = line.get("Relationships", [])
             for rel in rels:
@@ -124,7 +193,9 @@ class TextractFullExtractor:
                             text = line.get("Text", "")
                             idx = self.lines.index(line)
                             if idx > 0:
-                                campo = normalize_key(self.lines[idx-1].get("Text", ""))
+                                campo = normalize_key(
+                                    self.lines[idx - 1].get("Text", "")
+                                )
                                 if campo and campo not in self.field_dict:
                                     self.field_dict[campo] = text
 
