@@ -16,6 +16,7 @@ class AliasMapper:
 
     def get_checked(self, fields: Dict[str, str], options: List[str]) -> str:
         for option in options:
-            if self.get(fields, option).lower() == "[x]":
+            value = self.get(fields, option).lower()
+            if value in {"[x]", "x", "si", "sí"}:
                 return option
         return ""

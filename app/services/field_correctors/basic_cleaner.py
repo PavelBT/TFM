@@ -1,9 +1,9 @@
 # services/field_correctors/basic_cleaner.py
 
 import re
-import unicodedata
 from typing import Optional
 from interfaces.field_corrector import FieldCorrector
+from services.utils.normalization import normalize_key
 
 class BasicFieldCorrector(FieldCorrector):
     def correct(self, key: str, value: str) -> Optional[str]:
@@ -11,7 +11,7 @@ class BasicFieldCorrector(FieldCorrector):
         if not value or value.lower() in ["$", "0", "00", "000", "n/a", "na", "none", "--"]:
             return None
 
-        key_norm = self._normalize_key(key)
+        key_norm = normalize_key(key)
 
         # Corrección de emails
         if "correo" in key_norm or "email" in key_norm:
@@ -68,12 +68,6 @@ class BasicFieldCorrector(FieldCorrector):
         value = value.strip().replace(" .", ".").replace("..", ".")
         return value if value else None
 
-    def _normalize_key(self, key: str) -> str:
-        key = unicodedata.normalize('NFKD', key).encode('ascii', 'ignore').decode('ascii')
-        key = key.lower()
-        key = re.sub(r'[^a-z0-9 ]', '', key)
-        key = key.strip()
-        return key
 
     def _clean_name(self, value: str) -> str:
         value = value.title()

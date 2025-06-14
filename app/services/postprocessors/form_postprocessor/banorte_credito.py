@@ -13,10 +13,5 @@ class BanorteCreditoPostProcessor:
     def process(self, raw_fields: dict) -> dict:
         # 1. Limpieza genérica sin estructurar
         cleaned = self.cleaner.transform(raw_fields)
-        # print("Generica_cleaned", cleaned)
-
-        # # 2. Organización específica del formulario
-        # structured = self.form_processor.transform(cleaned)
-        # print("structured_cleaner_alias", structured)
-
-        return cleaned
+        structured = self.form_processor.transform(cleaned)
+        return structured
