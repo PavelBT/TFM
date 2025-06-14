@@ -106,38 +106,39 @@ class TextractFullExtractor:
 
 
     def _extract_consecutive_fields(self):
-        campos = [
-            "nombre(s) (sin abreviaturas)", "apellido paterno", "apellido materno",
-            "fecha de nacimiento", "pais de nacimiento", "nacionalidad", "genero",
-            "telefono de casa", "telefono celular", "e-mail", "tipo de identificacion",
-            "folio", "estado civil", "regimen matrimonial", "domicilio (calle y numero exterior e interior)",
-            "colonia/urbanizacion", "delegacion/municipio/demarcacion politica", "ciudad/poblacion",
-            "entidad federativa/estado", "pais", "cp", "anos de residencia"
-        ]
-        campos_norm = [normalize_key(c) for c in campos]
+        """Attempt to infer key/value pairs from consecutive lines.
+
+        This is a heuristic method used when a field label is on one line and
+        its value appears on the following line without any delimiter.  It does
+        not rely on any predefined list of field names so it can work with
+        arbitrary forms.
+        """
+
         i = 0
         while i < len(self.lines) - 1:
-            key_raw = self.lines[i].get("Text", "")
+            key_raw = self.lines[i].get("Text", "").strip()
+            value_raw = self.lines[i + 1].get("Text", "").strip()
+
+            # Ignore obvious non-field patterns
+            if not key_raw or ":" in key_raw:
+                i += 1
+                continue
+            if not value_raw or ":" in value_raw:
+                i += 1
+                continue
+
             key = normalize_key(key_raw)
-            campo = None
-            if key in campos_norm:
-                campo = key
-            if campo:
-                for offset in range(1, 3):
-                    if i + offset >= len(self.lines):
-                        break
-                    value = self.lines[i + offset].get("Text", "")
-                    if normalize_key(value) in campos_norm:
-                        continue
-                    if (
-                        campo not in self.field_dict
-                        or self.field_dict.get(campo) == "VALUE_NOT_FOUND"
-                    ):
-                        self.field_dict[campo] = value
-                    i += offset + 1
-                    break
-                else:
-                    i += 1
+
+            if not key:
+                i += 1
+                continue
+
+            if (
+                key not in self.field_dict
+                or self.field_dict.get(key) == "VALUE_NOT_FOUND"
+            ):
+                self.field_dict[key] = value_raw
+                i += 2
             else:
                 i += 1
 
