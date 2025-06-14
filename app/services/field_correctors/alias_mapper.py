@@ -8,8 +8,13 @@ class AliasMapper:
     def __init__(self, alias_file: str):
         with open(alias_file, encoding="utf-8") as f:
             raw = yaml.safe_load(f) or {}
+
+        # ``yaml.safe_load`` may interpret unquoted values such as ``no`` or
+        # ``yes`` as booleans. ``normalize_key`` expects strings, so convert all
+        # keys and values to ``str`` before normalisation to avoid ``TypeError``.
         self.aliases = {
-            normalize_key(k): [normalize_key(a) for a in v]
+            normalize_key(str(k)):
+            [normalize_key(str(a)) for a in (v or [])]
             for k, v in raw.items()
         }
 
