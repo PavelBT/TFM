@@ -21,6 +21,9 @@ class BasicFieldCorrector(FieldCorrector):
             return None
 
         key_norm = normalize_key(key)
+        if len(key_norm) > 30 or len(key_norm.split('_')) > 5:
+            self.discarded_count += 1
+            return None
 
         # Corrección de emails
         if "correo" in key_norm or "email" in key_norm:
@@ -59,8 +62,12 @@ class BasicFieldCorrector(FieldCorrector):
 
         # Montos o ingresos
         elif "monto" in key_norm or "sueldo" in key_norm or "ingreso" in key_norm:
-            value = re.sub(r"[^\d]", "", value)
-            if not value:
+            # Remover símbolo de moneda y separadores de miles pero conservar los decimales
+            value = value.replace("$", "").replace(",", "").strip()
+            if not re.search(r"\d", value):
+                self.discarded_count += 1
+                return None
+            if not re.fullmatch(r"\d+(\.\d+)?", value):
                 self.discarded_count += 1
                 return None
 
