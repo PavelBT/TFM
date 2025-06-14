@@ -20,7 +20,7 @@ def test_textract_extractor_fields():
 
 
 def test_consecutive_fields_override_placeholder():
-    extractor = TextractFullExtractor([], alias_file="")
+    extractor = TextractFullExtractor([])
     extractor.lines = [
         {"BlockType": "LINE", "Text": "E-mail"},
         {"BlockType": "LINE", "Text": "foo@bar.com"},
@@ -54,6 +54,6 @@ def test_checkboxes_override_selected():
             ],
         },
     ]
-    extractor = TextractFullExtractor(blocks, alias_file="")
+    extractor = TextractFullExtractor(blocks)
     fields = extractor.extract()
     assert fields["casado"] == "Sí"

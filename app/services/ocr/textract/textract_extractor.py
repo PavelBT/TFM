@@ -1,10 +1,10 @@
 from typing import Dict, List
 import uuid
 from services.utils.normalization import normalize_key
-from pathlib import Path
+
 
 class TextractFullExtractor:
-    def __init__(self, blocks: List[Dict], alias_file: str = None):
+    def __init__(self, blocks: List[Dict]):
         self.blocks = blocks
         self.block_map = {block["Id"]: block for block in blocks if "Id" in block}
         self.word_map = self._build_word_map()
@@ -12,12 +12,6 @@ class TextractFullExtractor:
         self.field_dict = {}
         self.lines = [block for block in blocks if block["BlockType"] == "LINE"]
         self.selection_elements = [block for block in blocks if block["BlockType"] == "SELECTION_ELEMENT"]
-        self.alias_mapper = None
-        if alias_file is None:
-            alias_file = str(Path(__file__).resolve().parent / "aliases" / "consecutive_aliases.yaml")
-        if alias_file:
-            from services.field_correctors.alias_mapper import AliasMapper
-            self.alias_mapper = AliasMapper(alias_file)
 
     def extract(self) -> Dict[str, str]:
         """Extrae y normaliza los campos detectados por Textract."""
@@ -121,13 +115,6 @@ class TextractFullExtractor:
             "entidad federativa/estado", "pais", "cp", "anos de residencia"
         ]
         campos_norm = [normalize_key(c) for c in campos]
-        alias_map = {}
-        if self.alias_mapper:
-            alias_map = {
-                normalize_key(base): [normalize_key(a) for a in aliases]
-                for base, aliases in self.alias_mapper.aliases.items()
-            }
-
         i = 0
         while i < len(self.lines) - 1:
             key_raw = self.lines[i].get("Text", "")
@@ -135,11 +122,6 @@ class TextractFullExtractor:
             campo = None
             if key in campos_norm:
                 campo = key
-            else:
-                for base, aliases in alias_map.items():
-                    if base in campos_norm and key in aliases:
-                        campo = base
-                        break
             if campo:
                 for offset in range(1, 3):
                     if i + offset >= len(self.lines):
