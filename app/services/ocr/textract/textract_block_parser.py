@@ -6,10 +6,18 @@ from services.utils.normalization import normalize_key
 class TextractBlockParser:
     """Parse AWS Textract blocks into a simple key/value mapping."""
 
-    def __init__(self, blocks: List[Dict], *, normalize_keys: bool = True, use_line_fallback: bool = False):
+    def __init__(
+        self,
+        blocks: List[Dict],
+        *,
+        normalize_keys: bool = True,
+        use_line_fallback: bool = False,
+        track_sources: bool = False,
+    ):
         self.blocks = blocks or []
         self.normalize_keys = normalize_keys
         self.use_line_fallback = use_line_fallback
+        self.track_sources = track_sources
         self.block_map = {b["Id"]: b for b in self.blocks if "Id" in b}
         self.word_map = {
             b["Id"]: b.get("Text", "")
@@ -22,6 +30,7 @@ class TextractBlockParser:
             if b.get("BlockType") == "SELECTION_ELEMENT"
         }
         self.field_dict: Dict[str, str] = {}
+        self.sources: Dict[str, str] = {}
 
     def extract(self) -> Dict[str, str]:
         for block in self.blocks:
@@ -50,10 +59,16 @@ class TextractBlockParser:
             else:
                 self.field_dict[key_norm] = "VALUE_NOT_FOUND"
 
+            if self.track_sources:
+                self.sources[key_norm] = block.get("Id")
+
         if not self.field_dict and self.use_line_fallback:
             self._extract_from_lines()
 
         return self.field_dict
+
+    def get_sources(self) -> Dict[str, str]:
+        return self.sources
 
     def _get_key_text(self, block: Dict) -> str:
         return self._get_text(block)
@@ -84,3 +99,5 @@ class TextractBlockParser:
                 continue
             key_norm = normalize_key(key) if self.normalize_keys else key
             self.field_dict[key_norm] = val
+            if self.track_sources:
+                self.sources[key_norm] = line.get("Id")

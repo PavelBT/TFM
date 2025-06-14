@@ -29,3 +29,9 @@ def test_basic_cleaner_currency():
 def test_basic_cleaner_discard_long_key():
     cleaner = BasicFieldCorrector()
     assert cleaner.correct("Aviso de Privacidad y Politica de Datos", "test") is None
+
+
+def test_basic_cleaner_curp_rfc_fix():
+    cleaner = BasicFieldCorrector()
+    assert cleaner.correct("curp", "GORC900101MMN SRR06") == "GORC900101MMNSRR06"
+    assert cleaner.correct("rfc", "GORC900101x25") == "GORC900101X25"

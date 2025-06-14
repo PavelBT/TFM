@@ -11,9 +11,10 @@ from interfaces.ocr_service import OCRService
 class OcrTextract:
     """Pipeline to process documents using AWS Textract."""
 
-    def __init__(self, service: OCRService, refiner_type: str = "gpt"):
+    def __init__(self, service: OCRService, refiner_type: str = "gpt", track_sources: bool = False):
         self.service = service
         self.refiner_type = refiner_type
+        self.track_sources = track_sources
 
     async def process(self, file: UploadFile) -> DataResponse:
         ocr_result = await self.service.analyze(file)
@@ -23,8 +24,9 @@ class OcrTextract:
 
         form_type = FormIdentifier.identify_form(blocks) or "desconocido"
 
-        parser = TextractBlockParser(blocks)
+        parser = TextractBlockParser(blocks, track_sources=self.track_sources)
         fields = parser.extract()
+        sources = parser.get_sources() if self.track_sources else None
 
         layout_parser = TextractLayoutParser(blocks)
         sections = layout_parser.parse()
@@ -41,6 +43,7 @@ class OcrTextract:
             "form_type": form_type,
             "file_name": ocr_result.get("s3_path"),
             "fields": fields,
+            "sources": sources,
         }
 
         processor = StructuredPostProcessor(data=data, refiner_type=self.refiner_type)

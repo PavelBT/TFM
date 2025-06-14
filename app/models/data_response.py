@@ -6,3 +6,4 @@ class DataResponse(BaseModel):
     form_type: str
     file_name: str
     fields: Dict[str, Any]
+    sources: Dict[str, Any] | None = None

@@ -30,6 +30,7 @@ class StructuredPostProcessor(PostProcessor):
 
     def process(self) -> DataResponse:
         fields = self.data.get("fields")
+        sources = self.data.get("sources")
         structured = self.corrector.process(fields)
 
         try:
@@ -40,4 +41,6 @@ class StructuredPostProcessor(PostProcessor):
             logging.warning(f"[PostProcessor] Error al refinar campos: {e}")
 
         self.data["fields"] = structured
+        if sources is not None:
+            self.data["sources"] = sources
         return self.data

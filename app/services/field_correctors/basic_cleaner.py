@@ -50,15 +50,36 @@ class BasicFieldCorrector(FieldCorrector):
         elif "rfc" in key_norm:
             value = value.upper().replace(" ", "")
             if not re.fullmatch(r"[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}", value):
-                self.discarded_count += 1
-                return None
+                # Try to fix common OCR mistakes
+                alt = value.replace("0", "O").replace("1", "I")
+                if re.fullmatch(r"[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}", alt):
+                    self.corrected_count += 1
+                    value = alt
+                else:
+                    alt2 = value.replace("O", "0").replace("I", "1")
+                    if re.fullmatch(r"[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}", alt2):
+                        self.corrected_count += 1
+                        value = alt2
+                    else:
+                        self.discarded_count += 1
+                        return None
 
         # CURP
         elif "curp" in key_norm:
             value = value.upper().replace(" ", "")
             if not re.fullmatch(r"[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]{2}", value):
-                self.discarded_count += 1
-                return None
+                alt = value.replace("0", "O").replace("1", "I")
+                if re.fullmatch(r"[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]{2}", alt):
+                    self.corrected_count += 1
+                    value = alt
+                else:
+                    alt2 = value.replace("O", "0").replace("I", "1")
+                    if re.fullmatch(r"[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z0-9]{2}", alt2):
+                        self.corrected_count += 1
+                        value = alt2
+                    else:
+                        self.discarded_count += 1
+                        return None
 
         # Montos o ingresos
         elif "monto" in key_norm or "sueldo" in key_norm or "ingreso" in key_norm:
