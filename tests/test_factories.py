@@ -29,6 +29,8 @@ from services.ai_refiners.factory import get_ai_refiner
 from services.ocr.textract.textract_ocr import AWSTextractOCRService
 from services.ai_refiners.gpt_refiner import GPTRefiner
 from services.ai_refiners.huggingface_refiner import HuggingFaceRefiner
+from services.postprocessors.postprocessor_factory import get_postprocessor
+from services.postprocessors.form_postprocessor.banorte_credito import BanorteCreditoPostProcessor
 
 
 def test_get_ocr_service_default():
@@ -55,3 +57,8 @@ def test_get_ai_refiner_huggingface():
 def test_get_ai_refiner_invalid():
     with pytest.raises(ValueError):
         get_ai_refiner("invalid")
+
+
+def test_get_postprocessor_banorte_credito():
+    processor = get_postprocessor("banorte_credito")
+    assert isinstance(processor, BanorteCreditoPostProcessor)
