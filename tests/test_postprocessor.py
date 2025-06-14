@@ -8,6 +8,7 @@ sys.modules.setdefault("yaml", types.SimpleNamespace(safe_load=lambda f: {}))
 
 from services.postprocessors.form_postprocessor.banorte_credito import BanorteCreditoPostProcessor
 from services.field_correctors import alias_mapper
+from services.utils.normalization import normalize_key
 
 alias_data = {
     "folio": ["folio"],
@@ -17,7 +18,10 @@ alias_data = {
 }
 
 def dummy_init(self, alias_file):
-    self.aliases = alias_data
+    self.aliases = {
+        normalize_key(k): [normalize_key(a) for a in v]
+        for k, v in alias_data.items()
+    }
 
 alias_mapper.AliasMapper.__init__ = dummy_init
 
