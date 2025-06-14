@@ -8,3 +8,7 @@ from services.utils.normalization import normalize_key
 
 def test_normalize_key_preserves_underscore():
     assert normalize_key('nombre_y_puesto') == 'nombre_y_puesto'
+
+
+def test_normalize_key_slash_to_underscore():
+    assert normalize_key('estado/entidad') == 'estado_entidad'
