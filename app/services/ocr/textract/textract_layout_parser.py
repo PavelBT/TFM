@@ -1,11 +1,12 @@
-from typing import Dict, List
+from typing import Dict, List, Iterable
 from services.utils.normalization import normalize_key
 
 class TextractLayoutParser:
     """Parse Textract LINE blocks to group data by sections."""
 
-    def __init__(self, blocks: List[Dict]):
+    def __init__(self, blocks: List[Dict], headers: Iterable[str] = None):
         self.blocks = blocks or []
+        self.headers = [h.strip().upper() for h in (headers or ["REFERENCIAS PERSONALES"])]
 
     def _iter_lines(self):
         lines = [b for b in self.blocks if b.get("BlockType") == "LINE"]
@@ -16,7 +17,7 @@ class TextractLayoutParser:
         ))
 
     def _is_header(self, text: str) -> bool:
-        return text.strip().upper() == "REFERENCIAS PERSONALES"
+        return text.strip().upper() in self.headers
 
     def _is_stop(self, text: str) -> bool:
         return text.strip().upper() in {"CLAUSULAS", "CONSENTIMIENTO"}
@@ -35,6 +36,6 @@ class TextractLayoutParser:
             if self._is_stop(text):
                 current = None
                 continue
-            if current and line.get("TextType") == "HANDWRITING":
-                sections[current].append(text)
+            if current:
+                sections.setdefault(current, []).append(text)
         return sections

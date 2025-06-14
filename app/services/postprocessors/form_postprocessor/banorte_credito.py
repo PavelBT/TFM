@@ -24,14 +24,22 @@ class BanorteCreditoPostProcessor(GenericPostProcessor):
         "no": "politicamente_expuesto",
     }
 
-    def process(self, raw_fields: dict) -> dict:
+    def process(self, raw_fields: dict, layout: dict | None = None) -> dict:
+        """Clean generic fields and integrate checklist values.
+
+        Parameters
+        ----------
+        raw_fields: dict
+            Campos extraidos directamente del OCR.
+        layout: dict, optional
+            Datos adicionales obtenidos del layout parser (no utilizado por ahora).
+        """
+
         cleaned = super().process(raw_fields)
-        checklist = cleaned.get("checklist")
+        checklist = cleaned.pop("checklist", [])
         if isinstance(checklist, list):
-            labeled = {}
             for key in checklist:
                 label = self.CHECKLIST_MAP.get(key)
                 if label:
-                    labeled[label] = key
-            cleaned["checklist"] = labeled
+                    cleaned[label] = key
         return cleaned
