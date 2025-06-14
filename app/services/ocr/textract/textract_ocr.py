@@ -16,6 +16,8 @@ from interfaces.ocr_service import OCRService
 from services.storage.s3_uploader import S3Uploader
 from services.ocr.form_identifier import FormIdentifier
 from services.ocr.textract.textract_extractor import TextractExtractor
+from services.ocr.textract.textract_layout_parser import TextractLayoutParser
+from services.ocr.textract.banorte_layout_parser import BanorteLayoutParser
 
 class AWSTextractOCRService(OCRService):
     
@@ -100,6 +102,16 @@ class AWSTextractOCRService(OCRService):
         # USAMOS el extractor
         extractor = TextractExtractor(blocks)
         fields = extractor.extract()
+        layout_parser = TextractLayoutParser(blocks)
+        sections = layout_parser.parse()
+        if sections:
+            fields.update(sections)
+
+        if form_type == "banorte_credito":
+            banorte_parser = BanorteLayoutParser(blocks)
+            extra_sections = banorte_parser.parse()
+            if extra_sections:
+                fields.update(extra_sections)
 
         return {
             "form_type": form_type,

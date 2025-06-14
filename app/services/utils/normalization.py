@@ -6,6 +6,7 @@ def normalize_key(key: str) -> str:
     key = unicodedata.normalize('NFKD', key).encode('ascii', 'ignore').decode('ascii')
     key = key.lower()
     key = re.sub(r'\(.*?\)', '', key)
+    key = key.replace('/', '_')
     key = re.sub(r'[^a-z0-9 _]', '', key)
     key = re.sub(r'\s+', '_', key)
     return key.strip('_')
