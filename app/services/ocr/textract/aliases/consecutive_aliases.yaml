@@ -1,0 +1,10 @@
+"nombre(s) (sin abreviaturas)":
+  - nombre
+"apellido paterno":
+  - a_paterno
+"apellido materno":
+  - a_materno
+"telefono de casa":
+  - tel_casa
+"telefono celular":
+  - celular
