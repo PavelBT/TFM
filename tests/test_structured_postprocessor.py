@@ -44,3 +44,21 @@ def test_structured_postprocessor_single_refine(monkeypatch):
     assert result["fields"] == {"a": "X", "b": "Y"}
     assert len(dummy_refiner.calls) == 1
     assert dummy_refiner.calls[0] == {"a": "x", "b": "y"}
+
+
+def test_structured_postprocessor_preserves_sections(monkeypatch):
+    dummy_refiner = DummyRefiner()
+    monkeypatch.setattr(
+        "services.postprocessors.postprocessor.get_postprocessor",
+        lambda form_type: DummyPostProcessor(),
+    )
+    monkeypatch.setattr(
+        "services.postprocessors.postprocessor.get_ai_refiner",
+        lambda refiner_type: dummy_refiner,
+    )
+
+    data = {"fields": {"a": "x"}, "sections": {"info": ["x"]}}
+    processor = StructuredPostProcessor(data, refiner_type="gpt")
+    result = processor.process()
+
+    assert result["sections"] == {"info": ["x"]}
