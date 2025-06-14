@@ -104,6 +104,26 @@ estado_civil:
   - estado civil
   - estado_civil
 
+"estado_civil.soltero (a)":
+  - Soltero (a)
+  - soltero
+
+"estado_civil.casado (a)":
+  - Casado (a)
+  - casado
+
+"estado_civil.unión libre":
+  - Unión Libre
+  - union libre
+
+"estado_civil.divorciado (a)":
+  - Divorciado (a)
+  - divorciado
+
+"estado_civil.viudo (a)":
+  - Viudo (a)
+  - viudo
+
 regimen_matrimonial:
   - Sociedad Conyugal
   - Separación de Bienes

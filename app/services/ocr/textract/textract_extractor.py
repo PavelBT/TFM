@@ -1,7 +1,6 @@
 from typing import Dict, List
-import unicodedata
-import re
 import uuid
+from services.utils.normalization import normalize_key
 
 class TextractFullExtractor:
     def __init__(self, blocks: List[Dict]):
@@ -24,7 +23,7 @@ class TextractFullExtractor:
     def _extract_kv_pairs(self):
         kv_map = self._get_final_kv_map(self.key_map, self.value_map)
         for key, value in kv_map.items():
-            key_norm = self._normalize_key(key)
+            key_norm = normalize_key(key)
             self.field_dict[key_norm] = value if value else "VALUE_NOT_FOUND"
 
     def _add_inline_pairs(self):
@@ -32,7 +31,7 @@ class TextractFullExtractor:
             text = block.get("Text", "")
             if ":" in text:
                 key, value = map(str.strip, text.split(":", 1))
-                key_norm = self._normalize_key(key)
+                key_norm = normalize_key(key)
                 if key and key_norm not in self.field_dict:
                     self.field_dict[key_norm] = value
 
@@ -91,13 +90,6 @@ class TextractFullExtractor:
                             text += "[X] "
         return text.strip()
 
-    def _normalize_key(self, key: str) -> str:
-        key = unicodedata.normalize('NFKD', key).encode('ascii', 'ignore').decode('ascii')
-        key = key.lower()
-        key = re.sub(r'\(.*?\)', '', key)
-        key = re.sub(r'[^a-z0-9 ]', '', key)
-        key = re.sub(r'\s+', '_', key)
-        return key.strip('_')
 
     def _extract_consecutive_fields(self):
         campos = [
@@ -108,13 +100,13 @@ class TextractFullExtractor:
             "colonia/urbanizacion", "delegacion/municipio/demarcacion politica", "ciudad/poblacion",
             "entidad federativa/estado", "pais", "cp", "anos de residencia"
         ]
-        campos_norm = [self._normalize_key(c) for c in campos]
+        campos_norm = [normalize_key(c) for c in campos]
 
         i = 0
         while i < len(self.lines) - 1:
-            key = self._normalize_key(self.lines[i].get("Text", ""))
+            key = normalize_key(self.lines[i].get("Text", ""))
             value = self.lines[i+1].get("Text", "")
-            if key in campos_norm and self._normalize_key(value) not in campos_norm:
+            if key in campos_norm and normalize_key(value) not in campos_norm:
                 if key not in self.field_dict:
                     self.field_dict[key] = value
                 i += 2
@@ -132,7 +124,7 @@ class TextractFullExtractor:
                             text = line.get("Text", "")
                             idx = self.lines.index(line)
                             if idx > 0:
-                                campo = self._normalize_key(self.lines[idx-1].get("Text", ""))
+                                campo = normalize_key(self.lines[idx-1].get("Text", ""))
                                 if campo and campo not in self.field_dict:
                                     self.field_dict[campo] = text
 

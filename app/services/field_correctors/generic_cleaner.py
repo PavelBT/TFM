@@ -4,8 +4,7 @@ import logging
 from typing import Dict, Optional
 from interfaces.field_corrector import FieldCorrector
 from services.field_correctors.basic_cleaner import BasicFieldCorrector
-import unicodedata
-import re
+from services.utils.normalization import normalize_key
 
 class GenericFieldCleaner(FieldCorrector):
     """
@@ -36,12 +35,6 @@ class GenericFieldCleaner(FieldCorrector):
         else:
             return str(value)
 
-    def _normalize_key(self, key: str) -> str:
-        key = unicodedata.normalize('NFKD', key).encode('ascii', 'ignore').decode('ascii')
-        key = key.lower()
-        key = re.sub(r'[^a-z0-9 ]', '', key)
-        key = re.sub(r'\s+', '_', key)  # Espacios a guiones bajos
-        return key.strip('_')
 
     def transform(self, raw_data: Dict[str, object]) -> Dict[str, str]:
         """
@@ -49,7 +42,7 @@ class GenericFieldCleaner(FieldCorrector):
         """
         cleaned = {}
         for key, value in raw_data.items():
-            key_norm = self._normalize_key(key)
+            key_norm = normalize_key(key)
             value_flat = self._flatten_value(value)
             cleaned_value = self.correct(key, value_flat)
             if cleaned_value not in [None, ""]:

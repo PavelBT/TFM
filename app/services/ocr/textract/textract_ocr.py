@@ -2,12 +2,14 @@
 
 This service uploads the received file to S3 and launches a Textract analysis
 job. When the job finishes the detected blocks are post processed to extract
-key/value pairs. Using :mod:`aioboto3` prevents blocking the event loop while we
-wait for the Textract job to complete.
+key/value pairs. All blocking operations are executed in a thread pool to avoid
+blocking the event loop.
 """
 # app/services/aws_textract.py
 import magic
 import time
+import asyncio
+from fastapi.concurrency import run_in_threadpool
 from models.data_response import DataResponse
 from fastapi import UploadFile
 from interfaces.ocr_service import OCRService
@@ -33,11 +35,12 @@ class AWSTextractOCRService(OCRService):
         base_name = file.filename.replace(" ", "_")
         s3_key = f"uploads/tmp-{timestamp}-{base_name}"
 
-        # Subir archivo a S3
-        self.uploader.upload_file(contents, s3_key)
+        # Subir archivo a S3 sin bloquear el loop
+        await run_in_threadpool(self.uploader.upload_file, contents, s3_key)
 
         if is_pdf:
-            start_response = self.client.start_document_analysis(
+            start_response = await run_in_threadpool(
+                self.client.start_document_analysis,
                 DocumentLocation={"S3Object": {"Bucket": self.bucket, "Name": s3_key}},
                 FeatureTypes=["FORMS"]
             )
@@ -46,8 +49,8 @@ class AWSTextractOCRService(OCRService):
             status = "IN_PROGRESS"
             tries = 0
             while status == "IN_PROGRESS" and tries < 20:
-                time.sleep(3)
-                result = self.client.get_document_analysis(JobId=job_id)
+                await asyncio.sleep(3)
+                result = await run_in_threadpool(self.client.get_document_analysis, JobId=job_id)
                 status = result["JobStatus"]
                 tries += 1
 
@@ -56,7 +59,8 @@ class AWSTextractOCRService(OCRService):
 
             blocks = result.get("Blocks", [])
         else:
-            result = self.client.analyze_document(
+            result = await run_in_threadpool(
+                self.client.analyze_document,
                 Document={"Bytes": contents},
                 FeatureTypes=["FORMS"]
             )
@@ -67,9 +71,9 @@ class AWSTextractOCRService(OCRService):
 
         # Renombrar el archivo con tipo correcto y re-subirlo
         new_s3_key = f"uploads/{form_type}-{timestamp}-{base_name}"
-        self.uploader.upload_file(contents, new_s3_key)
+        await run_in_threadpool(self.uploader.upload_file, contents, new_s3_key)
         # Eliminar el archivo temporal
-        self.uploader.delete_file(s3_key)
+        await run_in_threadpool(self.uploader.delete_file, s3_key)
 
         # USAMOS el extractor
         extractor = TextractFullExtractor(blocks)
