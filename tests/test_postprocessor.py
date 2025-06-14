@@ -23,6 +23,14 @@ def test_generic_postprocessor():
     assert "casado" in result["checklist"]
     assert "12" in result["checklist"]
 
+
+def test_generic_postprocessor_removes_checkbox_fields():
+    processor = GenericPostProcessor()
+    raw = {"Soltero": "[X]", "Folio": "1"}
+    result = processor.process(raw)
+    assert "soltero" not in result
+    assert "soltero" in result["checklist"]
+
 def test_banorte_postprocessor_checklist():
     processor = BanorteCreditoPostProcessor()
     raw = {
