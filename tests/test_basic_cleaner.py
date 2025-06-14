@@ -9,3 +9,13 @@ from services.field_correctors.basic_cleaner import BasicFieldCorrector
 def test_basic_cleaner_placeholder():
     cleaner = BasicFieldCorrector()
     assert cleaner.correct("any", "VALUE_NOT_FOUND") is None
+
+
+def test_basic_cleaner_unchecked_box():
+    cleaner = BasicFieldCorrector()
+    assert cleaner.correct("any", "[ ]") is None
+
+
+def test_basic_cleaner_not_selected_keyword():
+    cleaner = BasicFieldCorrector()
+    assert cleaner.correct("any", "NOT_SELECTED") is None

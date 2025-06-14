@@ -12,7 +12,8 @@ class BasicFieldCorrector(FieldCorrector):
 
     def correct(self, key: str, value: str) -> Optional[str]:
         value = value.strip()
-        if value.upper() == "VALUE_NOT_FOUND":
+        value_upper = value.upper()
+        if value_upper in {"VALUE_NOT_FOUND", "NOT_SELECTED", "[ ]", "[]"}:
             self.discarded_count += 1
             return None
         if not value or value.lower() in ["$", "0", "00", "000", "n/a", "na", "none", "--"]:
