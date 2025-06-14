@@ -31,6 +31,7 @@ class StructuredPostProcessor(PostProcessor):
     def process(self) -> DataResponse:
         fields = self.data.get("fields")
         sources = self.data.get("sources")
+        sections = self.data.get("sections")
         structured = self.corrector.process(fields)
 
         try:
@@ -43,4 +44,6 @@ class StructuredPostProcessor(PostProcessor):
         self.data["fields"] = structured
         if sources is not None:
             self.data["sources"] = sources
+        if sections is not None:
+            self.data["sections"] = sections
         return self.data

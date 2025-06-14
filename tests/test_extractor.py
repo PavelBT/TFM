@@ -81,3 +81,13 @@ def test_kv_map_deduplicates_values():
     fields = extractor.extract()
     assert fields["folio"] == "123"
 
+
+def test_line_fallback_extracts_pairs():
+    blocks = [
+        {"Id": "1", "BlockType": "LINE", "Text": "Nombre: Pedro"},
+        {"Id": "2", "BlockType": "LINE", "Text": "Folio: 42"},
+    ]
+    extractor = TextractBlockParser(blocks, use_line_fallback=True)
+    fields = extractor.extract()
+    assert fields == {"nombre": "Pedro", "folio": "42"}
+
