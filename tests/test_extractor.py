@@ -17,3 +17,43 @@ def test_textract_extractor_fields():
     fields = extractor.extract()
     assert "folio" in fields
     assert len(fields) > 0
+
+
+def test_consecutive_fields_override_placeholder():
+    extractor = TextractFullExtractor([], alias_file="")
+    extractor.lines = [
+        {"BlockType": "LINE", "Text": "E-mail"},
+        {"BlockType": "LINE", "Text": "foo@bar.com"},
+    ]
+    extractor.field_dict = {"email": "VALUE_NOT_FOUND"}
+    extractor._extract_consecutive_fields()
+    assert extractor.field_dict["email"] == "foo@bar.com"
+
+
+def test_checkboxes_override_selected():
+    blocks = [
+        {"Id": "w1", "BlockType": "WORD", "Text": "Casado"},
+        {
+            "Id": "sel1",
+            "BlockType": "SELECTION_ELEMENT",
+            "SelectionStatus": "SELECTED",
+        },
+        {
+            "Id": "v1",
+            "BlockType": "KEY_VALUE_SET",
+            "EntityTypes": ["VALUE"],
+            "Relationships": [{"Type": "CHILD", "Ids": ["sel1"]}],
+        },
+        {
+            "Id": "k1",
+            "BlockType": "KEY_VALUE_SET",
+            "EntityTypes": ["KEY"],
+            "Relationships": [
+                {"Type": "CHILD", "Ids": ["w1"]},
+                {"Type": "VALUE", "Ids": ["v1"]},
+            ],
+        },
+    ]
+    extractor = TextractFullExtractor(blocks, alias_file="")
+    fields = extractor.extract()
+    assert fields["casado"] == "Sí"
