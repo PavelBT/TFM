@@ -147,7 +147,10 @@ class TextractFullExtractor:
                     value = self.lines[i + offset].get("Text", "")
                     if normalize_key(value) in campos_norm:
                         continue
-                    if campo not in self.field_dict:
+                    if (
+                        campo not in self.field_dict
+                        or self.field_dict.get(campo) == "VALUE_NOT_FOUND"
+                    ):
                         self.field_dict[campo] = value
                     i += offset + 1
                     break
@@ -193,7 +196,10 @@ class TextractFullExtractor:
                         break
                 if selected:
                     campo = normalize_key(key_text)
-                    if campo not in self.field_dict:
+                    if (
+                        campo not in self.field_dict
+                        or self.field_dict.get(campo) in {"SELECTED", "NOT_SELECTED"}
+                    ):
                         self.field_dict[campo] = "Sí"
 
         # Fallback: línea previa al checkbox

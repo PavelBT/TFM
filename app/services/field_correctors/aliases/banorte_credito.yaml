@@ -69,18 +69,20 @@ cuenta_cliente:
 nombre:
   - Nombre(s) (sin abreviaturas)
   - nombre
-
+  - "EL CLIENTE Nombre (s), Apellido Paterno y Materno"
 apellido_paterno:
   - Apellido Paterno
   - Apellido paterno
   - apellido paterno
   - apellido_paterno
+  - "EL CLIENTE Nombre (s), Apellido Paterno y Materno"
 
 apellido_materno:
   - Apellido Materno
   - Apellido materno
   - apellido materno
   - apellido_materno
+  - "EL CLIENTE Nombre (s), Apellido Paterno y Materno"
 
 genero.femenino:
   - Femenino
@@ -219,6 +221,7 @@ domicilio.estado:
   - Entidad Federativa/Estado
   - Entidad federativa/estado
   - entidad federativa estado
+  - entidad_federativaestado
   - domicilio.estado
 
 domicilio.cp:
@@ -238,6 +241,12 @@ telefono_celular:
   - Teléfono celular
   - telefono celular
   - telefono_celular
+email:
+  - E-mail
+  - e-mail
+  - Correo electrónico
+  - correo electronico
+  - email
 
 otro_telefono:
   - Otro teléfono
