@@ -1,7 +1,7 @@
 from typing import Dict
-from interfaces.postprocessor import PostProcessor
-from services.field_correctors.structured_cleaner import StructuredFieldCorrector
-from services.ai_refiners.factory import get_ai_refiner
+from app.interfaces.postprocessor import PostProcessor
+from app.services.field_correctors.structured_cleaner import StructuredFieldCorrector
+from app.services.ai_refiners.factory import get_ai_refiner
 import logging
 
 class StructuredPostProcessor(PostProcessor):

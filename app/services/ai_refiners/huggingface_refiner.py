@@ -4,15 +4,17 @@ logging.basicConfig(level=logging.INFO)
 
 from transformers import pipeline
 from typing import Dict
-from interfaces.ai_refiner import AIRefiner
+from app.interfaces.ai_refiner import AIRefiner
 
 class HuggingFaceRefiner(AIRefiner):
     """
     Refinador basado en modelo T5 ajustado a español para corrección ortográfica y de estilo.
     """
     def __init__(self, model_name="dreuxx26/Multilingual-grammar-Corrector-using-mT5-small"):
-        print(f"[IA] Cargando modelo: {model_name}")
-        self.corrector = pipeline("text2text-generation", model=model_name, tokenizer=model_name)
+        logging.info(f"[IA] Cargando modelo: {model_name}")
+        self.corrector = pipeline(
+            "text2text-generation", model=model_name, tokenizer=model_name
+        )
 
     def refine(self, fields: Dict[str, str]) -> Dict[str, str]:
         refined = {}

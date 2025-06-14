@@ -1,7 +1,7 @@
 # app/api/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from api.routes.analyze import router as analyze_router
+from app.api.routes.analyze import router as analyze_router
 
 app = FastAPI(
     title="OCR Form Processor",

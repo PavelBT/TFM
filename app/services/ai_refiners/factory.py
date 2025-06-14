@@ -1,8 +1,8 @@
 # app/services/ai_refiners/factory.py
 
-from interfaces.ai_refiner import AIRefiner
-from services.ai_refiners.gpt_refiner import GPTRefiner
-from services.ai_refiners.huggingface_refiner import HuggingFaceRefiner
+from app.interfaces.ai_refiner import AIRefiner
+from app.services.ai_refiners.gpt_refiner import GPTRefiner
+from app.services.ai_refiners.huggingface_refiner import HuggingFaceRefiner
 import os
 
 def get_ai_refiner(refiner_type) -> AIRefiner:

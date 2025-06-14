@@ -2,7 +2,7 @@
 
 import re
 from typing import Optional
-from interfaces.field_corrector import FieldCorrector
+from app.interfaces.field_corrector import FieldCorrector
 
 class BasicFieldCorrector(FieldCorrector):
     def correct(self, key: str, value: str) -> Optional[str]:

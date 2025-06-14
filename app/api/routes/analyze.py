@@ -1,8 +1,8 @@
 # app/api/routes/analyze.py
 from fastapi import APIRouter, UploadFile, File, HTTPException
-from services.factory import get_ocr_service
-from models.ocr_response import OCRResponse
-from services.postprocessor import StructuredPostProcessor
+from app.services.factory import get_ocr_service
+from app.models.ocr_response import OCRResponse
+from app.services.postprocessor import StructuredPostProcessor
 
 service_name = "aws"  # "aws"
 refiner_type = "gpt"  # "gpt", "huggingface" or None

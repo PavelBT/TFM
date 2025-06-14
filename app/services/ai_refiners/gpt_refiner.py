@@ -2,7 +2,7 @@ import openai
 import json
 import logging
 from typing import Dict, Union
-from interfaces.ai_refiner import AIRefiner
+from app.interfaces.ai_refiner import AIRefiner
 
 class GPTRefiner(AIRefiner):
     def __init__(self, api_key: str, model: str = "gpt-3.5-turbo"):

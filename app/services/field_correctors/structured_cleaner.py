@@ -2,8 +2,8 @@
 
 import re
 from typing import Optional, Dict
-from interfaces.field_corrector import FieldCorrector
-from services.field_correctors.basic_cleaner import BasicFieldCorrector
+from app.interfaces.field_corrector import FieldCorrector
+from app.services.field_correctors.basic_cleaner import BasicFieldCorrector
 
 
 class StructuredFieldCorrector(FieldCorrector):

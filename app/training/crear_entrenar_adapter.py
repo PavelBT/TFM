@@ -1,4 +1,5 @@
 
+import logging
 import boto3
 
 # Configura tu bucket y archivo
@@ -7,6 +8,7 @@ dataset_path = "textract-adapters/textract_adapter_dataset.jsonl"
 output_adapter_name = "adaptador-solicitud-credito"
 role_arn = "arn:aws:iam::123456789012:role/TextractAdapterRole"  # Reemplaza con tu IAM Role
 
+logging.basicConfig(level=logging.INFO)
 textract = boto3.client("textract")
 
 # Paso 1: Crear el adapter
@@ -15,7 +17,7 @@ response = textract.create_adapter(
     Description="Adapter personalizado para solicitud de crédito personal"
 )
 adapter_id = response["AdapterId"]
-print(f"Adapter creado con ID: {adapter_id}")
+logging.info("Adapter creado con ID: %s", adapter_id)
 
 # Paso 2: Iniciar el entrenamiento
 train_response = textract.start_adapter_training(
@@ -34,4 +36,5 @@ train_response = textract.start_adapter_training(
     RoleArn=role_arn
 )
 
-print("Entrenamiento iniciado. JobId:", train_response["JobId"])
+logging.info("Entrenamiento iniciado. JobId: %s", train_response["JobId"])
+

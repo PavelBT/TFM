@@ -1,10 +1,4 @@
-import os
-import sys
 import pytest
-
-ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.append(ROOT)
-sys.path.append(os.path.join(ROOT, 'app'))
 from app.services.field_correctors.basic_cleaner import BasicFieldCorrector
 
 bc = BasicFieldCorrector()
