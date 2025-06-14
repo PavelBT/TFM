@@ -29,18 +29,19 @@ class BanorteLayoutParser(TextractLayoutParser):
                 current_section = None
                 page = line.get("Page", 1)
 
-            if line.get("TextType") != "HANDWRITING":
-                upper = text.upper()
-                if upper == "REFERENCIAS PERSONALES":
-                    current_section = normalize_key(text)
-                    sections.setdefault(current_section, [])
-                    self.recognized_sections.append(current_section)
-                elif self._is_stop(text):
-                    current_section = None
-                elif "INFORMACION" in upper or "INFORMACIÓN" in upper or "DOMICILIO" in upper or "EMPLEO" in upper:
-                    current_section = normalize_key(text)
-                    sections.setdefault(current_section, [])
-                    self.recognized_sections.append(current_section)
+            upper = text.upper()
+            if upper == "REFERENCIAS PERSONALES":
+                current_section = normalize_key(text)
+                sections.setdefault(current_section, [])
+                self.recognized_sections.append(current_section)
+                continue
+            if self._is_stop(text):
+                current_section = None
+                continue
+            if "INFORMACION" in upper or "INFORMACIÓN" in upper or "DOMICILIO" in upper or "EMPLEO" in upper:
+                current_section = normalize_key(text)
+                sections.setdefault(current_section, [])
+                self.recognized_sections.append(current_section)
                 continue
 
             if current_section:
