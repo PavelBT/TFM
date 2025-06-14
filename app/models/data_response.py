@@ -7,3 +7,4 @@ class DataResponse(BaseModel):
     file_name: str
     fields: Dict[str, Any]
     sources: Dict[str, Any] | None = None
+    sections: Dict[str, Any] | None = None

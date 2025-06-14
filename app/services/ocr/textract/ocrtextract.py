@@ -26,7 +26,11 @@ class OcrTextract:
 
         form_type = FormIdentifier.identify_form(blocks) or "desconocido"
 
-        parser = TextractBlockParser(blocks, track_sources=self.track_sources)
+        parser = TextractBlockParser(
+            blocks,
+            track_sources=self.track_sources,
+            use_line_fallback=True,
+        )
         fields = parser.extract()
         print("fields:", fields)
 
@@ -39,6 +43,7 @@ class OcrTextract:
 
         if sections:
             fields.update(sections)
+            ocr_result["sections"] = sections
 
         if form_type == "banorte_credito":
             banorte_parser = BanorteLayoutParser(blocks)
@@ -52,6 +57,7 @@ class OcrTextract:
             "file_name": ocr_result.get("s3_path"),
             "fields": fields,
             "sources": sources,
+            "sections": ocr_result.get("sections"),
         }
 
         processor = StructuredPostProcessor(data=data, refiner_type=self.refiner_type)

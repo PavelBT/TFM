@@ -16,11 +16,17 @@ from services.storage.s3_uploader import S3Uploader
 
 class AWSTextractOCRService(OCRService):
     
-    def __init__(self, region_name="us-east-2", bucket_name="ocr-bucket-pbt-devop"):
+    def __init__(self, region_name: str | None = None, bucket_name: str | None = None):
+        """Initialize Textract client using environment variables when available."""
         import boto3
-        self.client = boto3.client("textract", region_name=region_name)
-        self.bucket = bucket_name
-        self.uploader = S3Uploader(bucket_name, region_name)
+        import os
+
+        region = region_name or os.getenv("AWS_REGION", "us-east-2")
+        bucket = bucket_name or os.getenv("AWS_S3_BUCKET", "ocr-bucket-pbt-devop")
+
+        self.client = boto3.client("textract", region_name=region)
+        self.bucket = bucket
+        self.uploader = S3Uploader(bucket, region)
 
     async def analyze(self, file: UploadFile) -> dict:
         contents = await file.read()
