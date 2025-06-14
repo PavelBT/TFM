@@ -44,12 +44,11 @@ def test_banorte_postprocessor_checklist():
         "No": "[X]",
     }
     result = processor.process(raw)
-    assert result["checklist"] == {
-        "plazo_de_credito": "48",
-        "genero": "femenino",
-        "estado_civil": "soltero",
-        "vivienda": "propia",
-        "tipo_de_empleo": "asalariado",
-        "politicamente_expuesto": "no",
-    }
+    assert "checklist" not in result
+    assert result["plazo_de_credito"] == "48"
+    assert result["genero"] == "femenino"
+    assert result["estado_civil"] == "soltero"
+    assert result["vivienda"] == "propia"
+    assert result["tipo_de_empleo"] == "asalariado"
+    assert result["politicamente_expuesto"] == "no"
 
