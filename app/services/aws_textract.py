@@ -27,7 +27,10 @@ class AWSTextractOCRService(OCRService):
         except FileNotFoundError:
             queries = []
 
-        self.queries = queries
+        # Textract permite un máximo de 30 consultas por petición. El dataset
+        # incluye 33, por lo que limitamos la lista para evitar errores de
+        # "InvalidParameterException" al llamar a StartDocumentAnalysis.
+        self.queries = queries[:30]
 
     async def analyze(self, file: UploadFile) -> Dict:
         contents = await file.read()
