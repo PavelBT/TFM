@@ -57,3 +57,45 @@ def test_checkboxes_override_selected():
     extractor = TextractFullExtractor(blocks)
     fields = extractor.extract()
     assert fields["casado"] == "Sí"
+
+
+def test_inline_pairs_override_placeholder():
+    extractor = TextractFullExtractor([])
+    extractor.lines = [
+        {"BlockType": "LINE", "Text": "Nombre: Juan"},
+    ]
+    extractor.field_dict = {"nombre": "VALUE_NOT_FOUND"}
+    extractor._add_inline_pairs()
+    assert extractor.field_dict["nombre"] == "Juan"
+
+
+def test_kv_map_deduplicates_values():
+    blocks = [
+        {"Id": "kw", "BlockType": "WORD", "Text": "Folio"},
+        {"Id": "v1w", "BlockType": "WORD", "Text": "123"},
+        {"Id": "v2w", "BlockType": "WORD", "Text": "123"},
+        {
+            "Id": "v1",
+            "BlockType": "KEY_VALUE_SET",
+            "EntityTypes": ["VALUE"],
+            "Relationships": [{"Type": "CHILD", "Ids": ["v1w"]}],
+        },
+        {
+            "Id": "v2",
+            "BlockType": "KEY_VALUE_SET",
+            "EntityTypes": ["VALUE"],
+            "Relationships": [{"Type": "CHILD", "Ids": ["v2w"]}],
+        },
+        {
+            "Id": "k1",
+            "BlockType": "KEY_VALUE_SET",
+            "EntityTypes": ["KEY"],
+            "Relationships": [
+                {"Type": "CHILD", "Ids": ["kw"]},
+                {"Type": "VALUE", "Ids": ["v1", "v2"]},
+            ],
+        },
+    ]
+    extractor = TextractFullExtractor(blocks)
+    fields = extractor.extract()
+    assert fields["folio"] == "123"

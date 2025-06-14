@@ -34,7 +34,12 @@ class TextractFullExtractor:
             if ":" in text:
                 key, value = map(str.strip, text.split(":", 1))
                 key_norm = normalize_key(key)
-                if key and key_norm not in self.field_dict:
+                if not key:
+                    continue
+                if (
+                    key_norm not in self.field_dict
+                    or self.field_dict.get(key_norm) == "VALUE_NOT_FOUND"
+                ):
                     self.field_dict[key_norm] = value
 
     def _add_colon_split_pairs(self):
@@ -46,7 +51,10 @@ class TextractFullExtractor:
                     key = text[:-1].strip()
                     if key:
                         key_norm = normalize_key(key)
-                        if key_norm not in self.field_dict:
+                        if (
+                            key_norm not in self.field_dict
+                            or self.field_dict.get(key_norm) == "VALUE_NOT_FOUND"
+                        ):
                             self.field_dict[key_norm] = next_text
 
     def _build_word_map(self) -> Dict[str, str]:
@@ -85,7 +93,13 @@ class TextractFullExtractor:
     def _get_final_kv_map(self, key_map, value_map):
         final_map = {}
         for key, value_ids in key_map.items():
-            values = [value_map.get(k, "VALUE_NOT_FOUND") for k in value_ids]
+            seen = set()
+            values = []
+            for k in value_ids:
+                val = value_map.get(k, "VALUE_NOT_FOUND")
+                if val not in seen:
+                    seen.add(val)
+                    values.append(val)
             final_map[key] = " | ".join(values)
         return final_map
 
