@@ -23,6 +23,7 @@ class TextractFullExtractor:
         """Extrae y normaliza los campos detectados por Textract."""
         self._extract_kv_pairs()
         self._add_inline_pairs()
+        self._add_colon_split_pairs()
         self._extract_consecutive_fields()
         self._extract_checkboxes()
         return self.field_dict
@@ -41,6 +42,18 @@ class TextractFullExtractor:
                 key_norm = normalize_key(key)
                 if key and key_norm not in self.field_dict:
                     self.field_dict[key_norm] = value
+
+    def _add_colon_split_pairs(self):
+        for idx, block in enumerate(self.lines[:-1]):
+            text = block.get("Text", "").strip()
+            if text.endswith(":"):
+                next_text = self.lines[idx + 1].get("Text", "").strip()
+                if next_text and ":" not in next_text:
+                    key = text[:-1].strip()
+                    if key:
+                        key_norm = normalize_key(key)
+                        if key_norm not in self.field_dict:
+                            self.field_dict[key_norm] = next_text
 
     def _build_word_map(self) -> Dict[str, str]:
         word_map = {}

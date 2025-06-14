@@ -34,3 +34,6 @@ python web/app.py
 
 Luego abrir `http://localhost:5000` en el navegador para cargar un documento.
 
+
+### Mejoras recientes
+- Se agregó detección de pares clave/valor cuando la clave termina en ':' y el valor se encuentra en la siguiente línea.
