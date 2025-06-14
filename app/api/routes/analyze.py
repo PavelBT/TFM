@@ -17,7 +17,7 @@ async def analyze_document(file: UploadFile = File(...)):
     service = get_ocr_service(service_name)
     raw_fields = await service.analyze(file)
     if refiner_type is None:
-        return {"fields": raw_fields}
+        return raw_fields
     else:
         processor = StructuredPostProcessor(refiner_type=refiner_type)
         processed_fields = processor.process(raw_fields["fields"])
