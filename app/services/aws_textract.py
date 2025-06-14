@@ -1,8 +1,9 @@
 # app/services/aws_textract.py
 import boto3
 import magic
-import tempfile
+import json
 import time
+from pathlib import Path
 from typing import Dict
 from fastapi import UploadFile
 from interfaces.ocr_service import OCRService
@@ -12,6 +13,21 @@ class AWSTextractOCRService(OCRService):
         self.client = boto3.client("textract", region_name=region_name)
         self.s3 = boto3.client("s3", region_name=region_name)
         self.bucket = bucket_name
+
+        dataset_path = Path(__file__).resolve().parents[1] / "training" / "textract_adapter_dataset.jsonl"
+        queries = []
+        try:
+            with open(dataset_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    data = json.loads(line)
+                    queries.extend(data.get("queries", []))
+        except FileNotFoundError:
+            queries = []
+
+        self.queries = queries
 
     async def analyze(self, file: UploadFile) -> Dict:
         contents = await file.read()
@@ -27,7 +43,8 @@ class AWSTextractOCRService(OCRService):
             # Iniciar análisis asincrónico
             start_response = self.client.start_document_analysis(
                 DocumentLocation={"S3Object": {"Bucket": self.bucket, "Name": s3_key}},
-                FeatureTypes=["FORMS"]
+                FeatureTypes=["FORMS", "QUERIES"],
+                QueriesConfig={"Queries": self.queries}
             )
             job_id = start_response["JobId"]
 
@@ -56,7 +73,8 @@ class AWSTextractOCRService(OCRService):
             # Procesar como imagen directamente
             result = self.client.analyze_document(
                 Document={"Bytes": contents},
-                FeatureTypes=["FORMS"]
+                FeatureTypes=["FORMS", "QUERIES"],
+                QueriesConfig={"Queries": self.queries}
             )
             fields = self._extract_fields(result.get("Blocks", []))
             return {"fields": fields}
