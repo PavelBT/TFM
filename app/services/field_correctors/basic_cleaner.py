@@ -8,6 +8,8 @@ from services.utils.normalization import normalize_key
 class BasicFieldCorrector(FieldCorrector):
     def correct(self, key: str, value: str) -> Optional[str]:
         value = value.strip()
+        if value.upper() == "VALUE_NOT_FOUND":
+            return None
         if not value or value.lower() in ["$", "0", "00", "000", "n/a", "na", "none", "--"]:
             return None
 
