@@ -82,3 +82,17 @@ def test_banorte_postprocessor_preserves_existing_field():
     result = processor.process(raw)
     assert result["email"] == "orig@example.com"
 
+
+def test_banorte_postprocessor_drops_section_keys():
+    processor = BanorteCreditoPostProcessor()
+    raw = {
+        "informacion_personal": ["Nombre", "Juan"],
+        "domicilio": ["Calle Falsa 123"],
+        "empleo": ["Empresa XYZ"],
+    }
+    result = processor.process(raw)
+    assert "informacion_personal" not in result
+    assert "domicilio" not in result
+    assert "empleo" not in result
+    assert result["nombre"] == "Juan"
+
