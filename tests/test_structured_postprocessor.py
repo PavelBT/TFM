@@ -30,7 +30,7 @@ def test_structured_postprocessor_single_refine(monkeypatch):
     dummy_refiner = DummyRefiner()
     monkeypatch.setattr(
         "services.postprocessors.postprocessor.get_postprocessor",
-        lambda form_type: DummyPostProcessor(),
+        lambda form_type, structured=False: DummyPostProcessor(),
     )
     monkeypatch.setattr(
         "services.postprocessors.postprocessor.get_ai_refiner",

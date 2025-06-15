@@ -40,3 +40,21 @@ Luego abrir `http://localhost:5000` en el navegador para cargar un documento.
 - El OCR de Textract agrupa las líneas manuscritas por secciones del formulario
   Banorte utilizando los encabezados impresos (información del crédito,
   información personal, domicilio, empleo y referencias personales).
+
+## Salida estructurada
+El postprocesador puede opcionalmente regresar un diccionario con secciones
+anidadas. Los campos se agrupan en `datos_personales`, `contacto`, `empleo` y
+`finanzas`, además de valores derivados de las casillas seleccionadas.
+
+Ejemplo:
+
+```json
+{
+  "datos_personales": {"nombre": "Juan"},
+  "contacto": {"telefono_de_casa": "5512345678"},
+  "empleo": {},
+  "finanzas": {"sueldo_mensual": "10000"},
+  "plazo_credito": "12",
+  "genero": "Femenino"
+}
+```
