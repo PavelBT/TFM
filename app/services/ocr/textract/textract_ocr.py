@@ -13,6 +13,7 @@ from fastapi.concurrency import run_in_threadpool
 from fastapi import UploadFile
 from interfaces.ocr_service import OCRService
 from services.storage.s3_uploader import S3Uploader
+from models.raw_ocr_response import RawOCRResponse
 
 class AWSTextractOCRService(OCRService):
     
@@ -22,7 +23,7 @@ class AWSTextractOCRService(OCRService):
         self.bucket = bucket_name
         self.uploader = S3Uploader(bucket_name, region_name)
 
-    async def analyze(self, file: UploadFile) -> dict:
+    async def analyze(self, file: UploadFile) -> RawOCRResponse:
         contents = await file.read()
         mime_type = magic.from_buffer(contents, mime=True)
         is_pdf = mime_type == "application/pdf"
@@ -87,8 +88,4 @@ class AWSTextractOCRService(OCRService):
 
         await run_in_threadpool(self.uploader.delete_file, s3_key)
 
-        return {
-            "blocks": blocks,
-            "s3_path": s3_key,
-            "mime_type": mime_type,
-        }
+        return RawOCRResponse(blocks=blocks, s3_path=s3_key, mime_type=mime_type)

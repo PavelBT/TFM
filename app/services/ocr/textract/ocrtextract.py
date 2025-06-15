@@ -5,6 +5,7 @@ from services.ocr.textract.textract_block_parser import TextractBlockParser
 from services.ocr.textract.textract_layout_parser import TextractLayoutParser
 from services.ocr.textract.banorte_layout_parser import BanorteLayoutParser
 from services.ocr.textract.textract_ocr import AWSTextractOCRService
+from models.raw_ocr_response import RawOCRResponse
 
 
 class OcrTextract:
@@ -14,8 +15,8 @@ class OcrTextract:
         self.service = AWSTextractOCRService()
 
     async def process(self, file: UploadFile) -> DataResponse:
-        ocr_result = await self.service.analyze(file)
-        blocks = ocr_result.get("blocks", [])
+        ocr_result: RawOCRResponse = await self.service.analyze(file)
+        blocks = ocr_result.blocks
         if not blocks:
             raise RuntimeError("Textract returned no blocks")
 
@@ -37,7 +38,7 @@ class OcrTextract:
 
         data = {
             "form_type": form_type,
-            "file_name": ocr_result.get("s3_path"),
+            "file_name": ocr_result.s3_path,
             "fields": fields,
         }
 
