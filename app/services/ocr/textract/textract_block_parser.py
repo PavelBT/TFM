@@ -50,7 +50,7 @@ class TextractBlockParser:
             else:
                 self.field_dict[key_norm] = "VALUE_NOT_FOUND"
 
-        if not self.field_dict and self.use_line_fallback:
+        if self.use_line_fallback:
             self._extract_from_lines()
 
         return self.field_dict
@@ -83,4 +83,7 @@ class TextractBlockParser:
             if not key or not val:
                 continue
             key_norm = normalize_key(key) if self.normalize_keys else key
+            existing = self.field_dict.get(key_norm)
+            if existing and existing != "VALUE_NOT_FOUND":
+                continue
             self.field_dict[key_norm] = val

@@ -52,3 +52,33 @@ def test_banorte_postprocessor_checklist():
     assert result["tipo_de_empleo"] == "asalariado"
     assert result["politicamente_expuesto"] == "no"
 
+
+def test_banorte_postprocessor_extract_email():
+    processor = BanorteCreditoPostProcessor()
+    raw = {
+        "informacion_personal": [
+            "Teléfono Celular",
+            "4432222222",
+            "E-mail",
+            "4431111111",
+            "usuario@example.com",
+            "Tipo de Identificación",
+            "INE",
+        ]
+    }
+    result = processor.process(raw)
+    assert result["email"] == "usuario@example.com"
+
+
+def test_banorte_postprocessor_preserves_existing_field():
+    processor = BanorteCreditoPostProcessor()
+    raw = {
+        "email": "orig@example.com",
+        "informacion_personal": [
+            "E-mail",
+            "otro@example.com",
+        ],
+    }
+    result = processor.process(raw)
+    assert result["email"] == "orig@example.com"
+
