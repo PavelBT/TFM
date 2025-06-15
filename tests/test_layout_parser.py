@@ -45,3 +45,30 @@ def test_banorte_layout_parser_sections():
     assert sections["domicilio"] == ["Av Siempre Viva", "Col Centro"]
     assert sections["empleo"] == ["Empresa XYZ", "Puesto ABC"]
     assert sections["referencias_personales"] == ["Carlos Diaz", "555-1234"]
+
+
+def test_banorte_layout_parser_stops_long_lines():
+    long_text = (
+        "OPERATIVA DE HISTORIAL O INFORMACION CREDITICIA Y DE CUALQUIER OTRA "
+        "NATURALEZA QUE LE SEA PROPORCIONADA POR MI O POR TERCEROS CON MI "
+        "AUTORIZACION A CUALQUIERA DE LAS ENTIDADES FINANCIERAS DE BANCO "
+        "MERCANTIL DEL"
+    )
+    blocks = [
+        {"Id": "1", "BlockType": "LINE", "Text": "INFORMACION PERSONAL", "Page": 1,
+         "Geometry": {"BoundingBox": {"Top": 0.1, "Left": 0}}},
+        {"Id": "2", "BlockType": "LINE", "Text": "Nombre", "Page": 1,
+         "Geometry": {"BoundingBox": {"Top": 0.15, "Left": 0}}},
+        {"Id": "3", "BlockType": "LINE", "Text": "Juan", "Page": 1,
+         "Geometry": {"BoundingBox": {"Top": 0.2, "Left": 0}}},
+        {"Id": "4", "BlockType": "LINE", "Text": long_text, "Page": 1,
+         "Geometry": {"BoundingBox": {"Top": 0.3, "Left": 0}}},
+        {"Id": "5", "BlockType": "LINE", "Text": "DOMICILIO", "Page": 1,
+         "Geometry": {"BoundingBox": {"Top": 0.4, "Left": 0}}},
+        {"Id": "6", "BlockType": "LINE", "Text": "Calle 5", "Page": 1,
+         "Geometry": {"BoundingBox": {"Top": 0.45, "Left": 0}}},
+    ]
+    parser = BanorteLayoutParser(blocks)
+    sections = parser.parse()
+    assert sections["informacion_personal"] == ["Nombre", "Juan"]
+    assert sections["domicilio"] == ["Calle 5"]

@@ -81,3 +81,14 @@ def test_kv_map_deduplicates_values():
     fields = extractor.extract()
     assert fields["folio"] == "123"
 
+
+def test_line_fallback_supplements_missing_values():
+    blocks = [
+        {"Id": "kw", "BlockType": "WORD", "Text": "E-mail"},
+        {"Id": "k1", "BlockType": "KEY_VALUE_SET", "EntityTypes": ["KEY"], "Relationships": [{"Type": "CHILD", "Ids": ["kw"]}]},
+        {"Id": "l1", "BlockType": "LINE", "Text": "E-mail: user@example.com"},
+    ]
+    extractor = TextractBlockParser(blocks, use_line_fallback=True)
+    fields = extractor.extract()
+    assert fields["email"] == "user@example.com"
+
