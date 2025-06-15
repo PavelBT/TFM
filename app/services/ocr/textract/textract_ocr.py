@@ -85,6 +85,8 @@ class AWSTextractOCRService(OCRService):
                 blocks.extend(result.get("Blocks", []))
                 next_token = result.get("NextToken")
 
+        await run_in_threadpool(self.uploader.delete_file, s3_key)
+
         return {
             "blocks": blocks,
             "s3_path": s3_key,
