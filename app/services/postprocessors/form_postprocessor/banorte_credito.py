@@ -96,6 +96,10 @@ class BanorteCreditoPostProcessor(GenericPostProcessor):
         extracted = self._extract_from_sections(raw_fields)
         for key, value in extracted.items():
             raw_fields.setdefault(key, value)
+
+        for section in self.SECTION_KEYS:
+            raw_fields.pop(section, None)
+
         cleaned = super().process(raw_fields)
         checklist = cleaned.pop("checklist", [])
         if isinstance(checklist, list):
