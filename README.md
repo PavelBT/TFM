@@ -37,9 +37,6 @@ Luego abrir `http://localhost:5000` en el navegador para cargar un documento.
 
 ### Mejoras recientes
 - Los nombres de campo conservan los delimitadores "/" convirtiéndolos en "_".
-- El OCR de Textract agrupa las líneas manuscritas por secciones del formulario
-  Banorte utilizando los encabezados impresos (información del crédito,
-  información personal, domicilio, empleo y referencias personales).
 
 ## Salida estructurada
 El postprocesador puede opcionalmente regresar un diccionario con secciones
