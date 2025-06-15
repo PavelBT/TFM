@@ -3,7 +3,6 @@ from models.data_response import DataResponse
 from services.ocr.form_identifier import FormIdentifier
 from services.ocr.textract.textract_block_parser import TextractBlockParser
 from services.ocr.textract.textract_layout_parser import TextractLayoutParser
-from services.ocr.textract.banorte_layout_parser import BanorteLayoutParser
 from services.ocr.textract.textract_ocr import AWSTextractOCRService
 from models.raw_ocr_response import RawOCRResponse
 
@@ -25,16 +24,10 @@ class OcrTextract:
         parser = TextractBlockParser(blocks, use_line_fallback=True)
         fields = parser.extract()
 
-        if form_type == "banorte_credito":
-            banorte_parser = BanorteLayoutParser(blocks)
-            extra = banorte_parser.parse()
-            if extra:
-                fields.update(extra)
-        else:
-            layout_parser = TextractLayoutParser(blocks)
-            sections = layout_parser.parse()
-            if sections:
-                fields.update(sections)
+        layout_parser = TextractLayoutParser(blocks)
+        sections = layout_parser.parse()
+        if sections:
+            fields.update(sections)
 
         data = {
             "form_type": form_type,
