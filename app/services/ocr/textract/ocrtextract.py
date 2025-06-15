@@ -22,19 +22,19 @@ class OcrTextract:
 
         form_type = FormIdentifier.identify_form(blocks) or "desconocido"
 
-        parser = TextractBlockParser(blocks)
+        parser = TextractBlockParser(blocks, use_line_fallback=True)
         fields = parser.extract()
-
-        layout_parser = TextractLayoutParser(blocks)
-        sections = layout_parser.parse()
-        if sections:
-            fields.update(sections)
 
         if form_type == "banorte_credito":
             banorte_parser = BanorteLayoutParser(blocks)
             extra = banorte_parser.parse()
             if extra:
                 fields.update(extra)
+        else:
+            layout_parser = TextractLayoutParser(blocks)
+            sections = layout_parser.parse()
+            if sections:
+                fields.update(sections)
 
         data = {
             "form_type": form_type,

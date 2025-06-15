@@ -6,14 +6,27 @@ from services.ocr.textract.textract_layout_parser import TextractLayoutParser
 class BanorteLayoutParser(TextractLayoutParser):
     """Layout parser specialized for Banorte personal credit forms."""
 
-    STOP_HEADERS = {"CLAUSULAS", "CONSENTIMIENTO"}
+    STOP_HEADERS = {
+        "CLAUSULAS",
+        "CONSENTIMIENTO",
+        "CRÉDITO PERSONAL BANORTE",
+        "CREDITO PERSONAL BANORTE",
+    }
+
+    LONG_STOP_WORDS = 12
 
     def __init__(self, blocks: List[Dict]):
         super().__init__(blocks, headers=[])
         self.recognized_sections: List[str] = []
 
     def _is_stop(self, text: str) -> bool:
-        return text.strip().upper() in self.STOP_HEADERS
+        cleaned = text.strip()
+        upper = cleaned.upper()
+        if upper in self.STOP_HEADERS:
+            return True
+        if cleaned == upper and len(cleaned.split()) > self.LONG_STOP_WORDS:
+            return True
+        return False
 
     def parse(self) -> Dict[str, List[str]]:
         sections: Dict[str, List[str]] = {}
