@@ -4,16 +4,14 @@ from services.ocr.form_identifier import FormIdentifier
 from services.ocr.textract.textract_block_parser import TextractBlockParser
 from services.ocr.textract.textract_layout_parser import TextractLayoutParser
 from services.ocr.textract.banorte_layout_parser import BanorteLayoutParser
-from services.postprocessors.postprocessor import StructuredPostProcessor
-from interfaces.ocr_service import OCRService
+from services.ocr.textract.textract_ocr import AWSTextractOCRService
 
 
 class OcrTextract:
     """Pipeline to process documents using AWS Textract."""
 
-    def __init__(self, service: OCRService, refiner_type: str = "gpt"):
-        self.service = service
-        self.refiner_type = refiner_type
+    def __init__(self):
+        self.service = AWSTextractOCRService()
 
     async def process(self, file: UploadFile) -> DataResponse:
         ocr_result = await self.service.analyze(file)
@@ -43,5 +41,4 @@ class OcrTextract:
             "fields": fields,
         }
 
-        processor = StructuredPostProcessor(data=data, refiner_type=self.refiner_type)
-        return processor.process()
+        return DataResponse(**data)

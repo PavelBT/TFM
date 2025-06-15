@@ -17,30 +17,13 @@ class DummyPostProcessor:
         return fields
 
 
-class DummyRefiner:
-    def __init__(self):
-        self.calls = []
-
-    def refine(self, fields):
-        self.calls.append(fields.copy())
-        return {k: v.upper() for k, v in fields.items()}
-
-
-def test_structured_postprocessor_single_refine(monkeypatch):
-    dummy_refiner = DummyRefiner()
+def test_structured_postprocessor_basic(monkeypatch):
     monkeypatch.setattr(
         "services.postprocessors.postprocessor.get_postprocessor",
         lambda form_type, structured=False: DummyPostProcessor(),
     )
-    monkeypatch.setattr(
-        "services.postprocessors.postprocessor.get_ai_refiner",
-        lambda refiner_type: dummy_refiner,
-    )
-
     data = {"fields": {"a": "x", "b": "y"}}
-    processor = StructuredPostProcessor(data, refiner_type="gpt")
+    processor = StructuredPostProcessor(data)
     result = processor.process()
 
-    assert result["fields"] == {"a": "X", "b": "Y"}
-    assert len(dummy_refiner.calls) == 1
-    assert dummy_refiner.calls[0] == {"a": "x", "b": "y"}
+    assert result["fields"] == {"a": "x", "b": "y"}
