@@ -2,7 +2,7 @@ import openai
 import json
 import logging
 from typing import Dict, Union
-from ..interfaces.ai_refiner import AIRefiner
+from interfaces.ai_refiner import AIRefiner
 
 
 class GPTRefiner(AIRefiner):

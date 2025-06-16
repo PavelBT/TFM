@@ -2,7 +2,7 @@
 import logging
 from typing import Dict
 from transformers import pipeline
-from ..interfaces.ai_refiner import AIRefiner
+from interfaces.ai_refiner import AIRefiner
 
 logging.basicConfig(level=logging.INFO)
 

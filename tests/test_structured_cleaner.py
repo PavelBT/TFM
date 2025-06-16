@@ -1,4 +1,4 @@
-from app.services.field_correctors.structured_cleaner import StructuredFieldCorrector
+from services.field_correctors.structured_cleaner import StructuredFieldCorrector
 
 
 def test_transform_basic():
