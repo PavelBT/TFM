@@ -37,7 +37,7 @@ class StructuredFieldCorrector(FieldCorrector):
     def _finalize(self, structured: Dict, plazos: set, genero: Optional[str]) -> Dict:
         if plazos:
             structured["plazo_credito"] = max(plazos, key=int)
-        else:
+        elif structured["plazo_credito"] is None:
             structured["plazo_credito"] = ""
 
         structured["genero"] = genero or ""
@@ -95,6 +95,21 @@ class StructuredFieldCorrector(FieldCorrector):
             elif "sueldo mensual" in clean_key:
                 sueldo = re.sub(r"[^\d]", "", corrected_value)
                 structured["finanzas"]["sueldo_mensual"] = int(sueldo) if sueldo.isdigit() else None
+            # Support direct key/value entries not coming from checkboxes
+            elif "plazo" in clean_key and "credito" in clean_key:
+                structured["plazo_credito"] = corrected_value
+            elif "genero" in clean_key:
+                genero_detectado = corrected_value.title()
+            elif "estado civil" in clean_key:
+                structured["estado_civil"] = corrected_value.title()
+            elif "regimen matrimonial" in clean_key:
+                structured["regimen_matrimonial"] = corrected_value.title()
+            elif "tipo propiedad" in clean_key or clean_key == "propiedad":
+                structured["tipo_propiedad"] = corrected_value.title()
+            elif "otros ingresos" in clean_key and corrected_value:
+                structured["otros_ingresos"] = corrected_value.title()
+            elif "tipo ingreso" in clean_key:
+                structured["tipo_ingreso"] = corrected_value.title()
             elif any(x in clean_key for x in ["nombre", "apellido", "curp", "rfc"]):
                 structured["datos_personales"][clean_key] = corrected_value
             elif any(x in clean_key for x in ["teléfono", "celular", "correo", "email"]):
