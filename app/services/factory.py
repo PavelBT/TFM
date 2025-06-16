@@ -1,5 +1,5 @@
 # app/services/factory.py
-from services.aws_textract import AWSTextractOCRService
+from services.ocr.textract.aws_service import AWSTextractOCRService
 from interfaces.ocr_service import OCRService
 
 

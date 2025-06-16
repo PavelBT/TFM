@@ -6,7 +6,7 @@ from interfaces.field_corrector import FieldCorrector
 from services.field_correctors.basic_cleaner import BasicFieldCorrector
 
 
-class StructuredFieldCorrector(FieldCorrector):
+class BanorteCreditoFieldCorrector(FieldCorrector):
     def __init__(self):
         self.basic = BasicFieldCorrector()
 

@@ -1,17 +1,17 @@
 import openai
 import json
-import logging
 from typing import Dict, Union
 from interfaces.ai_refiner import AIRefiner
+from services.utils.logger import get_logger
 
 
 class GPTRefiner(AIRefiner):
     def __init__(self, api_key: str, model: str = "gpt-3.5-turbo"):
+        self.logger = get_logger(self.__class__.__name__)
         self.api_key = api_key
         self.model = model
         openai.api_key = self.api_key
-        logging.basicConfig(level=logging.INFO)
-        logging.info(f"[GPTRefiner] Modelo {model} listo.")
+        self.logger.info("Modelo %s listo", model)
 
     def refine(self, fields: Dict[str, Union[str, Dict[str, str]]]) -> Dict[str, Union[str, Dict[str, str]]]:
         try:
@@ -33,11 +33,12 @@ class GPTRefiner(AIRefiner):
 
             try:
                 corrected_json = json.loads(corrected_text)
-                logging.info("[GPTRefiner] Corrección completada.")
+                self.logger.info("Corrección completada")
                 return corrected_json
             except json.JSONDecodeError:
-                logging.warning("[GPTRefiner] GPT no devolvió JSON válido, se usa original.")
+                self.logger.warning("GPT no devolvió JSON válido, se usa original")
                 return fields
         except Exception as e:
-            logging.warning(f"[GPTRefiner] Error al refinar JSON completo: {e}")
+            self.logger.warning("Error al refinar JSON completo: %s", e)
             return fields
+

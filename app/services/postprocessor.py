@@ -2,13 +2,13 @@
 from typing import Dict
 import logging
 from interfaces.postprocessor import PostProcessor
-from services.field_correctors.structured_cleaner import StructuredFieldCorrector
+from app.services.field_correctors.banorte_credito_cleaner import BanorteCreditoFieldCorrector
 from services.ai_refiners.factory import get_ai_refiner
 
 
 class StructuredPostProcessor(PostProcessor):
     def __init__(self, refiner_type: str | None):
-        self.corrector = StructuredFieldCorrector()
+        self.corrector = BanorteCreditoFieldCorrector()
         self.refiner = get_ai_refiner(refiner_type) if refiner_type else None
 
     def process(self, fields: Dict[str, str]) -> Dict:
