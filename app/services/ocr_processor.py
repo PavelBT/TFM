@@ -22,8 +22,8 @@ class OCRProcessor:
         logger.info("Running OCR service")
         try:
             raw = await self.ocr_service.analyze(file)
-        except Exception as e:
-            logger.error("Error during OCR service execution: %s", e)
+        except Exception:
+            logger.exception("Error during OCR service execution")
             raise
 
         form_type = FormIdentifier.identify(raw["fields"])
@@ -39,8 +39,13 @@ class OCRProcessor:
         if self.refiner_type:
             logger.info("Refining fields using %s", self.refiner_type)
             refiner_service = get_ai_refiner(self.refiner_type)
-            refined = refiner_service.refine(fields=processed)
+            try:
+                refined = refiner_service.refine(fields=processed)
+            except Exception:
+                logger.exception("Error during field refinement")
+                refined = {}
 
+        logger.info("Returning %d processed fields", len(processed))
         return {"form_type": form_type, "fields": refined | processed}
 
     def refiner(self, fields: Dict,refiner_type: str | None = None):

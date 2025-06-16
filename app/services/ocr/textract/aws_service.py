@@ -36,20 +36,26 @@ class AWSTextractOCRService:
                 s3_key = f"uploads/{file.filename}"
                 await asyncio.to_thread(self.s3.upload, s3_key, contents)
                 logger.info("Starting asynchronous Textract job")
-                job_id = await asyncio.to_thread(self.textract.start_document_analysis, self.bucket, s3_key)
+                job_id = await asyncio.to_thread(
+                    self.textract.start_document_analysis, self.bucket, s3_key
+                )
                 status = "IN_PROGRESS"
                 tries = 0
                 result = None
                 while status == "IN_PROGRESS" and tries < 20:
                     await asyncio.sleep(3)
-                    result = await asyncio.to_thread(self.textract.get_document_analysis, job_id)
+                    result = await asyncio.to_thread(
+                        self.textract.get_document_analysis, job_id
+                    )
                     status = result["JobStatus"]
                     logger.info("Textract job status: %s", status)
                     tries += 1
+                logger.info("Cleaning up temporary file from S3")
                 await asyncio.to_thread(self.s3.delete, s3_key)
                 if status != "SUCCEEDED":
                     logger.error("Textract job failed with status: %s", status)
                     raise RuntimeError(f"Textract job failed with status: {status}")
+                logger.info("Textract job completed successfully")
                 blocks = result.get("Blocks", []) if result else []
             else:
                 logger.info("Using synchronous Textract API")
@@ -61,5 +67,5 @@ class AWSTextractOCRService:
             logger.info("Parsed %d fields", len(fields))
             return {"fields": fields}
         except Exception as e:
-            logger.error("Error during Textract analysis: %s", e)
+            logger.exception("Error during Textract analysis")
             raise

@@ -6,6 +6,9 @@ from app.services.field_correctors.banorte_credito_cleaner import BanorteCredito
 from services.ai_refiners.factory import get_ai_refiner
 
 
+logger = logging.getLogger(__name__)
+
+
 class StructuredPostProcessor(PostProcessor):
     def __init__(self, refiner_type: str | None):
         self.corrector = BanorteCreditoFieldCorrector()
@@ -32,8 +35,8 @@ class StructuredPostProcessor(PostProcessor):
                         structured[section] = refined_result[section]
                     else:
                         structured[section] = content
-            except Exception as e:
-                logging.warning(f"[PostProcessor] Error al refinar sección '{section}': {e}")
+            except Exception:
+                logger.exception("[PostProcessor] Error al refinar sección '%s'", section)
                 structured[section] = content
 
         return structured

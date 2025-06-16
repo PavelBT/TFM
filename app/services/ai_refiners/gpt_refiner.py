@@ -12,7 +12,6 @@ class GPTRefiner(AIRefiner):
         self.api_key = api_key
         self.model = model
         openai.api_key = self.api_key
-        logging.basicConfig(level=logging.INFO)
         logger.info("[GPTRefiner] Modelo %s listo.", model)
 
     def refine(self, fields: Dict[str, Union[str, Dict[str, str]]]) -> Dict[str, Union[str, Dict[str, str]]]:
@@ -40,6 +39,6 @@ class GPTRefiner(AIRefiner):
             except json.JSONDecodeError:
                 logger.warning("[GPTRefiner] GPT no devolvió JSON válido, se usa original.")
                 return fields
-        except Exception as e:
-            logger.warning(f"[GPTRefiner] Error al refinar JSON completo: {e}")
+        except Exception:
+            logger.exception("[GPTRefiner] Error al refinar JSON completo")
             return fields

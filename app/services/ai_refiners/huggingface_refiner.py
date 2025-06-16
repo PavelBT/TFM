@@ -26,7 +26,7 @@ class HuggingFaceRefiner(AIRefiner):
                 output = result[0]["generated_text"].strip()
                 logger.info("[IA] %s - ORIG: %s → CORREGIDO: %s", key, value, output)
                 refined[key] = output
-            except Exception as e:
-                logger.warning("Error al refinar campo '%s': %s", key, e)
+            except Exception:
+                logger.exception("Error al refinar campo '%s'", key)
                 refined[key] = value
         return refined
