@@ -1,3 +1,4 @@
+# services/ocr/textract/aws_service.py
 import os
 import asyncio
 import magic
@@ -10,6 +11,8 @@ from .s3_uploader import S3Uploader
 
 AWS_REGION = os.getenv("AWS_REGION", "us-east-2")
 AWS_BUCKET = os.getenv("AWS_BUCKET", "ocr-bucket-pbt-devop")
+MAX_RETRIES = int(os.getenv("TEXTRACT_MAX_RETRIES", 30))
+SLEEP_TIME = int(os.getenv("TEXTRACT_SLEEP_SECONDS", 4))
 
 class AWSTextractOCRService:
     def __init__(self, region_name: str = AWS_REGION, bucket_name: str = AWS_BUCKET):
@@ -17,6 +20,18 @@ class AWSTextractOCRService:
         self.parser = TextractBlockParser()
         self.s3 = S3Uploader(bucket_name, region_name=region_name)
         self.bucket = bucket_name
+
+    async def wait_for_textract_result(self, get_result_fn, job_id: str, max_retries: int = 30, delay: int = 4):
+        for attempt in range(max_retries):
+            result = await asyncio.to_thread(get_result_fn, job_id)
+            status = result.get("JobStatus", "UNKNOWN")
+            print(f"[Textract] Attempt {attempt + 1}/{max_retries} – Status: {status}")
+            if status == "SUCCEEDED":
+                return result
+            elif status == "FAILED":
+                raise RuntimeError(f"Textract job failed with status: {status}")
+            await asyncio.sleep(delay)
+        raise TimeoutError("Textract job did not complete in time.")
 
     async def analyze(self, file: UploadFile) -> Dict:
         contents = await file.read()
@@ -27,17 +42,8 @@ class AWSTextractOCRService:
             s3_key = f"uploads/{file.filename}"
             await asyncio.to_thread(self.s3.upload, s3_key, contents)
             job_id = await asyncio.to_thread(self.textract.start_document_analysis, self.bucket, s3_key)
-            status = "IN_PROGRESS"
-            tries = 0
-            result = None
-            while status == "IN_PROGRESS" and tries < 20:
-                await asyncio.sleep(3)
-                result = await asyncio.to_thread(self.textract.get_document_analysis, job_id)
-                status = result["JobStatus"]
-                tries += 1
+            result = await self.wait_for_textract_result(self.textract.get_document_analysis, job_id, MAX_RETRIES, SLEEP_TIME)
             await asyncio.to_thread(self.s3.delete, s3_key)
-            if status != "SUCCEEDED":
-                raise RuntimeError(f"Textract job failed with status: {status}")
             blocks = result.get("Blocks", []) if result else []
         else:
             result = await asyncio.to_thread(self.textract.analyze_document, contents)
