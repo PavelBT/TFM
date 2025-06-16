@@ -1,14 +1,15 @@
 # app/services/aws_textract.py
+import asyncio
 import boto3
 import magic
 import tempfile
-import time
 from typing import Dict
 from fastapi import UploadFile
-from interfaces.ocr_service import OCRService
+from ..interfaces.ocr_service import OCRService
+
 
 class AWSTextractOCRService(OCRService):
-    def __init__(self, region_name="us-east-2", bucket_name="ocr-bucket-pbt-devop"):
+    def __init__(self, region_name: str = "us-east-2", bucket_name: str = "ocr-bucket-pbt-devop"):
         self.client = boto3.client("textract", region_name=region_name)
         self.s3 = boto3.client("s3", region_name=region_name)
         self.bucket = bucket_name
@@ -20,46 +21,42 @@ class AWSTextractOCRService(OCRService):
         is_pdf = mime_type == "application/pdf"
 
         if is_pdf:
-            # Subir a S3
             s3_key = f"uploads/{file.filename}"
-            self.s3.put_object(Bucket=self.bucket, Key=s3_key, Body=contents)
+            await asyncio.to_thread(self.s3.put_object, Bucket=self.bucket, Key=s3_key, Body=contents)
 
-            # Iniciar análisis asincrónico
-            start_response = self.client.start_document_analysis(
+            start_response = await asyncio.to_thread(
+                self.client.start_document_analysis,
                 DocumentLocation={"S3Object": {"Bucket": self.bucket, "Name": s3_key}},
-                FeatureTypes=["FORMS"]
+                FeatureTypes=["FORMS"],
             )
             job_id = start_response["JobId"]
 
-            # Esperar a que el análisis termine
             status = "IN_PROGRESS"
             tries = 0
+            result = None
             while status == "IN_PROGRESS" and tries < 20:
-                time.sleep(3)
-                result = self.client.get_document_analysis(JobId=job_id)
+                await asyncio.sleep(3)
+                result = await asyncio.to_thread(self.client.get_document_analysis, JobId=job_id)
                 status = result["JobStatus"]
                 tries += 1
 
             if status != "SUCCEEDED":
                 raise RuntimeError(f"Textract job failed with status: {status}")
 
-            blocks = result.get("Blocks", [])
+            blocks = result.get("Blocks", []) if result else []
             fields = self._extract_fields(blocks)
-        
-            # Eliminar después de procesar
-            self.s3.delete_object(Bucket=self.bucket, Key=s3_key)
+
+            await asyncio.to_thread(self.s3.delete_object, Bucket=self.bucket, Key=s3_key)
 
             return {"fields": fields}
-        
 
-        else:
-            # Procesar como imagen directamente
-            result = self.client.analyze_document(
-                Document={"Bytes": contents},
-                FeatureTypes=["FORMS"]
-            )
-            fields = self._extract_fields(result.get("Blocks", []))
-            return {"fields": fields}
+        result = await asyncio.to_thread(
+            self.client.analyze_document,
+            Document={"Bytes": contents},
+            FeatureTypes=["FORMS"],
+        )
+        fields = self._extract_fields(result.get("Blocks", []))
+        return {"fields": fields}
 
     def _extract_fields(self, blocks: list) -> Dict[str, str]:
         key_map = {}
