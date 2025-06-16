@@ -2,7 +2,7 @@
 
 import re
 from typing import Optional
-from ...interfaces.field_corrector import FieldCorrector
+from interfaces.field_corrector import FieldCorrector
 
 
 class BasicFieldCorrector(FieldCorrector):

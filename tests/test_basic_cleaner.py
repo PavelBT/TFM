@@ -1,5 +1,5 @@
 import pytest
-from app.services.field_correctors.basic_cleaner import BasicFieldCorrector
+from services.field_correctors.basic_cleaner import BasicFieldCorrector
 
 bc = BasicFieldCorrector()
 

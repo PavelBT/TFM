@@ -5,7 +5,7 @@ import magic
 import tempfile
 from typing import Dict
 from fastapi import UploadFile
-from ..interfaces.ocr_service import OCRService
+from interfaces.ocr_service import OCRService
 
 
 class AWSTextractOCRService(OCRService):

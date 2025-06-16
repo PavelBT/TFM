@@ -1,8 +1,8 @@
 # app/api/routes/analyze.py
 import os
 from fastapi import APIRouter, UploadFile, File, HTTPException
-from ...models.ocr_response import OCRResponse
-from ...services.ocr_service_manager import OCRServiceManager
+from models.ocr_response import OCRResponse
+from services.ocr_service_manager import OCRServiceManager
 
 SERVICE_NAME = os.getenv("OCR_SERVICE", "aws")
 REFINER_TYPE = os.getenv("REFINER_TYPE")
