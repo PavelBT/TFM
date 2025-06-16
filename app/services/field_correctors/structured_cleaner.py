@@ -14,8 +14,8 @@ class StructuredFieldCorrector(FieldCorrector):
         return re.sub(r"[:\-\.]", "", key).strip().lower()
 
     def _is_selected(self, value: str) -> bool:
-        value = value.lower()
-        return "[x]" in value or value in {"si", "sí", "x"}
+        """Determine if a checkbox value is marked as selected."""
+        return "[x]" in value.lower()
 
     def correct(self, key: str, value: str) -> Optional[str]:
         return self.basic.correct(key, value)

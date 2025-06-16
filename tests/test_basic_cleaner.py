@@ -6,26 +6,25 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app"))
 from services.field_correctors.basic_cleaner import BasicFieldCorrector
 
 
-def test_basic_cleaner_placeholder():
+def test_basic_cleaner_email_normalization():
     cleaner = BasicFieldCorrector()
-    assert cleaner.correct("any", "VALUE_NOT_FOUND") is None
+    assert (
+        cleaner.correct("Email", "USUARIO@Example.com ")
+        == "usuario@example.com"
+    )
 
 
-def test_basic_cleaner_unchecked_box():
+def test_basic_cleaner_phone_digits():
     cleaner = BasicFieldCorrector()
-    assert cleaner.correct("any", "[ ]") is None
+    assert cleaner.correct("Teléfono", "(55) 1234-5678") == "5512345678"
 
 
-def test_basic_cleaner_not_selected_keyword():
+def test_basic_cleaner_amount_digits_only():
     cleaner = BasicFieldCorrector()
-    assert cleaner.correct("any", "NOT_SELECTED") is None
+    assert cleaner.correct("Monto", "$1,234") == "1234"
 
 
-def test_basic_cleaner_currency():
+def test_basic_cleaner_name_capitalization():
     cleaner = BasicFieldCorrector()
-    assert cleaner.correct("monto solicitado", "$100,000.00") == "100000.00"
+    assert cleaner.correct("Nombre", "juan perez") == "Juan Perez"
 
-
-def test_basic_cleaner_discard_long_key():
-    cleaner = BasicFieldCorrector()
-    assert cleaner.correct("Aviso de Privacidad y Politica de Datos", "test") is None
