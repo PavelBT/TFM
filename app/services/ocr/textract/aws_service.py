@@ -1,3 +1,4 @@
+import os
 import asyncio
 import magic
 from typing import Dict
@@ -7,9 +8,11 @@ from .ocr_textract import OcrTextract
 from .textract_block_parser import TextractBlockParser
 from .s3_uploader import S3Uploader
 
+AWS_REGION = os.getenv("AWS_REGION", "us-east-2")
+AWS_BUCKET = os.getenv("AWS_BUCKET", "ocr-bucket-pbt-devop")
 
 class AWSTextractOCRService:
-    def __init__(self, region_name: str = "us-east-2", bucket_name: str = "ocr-bucket"):
+    def __init__(self, region_name: str = AWS_REGION, bucket_name: str = AWS_BUCKET):
         self.textract = OcrTextract(region_name=region_name)
         self.parser = TextractBlockParser()
         self.s3 = S3Uploader(bucket_name, region_name=region_name)
