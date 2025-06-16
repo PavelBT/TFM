@@ -9,4 +9,4 @@ docker-compose down
 echo "🚀 Reconstruyendo y levantando contenedores..."
 docker-compose up --build -d
 
-echo "✅ Deploy completado con éxito."
+
