@@ -1,8 +1,8 @@
-from services.field_correctors.structured_cleaner import StructuredFieldCorrector
+from services.field_correctors.banorte_credito_cleaner import BanorteCreditoFieldCorrector
 
 
 def test_transform_basic():
-    cleaner = StructuredFieldCorrector()
+    cleaner = BanorteCreditoFieldCorrector()
     data = {
         'Nombre': ' juan ',
         'Apellido': 'perez',
