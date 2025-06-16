@@ -4,6 +4,7 @@ import logging
 from typing import Dict, Union
 from interfaces.ai_refiner import AIRefiner
 
+
 class GPTRefiner(AIRefiner):
     def __init__(self, api_key: str, model: str = "gpt-3.5-turbo"):
         self.api_key = api_key
@@ -23,11 +24,9 @@ class GPTRefiner(AIRefiner):
 
             response = openai.chat.completions.create(
                 model=self.model,
-                messages=[
-                    {"role": "user", "content": prompt}
-                ],
+                messages=[{"role": "user", "content": prompt}],
                 max_tokens=1000,
-                temperature=0.2
+                temperature=0.2,
             )
 
             corrected_text = response.choices[0].message.content.strip()
@@ -39,7 +38,6 @@ class GPTRefiner(AIRefiner):
             except json.JSONDecodeError:
                 logging.warning("[GPTRefiner] GPT no devolvió JSON válido, se usa original.")
                 return fields
-
         except Exception as e:
             logging.warning(f"[GPTRefiner] Error al refinar JSON completo: {e}")
             return fields

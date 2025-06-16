@@ -3,15 +3,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from api.routes.analyze import router as analyze_router
 
-app = FastAPI(
-    title="OCR Form Processor",
-    version="1.0.0"
-)
+app = FastAPI(title="OCR Form Processor", version="1.0.0")
 
-# Permitir acceso desde la interfaz web
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Puedes restringir a dominios específicos
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

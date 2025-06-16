@@ -2,6 +2,7 @@
 from services.aws_textract import AWSTextractOCRService
 from interfaces.ocr_service import OCRService
 
+
 def get_ocr_service(service: str = "aws") -> OCRService:
     if service == "aws":
         return AWSTextractOCRService()
