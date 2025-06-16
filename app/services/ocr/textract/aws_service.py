@@ -2,9 +2,10 @@
 import os
 import asyncio
 import magic
-from typing import Dict
+from services.ocr.form_identifier import FormIdentifier
 from fastapi import UploadFile
 from services.utils.logger import get_logger
+from models import OCRResponse
 
 from .ocr_textract import OcrTextract
 from .textract_block_parser import TextractBlockParser
@@ -35,7 +36,7 @@ class AWSTextractOCRService:
             await asyncio.sleep(delay)
         raise TimeoutError("Textract job did not complete in time.")
 
-    async def analyze(self, file: UploadFile) -> Dict:
+    async def analyze(self, file: UploadFile) -> OCRResponse:
         self.logger.info("Analyzing file: %s", file.filename)
         contents = await file.read()
         mime_type = magic.from_buffer(contents, mime=True)
@@ -60,5 +61,6 @@ class AWSTextractOCRService:
 
         self.logger.info("Parsing Textract blocks")
         fields = self.parser.parse(blocks)
+        form_name = FormIdentifier.identify_from_blocks(blocks)
         self.logger.info("Fields extracted: %s", len(fields))
-        return {"fields": fields}
+        return OCRResponse(form_name=form_name, fields=fields)
