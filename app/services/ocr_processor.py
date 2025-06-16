@@ -4,6 +4,10 @@ from services.factory import get_ocr_service
 from services.postprocessors.postprocessor_factory import get_postprocessor
 from services.ai_refiners.factory import get_ai_refiner
 from services.ocr.form_identifier import FormIdentifier
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class OCRProcessor:
@@ -14,19 +18,29 @@ class OCRProcessor:
         self.refiner_type = refiner_type
 
     async def analyze(self, file: UploadFile) -> Dict:
-        raw = await self.ocr_service.analyze(file)
+        """Run OCR, postprocessing and optional refinement."""
+        logger.info("Running OCR service")
+        try:
+            raw = await self.ocr_service.analyze(file)
+        except Exception as e:
+            logger.error("Error during OCR service execution: %s", e)
+            raise
+
         form_type = FormIdentifier.identify(raw["fields"])
-        
+        logger.info("Identified form type: %s", form_type)
+
         # postprocessor: clean and structure the fields
-        print(f"Identified form type: {form_type}")
         postprocessor = get_postprocessor(form_type=form_type)
+        logger.info("Postprocessing fields")
         processed = postprocessor.process(raw["fields"])
 
         # refiner
+        refined = {}
         if self.refiner_type:
+            logger.info("Refining fields using %s", self.refiner_type)
             refiner_service = get_ai_refiner(self.refiner_type)
-            refined = refiner_service.refine(fields= processed)
-   
+            refined = refiner_service.refine(fields=processed)
+
         return {"form_type": form_type, "fields": refined | processed}
 
     def refiner(self, fields: Dict,refiner_type: str | None = None):
