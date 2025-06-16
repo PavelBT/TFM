@@ -8,6 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app"))
 sys.modules.setdefault("magic", types.SimpleNamespace(from_buffer=lambda *a, **k: "application/pdf"))
 
 from services.ocr.textract.textract_block_parser import TextractBlockParser
+from services.ocr.textract.textract_layout_parser import TextractLayoutParser
 
 
 def test_textract_extractor_fields():
@@ -45,7 +46,7 @@ def test_checkboxes_override_selected():
     ]
     extractor = TextractBlockParser(blocks)
     fields = extractor.extract()
-    assert fields["casado"] == "Sí"
+    assert fields["casado"] == "[X]"
 
 
 
@@ -91,4 +92,54 @@ def test_line_fallback_supplements_missing_values():
     extractor = TextractBlockParser(blocks, use_line_fallback=True)
     fields = extractor.extract()
     assert fields["email"] == "user@example.com"
+
+
+def test_block_parser_works_with_layout_parser():
+    blocks = [
+        {"Id": "kw1", "BlockType": "WORD", "Text": "Nombre"},
+        {"Id": "valw1", "BlockType": "WORD", "Text": "Juan"},
+        {
+            "Id": "v1",
+            "BlockType": "KEY_VALUE_SET",
+            "EntityTypes": ["VALUE"],
+            "Relationships": [{"Type": "CHILD", "Ids": ["valw1"]}],
+        },
+        {
+            "Id": "k1",
+            "BlockType": "KEY_VALUE_SET",
+            "EntityTypes": ["KEY"],
+            "Relationships": [
+                {"Type": "CHILD", "Ids": ["kw1"]},
+                {"Type": "VALUE", "Ids": ["v1"]},
+            ],
+        },
+        {
+            "Id": "l1",
+            "BlockType": "LINE",
+            "Text": "REFERENCIAS PERSONALES",
+            "Page": 1,
+            "Geometry": {"BoundingBox": {"Top": 0.1, "Left": 0}},
+        },
+        {
+            "Id": "l2",
+            "BlockType": "LINE",
+            "Text": "Pedro",
+            "Page": 1,
+            "Geometry": {"BoundingBox": {"Top": 0.2, "Left": 0}},
+        },
+        {
+            "Id": "l3",
+            "BlockType": "LINE",
+            "Text": "CLAUSULAS",
+            "Page": 1,
+            "Geometry": {"BoundingBox": {"Top": 0.3, "Left": 0}},
+        },
+    ]
+    extractor = TextractBlockParser(blocks)
+    fields = extractor.extract()
+    sections = TextractLayoutParser(blocks).parse()
+    fields.update(sections)
+
+    assert fields["nombre"] == "Juan"
+    assert fields["referencias_personales"] == ["Pedro"]
 
