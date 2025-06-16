@@ -3,7 +3,6 @@ from fastapi import UploadFile
 from services.factory import get_ocr_service
 from services.postprocessors.postprocessor_factory import get_postprocessor
 from services.ai_refiners.factory import get_ai_refiner
-from services.ocr.form_identifier import FormIdentifier
 from services.utils.logger import get_logger
 
 
@@ -18,11 +17,11 @@ class OCRProcessor:
     async def analyze(self, file: UploadFile) -> Dict:
         self.logger.info("Starting analysis for %s", file.filename)
         raw = await self.ocr_service.analyze(file)
-        form_type = FormIdentifier.identify(raw["fields"])
+        form_type = raw.form_name
 
         self.logger.info("Identified form type: %s", form_type)
         postprocessor = get_postprocessor(form_type=form_type)
-        processed = postprocessor.process(raw["fields"])
+        processed = postprocessor.process(raw.fields)
 
         refined = {}
         if self.refiner_type:
@@ -51,3 +50,4 @@ class OCRProcessor:
             except Exception:
                 # if refinement fails keep original
                 fields[section] = content
+
