@@ -29,18 +29,21 @@ services:
       - api
     restart: unless-stopped
 
-  # ai_models:
-  #     build:
-  #       context: ./ai_models
-  #       dockerfile: Dockerfile.ai_models
-  #     container_name: ocr_ai_models
-  #     ports:
-  #       - "8080:8080"
-  #     volumes:
-  #       - ./ai_models:/app
-  #       - ./models:/app/models  # Aquí colocarás tu modelo Hugging Face descargado
-  #     environment:
-  #       - TRANSFORMERS_CACHE=/app/models
+  ai_models:
+    build:
+      context: ./ai_models
+      dockerfile: Dockerfile.ai_models
+    container_name: ocr_ai_models
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./ai_models:/app
+      - ./models:/app/models  # Aquí colocarás tu modelo Hugging Face descargado
+    environment:
+      - TRANSFORMERS_CACHE=/app/models
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL}
+      - HF_MODEL_NAME=${HF_MODEL_NAME}
 
   db:
     image: postgres:15
