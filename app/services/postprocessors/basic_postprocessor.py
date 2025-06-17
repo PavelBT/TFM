@@ -1,6 +1,6 @@
 from typing import Dict
 from interfaces.postprocessor import PostProcessor
-from services.field_correctors.basic_cleaner import BasicFieldCorrector
+from services.field_correctors.basic_field_corrector import BasicFieldCorrector
 from services.utils.normalization import normalize_key
 
 

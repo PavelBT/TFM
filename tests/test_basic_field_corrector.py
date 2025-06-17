@@ -1,5 +1,5 @@
 import pytest
-from services.field_correctors.basic_cleaner import BasicFieldCorrector
+from services.field_correctors.basic_field_corrector import BasicFieldCorrector
 
 bc = BasicFieldCorrector()
 
@@ -14,5 +14,5 @@ bc = BasicFieldCorrector()
     ('r.f.c.', ' abcd-010101-xx1 ', 'ABCD010101XX1'),
     ('c.p.', ' 12,345 ', '12345'),
 ])
-def test_basic_cleaner(key, value, expected):
+def test_basic_field_corrector(key, value, expected):
     assert bc.correct(key, value) == expected
