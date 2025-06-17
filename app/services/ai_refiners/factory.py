@@ -1,22 +1,12 @@
 # app/services/ai_refiners/factory.py
 from interfaces.ai_refiner import AIRefiner
 import os
+from services.ai_refiners.remote_refiner import RemoteRefiner
 
 
-def get_ai_refiner(refiner_type: str | None) -> AIRefiner | None:
-    if not refiner_type:
-        return None
-    refiner_type = refiner_type.lower()
-
-    if refiner_type == "gpt":
-        from services.ai_refiners.gpt_refiner import GPTRefiner
-        api_key = os.getenv("OPENAI_API_KEY")
-        model = os.getenv("OPENAI_MODEL", "gpt-3.5-turbo")
-        return GPTRefiner(api_key=api_key, model=model)
-
-    if refiner_type == "huggingface":
-        from services.ai_refiners.huggingface_refiner import HuggingFaceRefiner
-        model_name = os.getenv("HF_MODEL_NAME", "dreuxx26/Multilingual-grammar-Corrector-using-mT5-small")
-        return HuggingFaceRefiner(model_name=model_name)
+def get_ai_refiner(_: str | None = None) -> AIRefiner:
+    """Return the remote refiner pointing to the ai_models service."""
+    base_url = os.getenv("AI_MODELS_URL", "http://ai_models:8080")
+    return RemoteRefiner(base_url=base_url)
 
 

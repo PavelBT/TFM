@@ -5,6 +5,12 @@ processed using an OCR backend (AWS Textract by default) and the extracted
 fields are optionally refined using AI models. A set of cleaners normalises the
 data to return a structured JSON response.
 
+The provided `ai_models` service hosts all AI models. It performs a first pass
+with a lightweight mT5 model
+(`dreuxx26/Multilingual-grammar-Corrector-using-mT5-small`) to fix common
+errors and then sends the text to ChatGPT for a final correction. The API
+container simply calls this service to refine OCR results.
+
 ## Installation
 
 1. Clone this repository.
@@ -23,14 +29,14 @@ The API will be available at `http://localhost:8000` and the web interface at
 | Variable | Description |
 | -------- | ----------- |
 | `OCR_SERVICE` | Name of the OCR backend (`aws` by default). |
-| `REFINER_TYPE` | Optional AI refiner (`gpt` or `huggingface`). |
+| `AI_MODELS_URL` | Base URL for the `ai_models` service. |
 | `AWS_ACCESS_KEY_ID` | AWS credential for Textract/S3. |
 | `AWS_SECRET_ACCESS_KEY` | AWS credential for Textract/S3. |
 | `AWS_REGION` | AWS region used by Textract. |
 | `AWS_BUCKET` | S3 bucket for temporary uploads. |
-| `OPENAI_API_KEY` | API key for GPT refiner (if used). |
-| `OPENAI_MODEL` | Model name for GPT refiner. |
-| `HF_MODEL_NAME` | Model name for HuggingFace refiner. |
+| `OPENAI_API_KEY` | API key used by the `ai_models` service. |
+| `OPENAI_MODEL` | ChatGPT model name. |
+| `HF_MODEL_NAME` | Name of the local grammar model. |
 
 ## Usage
 
