@@ -3,7 +3,7 @@
 import re
 from typing import Optional, Dict
 from interfaces.field_corrector import FieldCorrector
-from services.field_correctors.basic_cleaner import BasicFieldCorrector
+from services.field_correctors.basic_field_corrector import BasicFieldCorrector
 
 
 class BanorteCreditoFieldCorrector(FieldCorrector):
