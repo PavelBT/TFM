@@ -69,6 +69,48 @@ def test_parser_prefers_first_value():
     result = parser.parse(blocks)
     assert result['Sueldo mensual'] == '$40,000'
 
+
+def test_parser_prefers_longer_value():
+    blocks = [
+        {
+            'Id': 'k1',
+            'BlockType': 'KEY_VALUE_SET',
+            'EntityTypes': ['KEY'],
+            'Relationships': [
+                {'Type': 'CHILD', 'Ids': ['kw1']},
+                {'Type': 'VALUE', 'Ids': ['v1']},
+            ],
+        },
+        {'Id': 'kw1', 'BlockType': 'WORD', 'Text': 'Año'},
+        {
+            'Id': 'v1',
+            'BlockType': 'KEY_VALUE_SET',
+            'EntityTypes': ['VALUE'],
+            'Relationships': [{'Type': 'CHILD', 'Ids': ['vw1']}],
+        },
+        {'Id': 'vw1', 'BlockType': 'WORD', 'Text': '90'},
+        {
+            'Id': 'k2',
+            'BlockType': 'KEY_VALUE_SET',
+            'EntityTypes': ['KEY'],
+            'Relationships': [
+                {'Type': 'CHILD', 'Ids': ['kw1']},
+                {'Type': 'VALUE', 'Ids': ['v2']},
+            ],
+        },
+        {
+            'Id': 'v2',
+            'BlockType': 'KEY_VALUE_SET',
+            'EntityTypes': ['VALUE'],
+            'Relationships': [{'Type': 'CHILD', 'Ids': ['vw2']}],
+        },
+        {'Id': 'vw2', 'BlockType': 'WORD', 'Text': '2015'},
+    ]
+
+    parser = TextractBlockParser()
+    result = parser.parse(blocks)
+    assert result['Año'] == '2015'
+
 def test_parser_keeps_other_fields_with_duplicates():
     blocks = [
         {'Id': 'ek1', 'BlockType': 'KEY_VALUE_SET', 'EntityTypes': ['KEY'], 'Relationships': [{'Type': 'CHILD', 'Ids': ['ew1']}, {'Type': 'VALUE', 'Ids': ['ev1']}]},

@@ -58,8 +58,10 @@ class TextractBlockParser:
                         value_block = value_map.get(value_id)
                         if value_block:
                             value_text = self._get_text(value_block, block_map)
-            if key_text and (key_text not in field_dict or not field_dict[key_text]):
-                field_dict[key_text] = value_text
+            if key_text:
+                existing = field_dict.get(key_text, "")
+                if not existing or len(value_text) > len(existing):
+                    field_dict[key_text] = value_text
 
         self.logger.info("Key-value pairs extracted: %s", len(field_dict))
 
@@ -70,7 +72,8 @@ class TextractBlockParser:
                 kv = self._extract_from_line(text)
                 if kv:
                     k, v = kv
-                    if k not in field_dict or not field_dict[k]:
+                    existing = field_dict.get(k, "")
+                    if not existing or len(v) > len(existing):
                         field_dict[k] = v
                         added += 1
 
