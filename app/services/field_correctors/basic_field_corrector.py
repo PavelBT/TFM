@@ -48,14 +48,20 @@ class BasicFieldCorrector(FieldCorrector):
             value = " ".join(part.capitalize() for part in value.split())
         elif any(t in key_lower for t in ["teléfono", "telefono", "celular"]):
             value = re.sub(r"[^\d]", "", value)
-            if len(value) < 10:
+            if len(value) != 10:
                 return None
         elif "monto" in key_lower:
             value = re.sub(r"[^\d]", "", value)
             if not value.isdigit():
                 return None
-        elif "r.f.c" in key_lower or "rfc" in key_lower or "curp" in key_lower:
+        elif "r.f.c" in key_lower or "rfc" in key_lower:
             value = re.sub(r"[\s.-]", "", value).upper()
+            if not re.fullmatch(r"[A-ZÑ&]{3,4}\d{6}[A-Z\d]{3}", value):
+                return None
+        elif "curp" in key_lower:
+            value = re.sub(r"[\s-]", "", value).upper()
+            if not re.fullmatch(r"[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z\d]{2}", value):
+                return None
         elif "c.p" in key_lower or "c\u00f3digo postal" in key_lower or "codigo postal" in key_lower:
             value = re.sub(r"[^\d]", "", value)
             if len(value) != 5:
