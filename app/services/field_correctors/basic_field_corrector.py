@@ -51,8 +51,10 @@ class BasicFieldCorrector(FieldCorrector):
             if len(value) != 10:
                 return None
         elif "monto" in key_lower:
-            value = re.sub(r"[^\d]", "", value)
-            if not value.isdigit():
+            from services.utils.normalization import parse_money
+
+            value = parse_money(value)
+            if value is None:
                 return None
         elif "r.f.c" in key_lower or "rfc" in key_lower:
             value = re.sub(r"[\s.-]", "", value).upper()
