@@ -13,6 +13,7 @@ bc = BasicFieldCorrector()
     ('nombre', ' josé pérez ', 'José Pérez'),
     ('r.f.c.', ' abcd-010101-xx1 ', 'ABCD010101XX1'),
     ('c.p.', ' 12,345 ', '12345'),
+    ('otro', ' valor ', 'valor'),
 ])
 def test_basic_field_corrector(key, value, expected):
     assert bc.correct(key, value) == expected
