@@ -31,7 +31,7 @@ class BasicFieldCorrector(FieldCorrector):
         return text
 
     def correct(self, key: str, value: str) -> Optional[str]:
-        value = value.strip()
+        value = re.sub(r"\s+", " ", value).strip()
         if not value:
             return None
 
