@@ -106,15 +106,10 @@ class BanorteCreditoFieldCorrector(FieldCorrector):
             elif "honorarios" in clean_key and self._is_selected(corrected_value):
                 structured["finanzas"]["tipo_ingreso"] = "Honorarios"
             elif "sueldo mensual" in clean_key:
-                sueldo = corrected_value.replace(",", "").replace("$", "")
-                sueldo = re.sub(r"[^\d.]", "", sueldo)
-                if sueldo.count(".") > 1:
-                    structured["finanzas"]["sueldo_mensual"] = None
-                else:
-                    try:
-                        structured["finanzas"]["sueldo_mensual"] = f"{float(sueldo):.2f}"
-                    except ValueError:
-                        structured["finanzas"]["sueldo_mensual"] = None
+                from services.utils.normalization import parse_money
+
+                sueldo = parse_money(corrected_value)
+                structured["finanzas"]["sueldo_mensual"] = sueldo if sueldo else None
             elif any(x in clean_key for x in ["nombre", "apellido", "curp", "rfc"]):
                 structured["datos_personales"][clean_key] = corrected_value
             elif any(x in clean_key for x in ["teléfono", "celular", "correo", "email"]):
