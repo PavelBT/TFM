@@ -51,8 +51,14 @@ class BasicFieldCorrector(FieldCorrector):
             if len(value) != 10:
                 return None
         elif "monto" in key_lower:
-            value = re.sub(r"[^\d]", "", value)
-            if not value.isdigit():
+            # Allow optional currency symbols and thousand separators
+            value = value.replace(",", "").replace("$", "")
+            value = re.sub(r"[^\d.]", "", value)
+            if value.count(".") > 1:
+                return None
+            try:
+                value = f"{float(value):.2f}"
+            except ValueError:
                 return None
         elif "r.f.c" in key_lower or "rfc" in key_lower:
             value = re.sub(r"[\s.-]", "", value).upper()

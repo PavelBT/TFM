@@ -16,6 +16,6 @@ def test_transform_basic():
     result = cleaner.transform(data)
     assert result['datos_personales']['nombre'] == 'Juan'
     assert result['contacto']['email'] == 'test@mail.com'
-    assert result['finanzas']['sueldo_mensual'] == '1000'
+    assert result['finanzas']['sueldo_mensual'] == '1000.00'
     assert result['finanzas']['plazo_credito'] == '36'
     assert result['datos_personales']['genero'] == 'Masculino'
