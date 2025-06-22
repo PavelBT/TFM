@@ -122,8 +122,13 @@
         {% endif %}
     </div>
     <script>
-        document.getElementById('upload-form').addEventListener('submit', function () {
+        document.getElementById('upload-form').addEventListener('submit', function (e) {
+            e.preventDefault();
             document.getElementById('spinner').style.display = 'inline-block';
+            const form = e.target;
+            setTimeout(function () {
+                form.submit();
+            }, 10);
         });
     </script>
 </body>
