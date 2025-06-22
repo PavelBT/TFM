@@ -25,3 +25,46 @@ def test_parser_combines_lines():
     assert result['Nombre'] == 'Juan'
     assert result['Apellido'] == 'Perez'
     assert result['Telefono'] == '1234567890'
+
+
+def test_parser_prefers_first_value():
+    blocks = [
+        {
+            'Id': 'k1',
+            'BlockType': 'KEY_VALUE_SET',
+            'EntityTypes': ['KEY'],
+            'Relationships': [
+                {'Type': 'CHILD', 'Ids': ['kw1', 'kw2']},
+                {'Type': 'VALUE', 'Ids': ['v1']},
+            ],
+        },
+        {'Id': 'kw1', 'BlockType': 'WORD', 'Text': 'Sueldo'},
+        {'Id': 'kw2', 'BlockType': 'WORD', 'Text': 'mensual'},
+        {
+            'Id': 'v1',
+            'BlockType': 'KEY_VALUE_SET',
+            'EntityTypes': ['VALUE'],
+            'Relationships': [{'Type': 'CHILD', 'Ids': ['vw1']}],
+        },
+        {'Id': 'vw1', 'BlockType': 'WORD', 'Text': '$40,000'},
+        {
+            'Id': 'k2',
+            'BlockType': 'KEY_VALUE_SET',
+            'EntityTypes': ['KEY'],
+            'Relationships': [
+                {'Type': 'CHILD', 'Ids': ['kw1', 'kw2']},
+                {'Type': 'VALUE', 'Ids': ['v2']},
+            ],
+        },
+        {
+            'Id': 'v2',
+            'BlockType': 'KEY_VALUE_SET',
+            'EntityTypes': ['VALUE'],
+            'Relationships': [{'Type': 'CHILD', 'Ids': ['vw2']}],
+        },
+        {'Id': 'vw2', 'BlockType': 'WORD', 'Text': '$'},
+    ]
+
+    parser = TextractBlockParser()
+    result = parser.parse(blocks)
+    assert result['Sueldo mensual'] == '$40,000'
