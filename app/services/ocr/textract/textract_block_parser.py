@@ -59,7 +59,12 @@ class TextractBlockParser:
                         if value_block:
                             value_text = self._get_text(value_block, block_map)
             if key_text:
-                field_dict[key_text] = value_text
+                # Keep the first non-empty value for a key
+                if key_text in field_dict:
+                    if not field_dict[key_text] and value_text:
+                        field_dict[key_text] = value_text
+                else:
+                    field_dict[key_text] = value_text
 
         self.logger.info("Key-value pairs extracted: %s", len(field_dict))
 

@@ -79,7 +79,7 @@ class BanorteCreditoFieldCorrector(FieldCorrector):
                 genero_detectado = "Femenino"
             elif "masculino" in clean_key and self._is_selected(corrected_value):
                 genero_detectado = "Masculino"
-            elif any(et in clean_key for et in ["soltero", "casado", "unión libre", "divorciado", "viudo"]):
+            elif any(et in clean_key for et in ["soltero", "casado", "union libre", "divorciado", "viudo"]):
                 if self._is_selected(corrected_value):
                     structured["datos_personales"]["estado_civil"] = key.strip().split()[0]
             elif "sociedad conyugal" in clean_key and self._is_selected(corrected_value):
@@ -99,7 +99,7 @@ class BanorteCreditoFieldCorrector(FieldCorrector):
             elif "otros ingresos" in clean_key:
                 if "no" in clean_key and self._is_selected(corrected_value):
                     structured["finanzas"]["otros_ingresos"] = "No"
-                elif "sí" in clean_key and self._is_selected(corrected_value):
+                elif "si" in clean_key and self._is_selected(corrected_value):
                     structured["finanzas"]["otros_ingresos"] = "Sí"
             elif "asalariado" in clean_key and self._is_selected(corrected_value):
                 structured["finanzas"]["tipo_ingreso"] = "Asalariado"
@@ -112,11 +112,11 @@ class BanorteCreditoFieldCorrector(FieldCorrector):
                 structured["finanzas"]["sueldo_mensual"] = sueldo if sueldo else None
             elif any(x in clean_key for x in ["nombre", "apellido", "curp", "rfc"]):
                 structured["datos_personales"][clean_key] = corrected_value
-            elif any(x in clean_key for x in ["teléfono", "celular", "correo", "email"]):
+            elif any(x in clean_key for x in ["telefono", "celular", "correo", "email"]):
                 structured["contacto"][clean_key] = corrected_value
             elif any(x in clean_key for x in ["empresa", "puesto"]):
                 structured["empleo"][clean_key] = corrected_value
-            elif any(x in clean_key for x in ["monto", "nómina"]):
+            elif any(x in clean_key for x in ["monto", "nomina"]):
                 structured["finanzas"][clean_key] = corrected_value
             else:
                 structured["datos_personales"][clean_key] = corrected_value
