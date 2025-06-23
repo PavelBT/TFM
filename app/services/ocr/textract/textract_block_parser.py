@@ -1,7 +1,12 @@
-from typing import Dict, List
+from typing import Dict, List, Tuple
+import re
+from services.utils.logger import get_logger
 
 
 class TextractBlockParser:
+    def __init__(self):
+        self.logger = get_logger(self.__class__.__name__)
+
     @staticmethod
     def _get_text(block: dict, block_map: dict) -> str:
         text = ""
@@ -15,7 +20,21 @@ class TextractBlockParser:
                         text += "[X] "
         return text.strip()
 
+    def _extract_from_line(self, text: str) -> Tuple[str, str] | None:
+        if ':' in text:
+            key, value = text.split(':', 1)
+            key, value = key.strip(), value.strip()
+            if key and value:
+                return key, value
+        match = re.match(r"(.{3,50}?)[ \t]{2,}(.*)", text)
+        if match:
+            key, value = match.group(1).strip(), match.group(2).strip()
+            if key and value:
+                return key, value
+        return None
+
     def parse(self, blocks: List[dict]) -> Dict[str, str]:
+        self.logger.info("Parsing %s blocks", len(blocks))
         key_map = {}
         value_map = {}
         block_map = {}
@@ -40,5 +59,29 @@ class TextractBlockParser:
                         if value_block:
                             value_text = self._get_text(value_block, block_map)
             if key_text:
-                field_dict[key_text] = value_text
+                # Prefer later non-empty values if existing value is empty or shorter
+                if key_text in field_dict:
+                    current = field_dict[key_text]
+                    if (
+                        value_text
+                        and (not current or len(value_text) > len(current))
+                    ):
+                        field_dict[key_text] = value_text
+                else:
+                    field_dict[key_text] = value_text
+
+        self.logger.info("Key-value pairs extracted: %s", len(field_dict))
+
+        added = 0
+        for block in blocks:
+            if block.get("BlockType") == "LINE":
+                text = block.get("Text", "").strip()
+                kv = self._extract_from_line(text)
+                if kv:
+                    k, v = kv
+                    if k not in field_dict or not field_dict[k]:
+                        field_dict[k] = v
+                        added += 1
+
+        self.logger.info("Additional pairs from lines: %s", added)
         return field_dict

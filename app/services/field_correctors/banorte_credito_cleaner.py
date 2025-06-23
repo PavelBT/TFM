@@ -1,9 +1,10 @@
 # app/services/field_correctors/structured_cleaner.py
 
 import re
+import unicodedata
 from typing import Optional, Dict
 from interfaces.field_corrector import FieldCorrector
-from services.field_correctors.basic_cleaner import BasicFieldCorrector
+from services.field_correctors.basic_field_corrector import BasicFieldCorrector
 
 
 class BanorteCreditoFieldCorrector(FieldCorrector):
@@ -11,7 +12,11 @@ class BanorteCreditoFieldCorrector(FieldCorrector):
         self.basic = BasicFieldCorrector()
 
     def _clean_key(self, key: str) -> str:
-        return re.sub(r"[:\-\.]", "", key).strip().lower()
+        key = re.sub(r"[:\-\.]", "", key).strip().lower()
+        key = "".join(
+            c for c in unicodedata.normalize("NFKD", key) if not unicodedata.combining(c)
+        )
+        return key
 
     def _is_selected(self, value: str) -> bool:
         return "[x]" in value.lower()
@@ -21,30 +26,36 @@ class BanorteCreditoFieldCorrector(FieldCorrector):
 
     def _init_structured(self) -> Dict:
         return {
-            "datos_personales": {},
+            "datos_personales": {
+                "genero": None,
+                "estado_civil": None,
+                "regimen_matrimonial": None,
+            },
             "contacto": {},
             "empleo": {},
-            "finanzas": {},
-            "plazo_credito": None,
-            "genero": None,
-            "estado_civil": None,
-            "regimen_matrimonial": None,
-            "tipo_propiedad": None,
-            "otros_ingresos": None,
-            "tipo_ingreso": None,
+            "finanzas": {
+                "plazo_credito": None,
+                "tipo_propiedad": None,
+                "otros_ingresos": None,
+                "tipo_ingreso": None,
+            },
         }
 
     def _finalize(self, structured: Dict, plazos: set, genero: Optional[str]) -> Dict:
         if plazos:
-            structured["plazo_credito"] = max(plazos, key=int)
+            structured["finanzas"]["plazo_credito"] = max(plazos, key=int)
         else:
-            structured["plazo_credito"] = ""
+            structured["finanzas"]["plazo_credito"] = ""
 
-        structured["genero"] = genero or ""
+        structured["datos_personales"]["genero"] = genero or ""
 
-        for key in ["regimen_matrimonial", "otros_ingresos", "tipo_ingreso", "estado_civil", "tipo_propiedad"]:
-            if structured[key] is None:
-                structured[key] = ""
+        for key in ["regimen_matrimonial", "estado_civil"]:
+            if structured["datos_personales"][key] is None:
+                structured["datos_personales"][key] = ""
+
+        for key in ["tipo_propiedad", "otros_ingresos", "tipo_ingreso", "plazo_credito"]:
+            if structured["finanzas"][key] is None:
+                structured["finanzas"][key] = ""
 
         for k, v in structured["finanzas"].items():
             structured["finanzas"][k] = str(v) if v is not None else ""
@@ -68,40 +79,44 @@ class BanorteCreditoFieldCorrector(FieldCorrector):
                 genero_detectado = "Femenino"
             elif "masculino" in clean_key and self._is_selected(corrected_value):
                 genero_detectado = "Masculino"
-            elif any(et in clean_key for et in ["soltero", "casado", "unión libre", "divorciado", "viudo"]):
+            elif any(et in clean_key for et in ["soltero", "casado", "union libre", "divorciado", "viudo"]):
                 if self._is_selected(corrected_value):
-                    structured["estado_civil"] = key.strip().split()[0]
+                    structured["datos_personales"]["estado_civil"] = key.strip().split()[0]
             elif "sociedad conyugal" in clean_key and self._is_selected(corrected_value):
-                structured["regimen_matrimonial"] = "Sociedad Conyugal"
-            elif "separación de bienes" in clean_key and self._is_selected(corrected_value):
-                structured["regimen_matrimonial"] = "Separación de Bienes"
+                structured["datos_personales"]["regimen_matrimonial"] = "Sociedad Conyugal"
+            elif "separacion de bienes" in clean_key and self._is_selected(corrected_value):
+                structured["datos_personales"]["regimen_matrimonial"] = "Separación de Bienes"
+            elif "regimen matrimonial" in clean_key or "regimen patrimonial" in clean_key:
+                structured["datos_personales"]["regimen_matrimonial"] = corrected_value
             elif "propia" in clean_key and self._is_selected(corrected_value):
-                structured["tipo_propiedad"] = "Propia"
+                structured["finanzas"]["tipo_propiedad"] = "Propia"
             elif "rentada" in clean_key and self._is_selected(corrected_value):
-                structured["tipo_propiedad"] = "Rentada"
+                structured["finanzas"]["tipo_propiedad"] = "Rentada"
             elif "hipotecada" in clean_key and self._is_selected(corrected_value):
-                structured["tipo_propiedad"] = "Hipotecada"
+                structured["finanzas"]["tipo_propiedad"] = "Hipotecada"
             elif "de familiares" in clean_key and self._is_selected(corrected_value):
-                structured["tipo_propiedad"] = "De familiares"
+                structured["finanzas"]["tipo_propiedad"] = "De familiares"
             elif "otros ingresos" in clean_key:
                 if "no" in clean_key and self._is_selected(corrected_value):
-                    structured["otros_ingresos"] = "No"
-                elif "sí" in clean_key and self._is_selected(corrected_value):
-                    structured["otros_ingresos"] = "Sí"
+                    structured["finanzas"]["otros_ingresos"] = "No"
+                elif "si" in clean_key and self._is_selected(corrected_value):
+                    structured["finanzas"]["otros_ingresos"] = "Sí"
             elif "asalariado" in clean_key and self._is_selected(corrected_value):
-                structured["tipo_ingreso"] = "Asalariado"
+                structured["finanzas"]["tipo_ingreso"] = "Asalariado"
             elif "honorarios" in clean_key and self._is_selected(corrected_value):
-                structured["tipo_ingreso"] = "Honorarios"
+                structured["finanzas"]["tipo_ingreso"] = "Honorarios"
             elif "sueldo mensual" in clean_key:
-                sueldo = re.sub(r"[^\d]", "", corrected_value)
-                structured["finanzas"]["sueldo_mensual"] = int(sueldo) if sueldo.isdigit() else None
+                from services.utils.normalization import parse_money
+
+                sueldo = parse_money(corrected_value)
+                structured["finanzas"]["sueldo_mensual"] = sueldo if sueldo else None
             elif any(x in clean_key for x in ["nombre", "apellido", "curp", "rfc"]):
                 structured["datos_personales"][clean_key] = corrected_value
-            elif any(x in clean_key for x in ["teléfono", "celular", "correo", "email"]):
+            elif any(x in clean_key for x in ["telefono", "celular", "correo", "email"]):
                 structured["contacto"][clean_key] = corrected_value
             elif any(x in clean_key for x in ["empresa", "puesto"]):
                 structured["empleo"][clean_key] = corrected_value
-            elif any(x in clean_key for x in ["monto", "nómina"]):
+            elif any(x in clean_key for x in ["monto", "nomina"]):
                 structured["finanzas"][clean_key] = corrected_value
             else:
                 structured["datos_personales"][clean_key] = corrected_value

@@ -31,23 +31,6 @@ class OCRProcessor:
             except Exception as exc:
                 self.logger.warning("Refinement failed: %s", exc)
 
-        return {"form_type": form_type, "fields": refined | processed}
-
-    def refiner(self, fields: Dict,refiner_type: str | None = None):
-        """Get the AI refiner for the specified type."""
-        if not self.refiner_type:
-            return fields
-
-        for section, content in fields.items():
-            try:
-                result = self.refiner.refine({section: content})
-                if isinstance(content, dict):
-                    if isinstance(result, dict) and result:
-                        fields[section] = next(iter(result.values()))
-                else:
-                    if isinstance(result, dict) and section in result:
-                        fields[section] = result[section]
-            except Exception:
-                # if refinement fails keep original
-                fields[section] = content
+        fields = refined if refined else processed
+        return {"form_type": form_type, "fields": fields}
 

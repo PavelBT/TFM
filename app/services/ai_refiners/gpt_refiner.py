@@ -17,8 +17,10 @@ class GPTRefiner(AIRefiner):
         try:
             json_input = json.dumps(fields, ensure_ascii=False, indent=2)
             prompt = (
-                "Corrige ortografía y gramática en el siguiente JSON.\n"
-                "Devuelve el mismo JSON corregido y con la misma estructura:\n\n"
+                "Corrige únicamente errores de ortografía, acentuación y gramática en los valores de texto del siguiente JSON.\n"
+                "No cambies las claves, ni el formato del JSON. Mantén exactamente la misma estructura.\n"
+                "No agregues ni elimines campos. No reformules.\n"
+                "Solo devuelve el JSON corregido:\n\n"
                 f"{json_input}"
             )
 

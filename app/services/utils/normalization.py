@@ -1,5 +1,6 @@
 import re
 import unicodedata
+from typing import Optional
 
 def normalize_key(key: str) -> str:
     """Normalize dictionary keys to snake_case."""
@@ -16,3 +17,37 @@ def normalize_key(key: str) -> str:
     key = re.sub(r"[^a-z0-9/_]", "", key)
     key = re.sub(r"_+", "_", key)
     return key.strip("_")
+
+
+def parse_money(amount: str) -> Optional[str]:
+    """Return a monetary value as a string with two decimals.
+
+    Supports inputs with mixed comma and period usage such as ``1.000.00`` or
+    ``1,000,00`` that may result from OCR errors. If the last punctuation
+    character is followed by one or two digits it is treated as the decimal
+    separator. All preceding punctuation characters are considered thousand
+    separators and removed. Returns ``None`` when the value cannot be parsed.
+    """
+
+    if not amount:
+        return None
+
+    amt = amount.strip().replace("$", "").replace(" ", "")
+
+    # Identify the last comma or period in the string
+    m = re.search(r"[.,](?=[^.,]*$)", amt)
+    if m:
+        dec_index = m.start()
+        decimals = amt[dec_index + 1:]
+        if decimals.isdigit() and 0 < len(decimals) <= 2:
+            integer = re.sub(r"[.,]", "", amt[:dec_index])
+            amt = f"{integer}.{decimals}"
+        else:
+            amt = re.sub(r"[.,]", "", amt)
+    else:
+        amt = re.sub(r"[.,]", "", amt)
+
+    try:
+        return f"{float(amt):.2f}"
+    except ValueError:
+        return None
