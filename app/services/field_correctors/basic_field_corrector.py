@@ -41,15 +41,17 @@ class BasicFieldCorrector(FieldCorrector):
 
         if "correo" in key_lower or "email" in key_lower:
             value = value.lower().replace(" ", "").replace(",", ".")
-            if not re.match(r"[^@]+@[^@]+\.[^@]+", value):
-                return None
+            # Keep the value even if it doesn't fully match the email pattern
+            # so the raw OCR data is not discarded.
+            return value if value else None
         elif "nombre" in key_lower or "apellido" in key_lower:
             value = re.sub(r"[^\w\sñÑáéíóúÁÉÍÓÚ]", "", value)
             value = " ".join(part.capitalize() for part in value.split())
         elif any(t in key_lower for t in ["teléfono", "telefono", "celular"]):
             value = re.sub(r"[^\d]", "", value)
-            if len(value) != 10:
-                return None
+            # Do not discard the number even if it doesn't have exactly
+            # ten digits; return whatever digits were detected.
+            return value if value else None
         elif "monto" in key_lower:
             from services.utils.normalization import parse_money
 
@@ -58,15 +60,15 @@ class BasicFieldCorrector(FieldCorrector):
                 return None
         elif "r.f.c" in key_lower or "rfc" in key_lower:
             value = re.sub(r"[\s.-]", "", value).upper()
-            if not re.fullmatch(r"[A-ZÑ&]{3,4}\d{6}[A-Z\d]{3}", value):
-                return None
+            # Preserve the value even if it doesn't match the expected format.
+            return value if value else None
         elif "curp" in key_lower:
             value = re.sub(r"[\s-]", "", value).upper()
-            if not re.fullmatch(r"[A-Z]{4}\d{6}[HM][A-Z]{5}[A-Z\d]{2}", value):
-                return None
+            # Preserve even invalid CURP strings after cleaning.
+            return value if value else None
         elif "c.p" in key_lower or "c\u00f3digo postal" in key_lower or "codigo postal" in key_lower:
             value = re.sub(r"[^\d]", "", value)
-            if len(value) != 5:
-                return None
+            # Accept postal codes even if they don't have exactly five digits.
+            return value if value else None
 
         return value
