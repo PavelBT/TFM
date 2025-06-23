@@ -59,9 +59,13 @@ class TextractBlockParser:
                         if value_block:
                             value_text = self._get_text(value_block, block_map)
             if key_text:
-                # Keep the first non-empty value for a key
+                # Prefer later non-empty values if existing value is empty or shorter
                 if key_text in field_dict:
-                    if not field_dict[key_text] and value_text:
+                    current = field_dict[key_text]
+                    if (
+                        value_text
+                        and (not current or len(value_text) > len(current))
+                    ):
                         field_dict[key_text] = value_text
                 else:
                     field_dict[key_text] = value_text
