@@ -31,5 +31,6 @@ class OCRProcessor:
             except Exception as exc:
                 self.logger.warning("Refinement failed: %s", exc)
 
-        return {"form_type": form_type, "fields": refined | processed}
+        fields = refined if refined else processed
+        return {"form_type": form_type, "fields": fields}
 
