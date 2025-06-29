@@ -48,7 +48,8 @@ def save():
     data = request.get_json() or {}
     form_type = data.get("form_type")
     fields = data.get("fields", {})
-    db_client.save_form(form_type, fields)
+    file_url = data.get("file_url")
+    db_client.save_form(form_type, fields, file_url)
     return jsonify({"status": "ok"})
 
 if __name__ == "__main__":

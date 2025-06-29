@@ -208,7 +208,8 @@
             const form = document.getElementById('edit-form');
             const payload = {
                 form_type: "{{ form_type }}",
-                fields: buildPayload(form)
+                fields: buildPayload(form),
+                file_url: "{{ file_url|default('') }}"
             };
             fetch('/save', {
                 method: 'POST',

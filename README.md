@@ -63,6 +63,7 @@ refinement.
 | `HF_MODEL_NAME` | Model name for HuggingFace refiner. |
 | `TEXTRACT_MAX_RETRIES` | Maximum polling attempts for Textract jobs. |
 | `TEXTRACT_SLEEP_SECONDS` | Delay between Textract polling attempts. |
+| `DATABASE_URL` | Connection string for PostgreSQL. Defaults to the local container URL. |
 
 ## Running the stack
 
