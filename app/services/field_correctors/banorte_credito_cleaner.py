@@ -41,7 +41,7 @@ class BanorteCreditoFieldCorrector(FieldCorrector):
             },
         }
 
-    def _finalize(self, structured: Dict, plazos: set, genero: Optional[str]) -> Dict:
+    def _finalize(self, structured: Dict, plazos: set, genero: Optional[str], dob: Dict[str, Optional[str]]) -> Dict:
         if plazos:
             structured["finanzas"]["plazo_credito"] = max(plazos, key=int)
         else:
@@ -60,12 +60,21 @@ class BanorteCreditoFieldCorrector(FieldCorrector):
         for k, v in structured["finanzas"].items():
             structured["finanzas"][k] = str(v) if v is not None else ""
 
+        if all(dob.values()):
+            y = dob.get("ano") or ""
+            m = dob.get("mes") or ""
+            d = dob.get("dia") or ""
+            structured["datos_personales"]["fecha_nacimiento"] = f"{y}-{m.zfill(2)}-{d.zfill(2)}"
+        else:
+            structured["datos_personales"]["fecha_nacimiento"] = ""
+
         return structured
 
     def transform(self, raw_data: Dict[str, str]) -> Dict:
         structured = self._init_structured()
         plazos_detectados: set[str] = set()
         genero_detectado: Optional[str] = None
+        fecha_parts = {"dia": None, "mes": None, "ano": None}
 
         for key, value in raw_data.items():
             clean_key = self._clean_key(key)
@@ -73,7 +82,9 @@ class BanorteCreditoFieldCorrector(FieldCorrector):
             if not clean_key or not corrected_value:
                 continue
 
-            if clean_key in {"12", "18", "24", "36"} and self._is_selected(corrected_value):
+            if clean_key in {"dia", "mes", "ano"}:
+                fecha_parts[clean_key] = corrected_value
+            elif clean_key in {"12", "18", "24", "36"} and self._is_selected(corrected_value):
                 plazos_detectados.add(clean_key)
             elif "femenino" in clean_key and self._is_selected(corrected_value):
                 genero_detectado = "Femenino"
@@ -109,10 +120,22 @@ class BanorteCreditoFieldCorrector(FieldCorrector):
                 from services.utils.normalization import parse_money
 
                 sueldo = parse_money(corrected_value)
-                structured["finanzas"]["sueldo_mensual"] = sueldo if sueldo else None
-            elif any(x in clean_key for x in ["nombre", "apellido", "curp", "rfc"]):
-                structured["datos_personales"][clean_key] = corrected_value
-            elif any(x in clean_key for x in ["telefono", "celular", "correo", "email"]):
+                structured["finanzas"]["ingresos_mensuales"] = sueldo if sueldo else None
+            elif any(x in clean_key for x in ["rfc"]):
+                structured["datos_personales"]["rfc"] = corrected_value
+            elif "nombre" in clean_key:
+                structured["datos_personales"]["nombre"] = corrected_value
+            elif "apellido paterno" in clean_key:
+                structured["datos_personales"]["apellido_paterno"] = corrected_value
+            elif "apellido materno" in clean_key:
+                structured["datos_personales"]["apellido_materno"] = corrected_value
+            elif "telefono celular" in clean_key:
+                structured["contacto"]["telefono_celular"] = corrected_value
+            elif "telefono de casa" in clean_key or "telefono casa" in clean_key:
+                structured["contacto"]["telefono_casa"] = corrected_value
+            elif any(x in clean_key for x in ["correo", "email"]):
+                structured["contacto"]["email"] = corrected_value
+            elif any(x in clean_key for x in ["telefono", "celular"]):
                 structured["contacto"][clean_key] = corrected_value
             elif any(x in clean_key for x in ["empresa", "puesto"]):
                 structured["empleo"][clean_key] = corrected_value
@@ -121,4 +144,4 @@ class BanorteCreditoFieldCorrector(FieldCorrector):
             else:
                 structured["datos_personales"][clean_key] = corrected_value
 
-        return self._finalize(structured, plazos_detectados, genero_detectado)
+        return self._finalize(structured, plazos_detectados, genero_detectado, fecha_parts)
