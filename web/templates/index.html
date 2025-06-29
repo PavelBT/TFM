@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OCR Web Interface</title>
     <style>
         body {
@@ -17,7 +18,8 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1200px;
+            width: 90%;
             margin: 0 auto;
         }
 
@@ -98,6 +100,12 @@
         .result-container {
             display: flex;
             gap: 2em;
+        }
+
+        @media (max-width: 768px) {
+            .result-container {
+                flex-direction: column;
+            }
         }
 
         .form-section,
