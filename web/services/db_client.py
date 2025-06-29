@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
 from services.utils.logger import get_logger
+from services.utils.normalization import normalize_key
 from services.db_models import Base, CreditApplication
 
 DEFAULT_DB_URL = "postgresql+psycopg2://user:password@db:5432/ocrdata"
@@ -14,6 +15,13 @@ def _extract(fields: dict, key: str) -> Optional[Any]:
     """Recursively search a key in a nested dictionary."""
     if key in fields:
         return fields[key]
+
+    normalized_target = normalize_key(key)
+
+    for k, value in fields.items():
+        if normalize_key(k) == normalized_target:
+            return value
+
     for value in fields.values():
         if isinstance(value, dict):
             found = _extract(value, key)
