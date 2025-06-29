@@ -32,6 +32,18 @@ class DatabaseClient:
         Base.metadata.create_all(self.engine)
         self.SessionLocal = sessionmaker(bind=self.engine)
 
+    def list_applications(self) -> list[CreditApplication]:
+        """Return all stored credit applications."""
+        session: Session = self.SessionLocal()
+        try:
+            return (
+                session.query(CreditApplication)
+                .order_by(CreditApplication.id.desc())
+                .all()
+            )
+        finally:
+            session.close()
+
     def save_form(self, form_type: str, fields: dict, file_url: Optional[str] = None) -> None:
         session: Session = self.SessionLocal()
         try:

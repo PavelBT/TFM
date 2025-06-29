@@ -16,6 +16,16 @@ services:
       - .env  # ← carga las variables del archivo .env
     restart: unless-stopped
 
+  db_viewer:
+    image: sosedoff/pgweb
+    container_name: ocr_db_viewer
+    ports:
+      - "8081:8081"
+    environment:
+      - DATABASE_URL=postgres://user:password@db:5432/ocrdata?sslmode=disable
+    depends_on:
+      - db
+
   web:
     build:
       context: ./web
