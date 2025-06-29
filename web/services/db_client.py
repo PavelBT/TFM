@@ -1,7 +1,7 @@
 import os
 from typing import Any, Optional
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
 
 from services.utils.logger import get_logger
@@ -38,7 +38,31 @@ class DatabaseClient:
         database_url = os.getenv("DATABASE_URL", DEFAULT_DB_URL)
         self.engine = create_engine(database_url)
         Base.metadata.create_all(self.engine)
+        self._ensure_columns()
         self.SessionLocal = sessionmaker(bind=self.engine)
+
+    def _ensure_columns(self) -> None:
+        """Create new columns if they are missing.
+
+        This avoids crashes when the database schema predates new fields
+        added in the model definition.
+        """
+        from sqlalchemy import inspect
+
+        inspector = inspect(self.engine)
+        columns = {col["name"] for col in inspector.get_columns("credit_applications")}
+        statements = []
+        if "email" not in columns:
+            statements.append("ALTER TABLE credit_applications ADD COLUMN email VARCHAR")
+        if "telefono_celular" not in columns:
+            statements.append("ALTER TABLE credit_applications ADD COLUMN telefono_celular VARCHAR")
+        if "telefono_casa" not in columns:
+            statements.append("ALTER TABLE credit_applications ADD COLUMN telefono_casa VARCHAR")
+
+        if statements:
+            with self.engine.begin() as conn:
+                for stmt in statements:
+                    conn.execute(text(stmt))
 
     def list_applications(self) -> list[CreditApplication]:
         """Return all stored credit applications."""
