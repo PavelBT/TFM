@@ -63,6 +63,7 @@ refinement.
 | `HF_MODEL_NAME` | Model name for HuggingFace refiner. |
 | `TEXTRACT_MAX_RETRIES` | Maximum polling attempts for Textract jobs. |
 | `TEXTRACT_SLEEP_SECONDS` | Delay between Textract polling attempts. |
+| `DATABASE_URL` | Connection string for PostgreSQL. Defaults to the local container URL. |
 
 ## Running the stack
 
@@ -77,9 +78,11 @@ This will launch the following containers:
 * **api** – FastAPI application exposing the OCR endpoint.
 * **web** – Flask application for manual uploads.
 * **db** – PostgreSQL database used for persistence.
+* **db_viewer** – Web client for inspecting the database.
 
-Access the API at `http://localhost:8000` and the web interface at
-`http://localhost:5050`.
+Access the API at `http://localhost:8000`, the web interface at
+`http://localhost:5050` and the database viewer at
+`http://localhost:8081`.
 
 ## API usage
 

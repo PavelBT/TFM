@@ -126,6 +126,7 @@
 <body>
     <div class="container">
         <h1>Sube un documento de solicitud</h1>
+        <p><a href="/applications">Ver solicitudes guardadas</a></p>
         <form id="upload-form" action="/" method="post" enctype="multipart/form-data">
             <input type="file" name="document" accept="image/*,.pdf" required>
             <button type="submit">Enviar</button>
@@ -208,7 +209,8 @@
             const form = document.getElementById('edit-form');
             const payload = {
                 form_type: "{{ form_type }}",
-                fields: buildPayload(form)
+                fields: buildPayload(form),
+                file_url: "{{ file_url|default('') }}"
             };
             fetch('/save', {
                 method: 'POST',

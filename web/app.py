@@ -48,8 +48,16 @@ def save():
     data = request.get_json() or {}
     form_type = data.get("form_type")
     fields = data.get("fields", {})
-    db_client.save_form(form_type, fields)
+    file_url = data.get("file_url")
+    db_client.save_form(form_type, fields, file_url)
     return jsonify({"status": "ok"})
+
+
+@app.route("/applications", methods=["GET"])
+def list_applications():
+    """Display stored credit applications."""
+    records = db_client.list_applications()
+    return render_template("applications.html", records=records)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
