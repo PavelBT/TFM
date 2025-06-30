@@ -10,7 +10,7 @@ class FormIdentifier:
     RULES = {
         "credito_personal": ["banorte", "credito", "personal"],
         "credito_hipotecario": ["credito", "hipotecario"],
-        "credito_tarjeta": ["tarjeta", "credito"],
+        "credito_tarjeta": ["banorte", "basica"],
     }
 
     DEFAULT_TYPE = "unknown"
@@ -18,6 +18,7 @@ class FormIdentifier:
     @classmethod
     def identify(cls, form_name: str = "", fields: Dict | None = None) -> str:
         """Return a canonical form type from a raw form name or fields."""
+
         if form_name:
             normalized = ''.join(
                 c for c in unicodedata.normalize('NFKD', form_name.lower())
@@ -26,6 +27,7 @@ class FormIdentifier:
         else:
             normalized = ""
         name = normalized
+   
         for form, keywords in cls.RULES.items():
             if all(k in name for k in keywords):
                 return form
