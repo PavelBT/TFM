@@ -78,6 +78,12 @@ button {
 
 .field-key { font-weight: bold; }
 .field-value { color: #555; }
+
+.error {
+    color: #b00020;
+    margin-top: 1em;
+    font-weight: bold;
+}
 .subsection { margin-left: 1em; }
 
 .result-container { display: flex; gap: 2em; }

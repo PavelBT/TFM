@@ -97,7 +97,7 @@ dictionary of cleaned fields:
 
 ```json
 {
-  "form_type": "banorte_credito",
+  "form_type": "credito_personal",
   "filename": "document.pdf",
   "fields": {
     "datos_personales": {"nombre": "Juan"},
