@@ -10,6 +10,8 @@ logger = get_logger(__name__)
 logger.info("Starting Flask app...")
 db_client = DatabaseClient()
 
+VALID_FORMS = {"credito_personal", "credito_hipotecario", "credito_tarjeta"}
+
 @app.route("/", methods=["GET", "POST"])
 def index():
     logger.info("Received request: %s", request.method)
@@ -23,6 +25,23 @@ def index():
                 response = requests.post("http://api:8000/api/analyze", files=files)
                 if response.ok:
                     data = response.json()
+                    form_type = data.get("form_type")
+                    if form_type not in VALID_FORMS:
+                        msg = (
+                            "El formulario no es adecuado, "
+                            "únicamente son válidos los formularios "
+                            "Crédito personal, crédito hipotecario, "
+                            "solicitud de tarjeta de crédito. "
+                            f"Formulario subido identificado: {form_type}"
+                        )
+                        return render_template(
+                            "index.html",
+                            fields={},
+                            error=msg,
+                            file_url=None,
+                            form_type=None,
+                        )
+
                     b64_file = base64.b64encode(file_bytes).decode("utf-8")
                     file_url = f"data:{file.mimetype};base64,{b64_file}"
                     return render_template(
@@ -30,7 +49,7 @@ def index():
                         fields=data.get("fields", {}),
                         file_url=file_url,
                         is_pdf=file.mimetype == "application/pdf",
-                        form_type=data.get("form_type"),
+                        form_type=form_type,
                     )
                 logger.error("Error en la API: %s %s", response.status_code, response.text)
                 return render_template("index.html", fields={}, error="Error al procesar el documento.")
@@ -40,7 +59,7 @@ def index():
 
     logger.info("Rendering index.html")
     # Si es una solicitud GET, renderizar el formulario
-    return render_template("index.html", fields={}, file_url=None, form_type=None)
+    return render_template("index.html", fields={}, file_url=None, form_type=None, error=None)
 
 
 @app.route("/save", methods=["POST"])

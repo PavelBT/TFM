@@ -4,6 +4,6 @@ from .form_postprocessor.banorte_credito_postprocessor import BanorteCreditoPost
 
 
 def get_postprocessor(form_type: str) -> PostProcessor:
-    if form_type == "banorte_credito": # validate this form type
+    if form_type == "credito_personal":  # validate this form type
         return BanorteCreditoPostProcessor()
     return BasicPostProcessor()

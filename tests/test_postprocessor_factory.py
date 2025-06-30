@@ -7,5 +7,5 @@ def test_get_postprocessor_basic():
 
 
 def test_get_postprocessor_structured():
-    p = get_postprocessor(form_type="banorte_credito")
+    p = get_postprocessor(form_type="credito_personal")
     assert p.__class__.__name__ == 'BanorteCreditoPostProcessor'

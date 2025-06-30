@@ -4,6 +4,10 @@ function setupUploadForm() {
     uploadForm.addEventListener('submit', function (e) {
         e.preventDefault();
         document.getElementById('spinner').style.display = 'block';
+        const res = document.querySelector('.result-container');
+        if (res) res.remove();
+        const err = document.querySelector('.error');
+        if (err) err.remove();
         const form = e.target;
         setTimeout(function () {
             form.submit();

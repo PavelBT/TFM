@@ -7,6 +7,9 @@
         <button type="submit">Enviar</button>
     </form>
     <div id="spinner"></div>
+    {% if error %}
+        <div class="error">{{ error }}</div>
+    {% endif %}
     {% if fields %}
         {% macro render_form(data, prefix='') %}
         <div class="{{ 'subsection' if prefix }}">

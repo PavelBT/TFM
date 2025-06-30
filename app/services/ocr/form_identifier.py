@@ -8,7 +8,9 @@ class FormIdentifier:
     # Map internal form types to the keywords that should be present in the
     # textual form name returned by the OCR service.
     RULES = {
-        "banorte_credito": ["banorte", "credito", "personal"],
+        "credito_personal": ["banorte", "credito", "personal"],
+        "credito_hipotecario": ["credito", "hipotecario"],
+        "credito_tarjeta": ["tarjeta", "credito"],
     }
 
     DEFAULT_TYPE = "unknown"
