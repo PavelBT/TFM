@@ -8,10 +8,10 @@ def test_extract_and_identify_form():
     form_name = FormIdentifier.extract_name_from_blocks(data['Blocks'])
     assert 'CRÉDITO PERSONAL BANORTE' in form_name
     form_type = FormIdentifier.identify(form_name)
-    assert form_type == 'banorte_credito'
+    assert form_type == 'credito_personal'
 
     form_type_blocks = FormIdentifier.identify_from_blocks(data['Blocks'])
-    assert form_type_blocks == 'banorte_credito'
+    assert form_type_blocks == 'credito_personal'
 
 
 def test_identify_unknown():
