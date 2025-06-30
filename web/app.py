@@ -5,7 +5,7 @@ import requests
 from services.utils.logger import get_logger
 from services.db_client import DatabaseClient
 
-app = Flask(__name__, template_folder="templates")
+app = Flask(__name__, template_folder="templates", static_folder="static")
 logger = get_logger(__name__)
 logger.info("Starting Flask app...")
 db_client = DatabaseClient()
@@ -58,6 +58,12 @@ def list_applications():
     """Display stored credit applications."""
     records = db_client.list_applications()
     return render_template("applications.html", records=records)
+
+
+@app.route("/help", methods=["GET"])
+def help_page():
+    """Display user guide."""
+    return render_template("help.html")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
