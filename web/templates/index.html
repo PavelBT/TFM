@@ -6,9 +6,9 @@
         <input type="file" name="document" accept="image/*,.pdf" required>
         <button type="submit">Enviar</button>
     </form>
-    <div id="spinner"></div>
     <div id="result-container" class="result-container" {% if not fields %}style="display:none;"{% endif %}>
         <div class="form-section">
+            <div id="spinner"></div>
             <h2>Editar Datos</h2>
             <form id="edit-form">
                 <div id="form-area">
