@@ -1,17 +1,111 @@
+async function fileToDataURL(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+function prettify(key) {
+    const str = key.replace(/_/g, ' ');
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function renderFields(data, prefix = '') {
+    let html = `<div class="${prefix ? 'subsection' : ''}">`;
+    Object.entries(data).forEach(([key, value]) => {
+        const fieldName = prefix ? `${prefix}.${key}` : key;
+        if (value && typeof value === 'object' && !Array.isArray(value)) {
+            html += `<fieldset><legend class="section-title">${prettify(key)}</legend>`;
+            html += renderFields(value, fieldName);
+            html += `</fieldset>`;
+        } else {
+            html += `<div><label class="field-key">${prettify(key)}:` +
+                ` <input type="text" name="${fieldName}" value="${value}"></label></div>`;
+        }
+    });
+    html += '</div>';
+    return html;
+}
+
+function resetResult() {
+    document.getElementById('preview-area').innerHTML = '';
+    document.getElementById('form-area').innerHTML = '';
+    const controls = document.getElementById('zoom-pan-controls');
+    if (controls) controls.style.display = 'none';
+    document.getElementById('save-btn').style.display = 'none';
+    document.getElementById('edit-form').style.display = 'none';
+}
+
+function showPreview(file) {
+    const previewArea = document.getElementById('preview-area');
+    previewArea.innerHTML = '';
+    const controls = document.getElementById('zoom-pan-controls');
+    if (file.type === 'application/pdf') {
+        const url = URL.createObjectURL(file);
+        previewArea.innerHTML = `<iframe src="${url}" width="100%" height="600px"></iframe>`;
+        if (controls) controls.style.display = 'none';
+    } else {
+        const reader = new FileReader();
+        reader.onload = e => {
+            previewArea.innerHTML = `<div id="image-container"><img id="preview-image" ` +
+                `src="${e.target.result}" alt="Documento" style="max-width:100%;" /></div>`;
+            if (controls) controls.style.display = 'block';
+            setupImagePanZoom();
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
 function setupUploadForm() {
     const uploadForm = document.getElementById('upload-form');
     if (!uploadForm) return;
-    uploadForm.addEventListener('submit', function (e) {
+    const fileInput = uploadForm.querySelector('input[name="document"]');
+    fileInput.addEventListener('change', () => {
+        if (!fileInput.files.length) return;
+        const file = fileInput.files[0];
+        resetResult();
+        document.getElementById('result-container').style.display = 'flex';
+        showPreview(file);
+    });
+    uploadForm.addEventListener('submit', async function (e) {
         e.preventDefault();
+        if (!fileInput.files.length) return;
+        const file = fileInput.files[0];
+
         document.getElementById('spinner').style.display = 'block';
-        const res = document.querySelector('.result-container');
-        if (res) res.remove();
-        const err = document.querySelector('.error');
-        if (err) err.remove();
-        const form = e.target;
-        setTimeout(function () {
-            form.submit();
-        }, 10);
+        document.getElementById('result-container').style.display = 'flex';
+        document.getElementById('save-btn').style.display = 'none';
+        document.querySelector('.form-section').classList.add('loading');
+
+        showPreview(file);
+        const fileUrl = await fileToDataURL(file);
+        window.currentFileUrl = fileUrl;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await fetch('http://localhost:8000/api/analyze', {
+                method: 'POST',
+                body: formData
+            });
+            if (!res.ok) throw new Error('API error');
+            const data = await res.json();
+            window.formType = data.form_type;
+            document.getElementById('form-area').innerHTML = renderFields(data.fields);
+            document.getElementById('edit-form').style.display = 'block';
+            document.getElementById('spinner').style.display = 'none';
+            document.getElementById('save-btn').style.display = 'block';
+            document.querySelector('.form-section').classList.remove('loading');
+            setupSaveButton(window.formType, window.currentFileUrl);
+        } catch (err) {
+            console.error(err);
+            document.getElementById('spinner').style.display = 'none';
+            document.querySelector('.form-section').classList.remove('loading');
+            alert('Error al procesar el documento');
+        }
     });
 }
 
@@ -90,12 +184,27 @@ function setupImagePanZoom() {
     window.addEventListener('mouseup', () => {
         dragging = false;
     });
+
+    const controls = document.getElementById('zoom-pan-controls');
+    if (controls) {
+        controls.style.display = 'block';
+        controls.querySelector('#zoom-in').onclick = () => { scale = Math.min(scale + 0.1, 3); updateTransform(); };
+        controls.querySelector('#zoom-out').onclick = () => { scale = Math.max(scale - 0.1, 0.5); updateTransform(); };
+        controls.querySelector('#pan-left').onclick = () => { panX -= 20; updateTransform(); };
+        controls.querySelector('#pan-right').onclick = () => { panX += 20; updateTransform(); };
+        controls.querySelector('#pan-up').onclick = () => { panY -= 20; updateTransform(); };
+        controls.querySelector('#pan-down').onclick = () => { panY += 20; updateTransform(); };
+        controls.querySelector('#reset-pan-zoom').onclick = () => { scale = 1; panX = 0; panY = 0; updateTransform(); };
+    }
 }
 
 function init(formType, fileUrl) {
     setupUploadForm();
-    setupSaveButton(formType, fileUrl);
-    setupImagePanZoom();
+    if (formType && fileUrl) {
+        setupSaveButton(formType, fileUrl);
+        setupImagePanZoom();
+        document.getElementById('result-container').style.display = 'flex';
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => init(window.formType, window.fileUrl));
