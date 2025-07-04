@@ -130,7 +130,7 @@ function buildPayload(form) {
 function setupSaveButton(formType, fileUrl) {
     const btn = document.getElementById('save-btn');
     if (!btn) return;
-    btn.addEventListener('click', function () {
+    btn.onclick = function () {
         const form = document.getElementById('edit-form');
         const payload = {
             form_type: formType,
@@ -144,7 +144,7 @@ function setupSaveButton(formType, fileUrl) {
         }).then(r => r.json()).then(() => {
             alert('Datos enviados para guardar');
         });
-    });
+    };
 }
 
 function setupImagePanZoom() {
