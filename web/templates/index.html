@@ -10,7 +10,7 @@
             <div class="form-section">
                 <div id="spinner"></div>
                 <h2>Editar Datos</h2>
-                <form id="edit-form">
+                <form id="edit-form" {% if not fields %}style="display:none;"{% endif %}>
                 <div id="form-area">
                 {% if fields %}
                     {% macro render_form(data, prefix='') %}
@@ -33,8 +33,6 @@
                     </div>
                     {% endmacro %}
                     {{ render_form(fields) }}
-                {% else %}
-                    <input id="placeholder-field" type="text" disabled>
                 {% endif %}
                 </div>
                 <button type="button" id="save-btn" {% if not fields %}style="display:none;"{% endif %}>Guardar</button>

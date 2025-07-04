@@ -29,6 +29,15 @@ function renderFields(data, prefix = '') {
     return html;
 }
 
+function resetResult() {
+    document.getElementById('preview-area').innerHTML = '';
+    document.getElementById('form-area').innerHTML = '';
+    const controls = document.getElementById('zoom-pan-controls');
+    if (controls) controls.style.display = 'none';
+    document.getElementById('save-btn').style.display = 'none';
+    document.getElementById('edit-form').style.display = 'none';
+}
+
 function showPreview(file) {
     const previewArea = document.getElementById('preview-area');
     previewArea.innerHTML = '';
@@ -52,9 +61,16 @@ function showPreview(file) {
 function setupUploadForm() {
     const uploadForm = document.getElementById('upload-form');
     if (!uploadForm) return;
+    const fileInput = uploadForm.querySelector('input[name="document"]');
+    fileInput.addEventListener('change', () => {
+        if (!fileInput.files.length) return;
+        const file = fileInput.files[0];
+        resetResult();
+        document.getElementById('result-container').style.display = 'flex';
+        showPreview(file);
+    });
     uploadForm.addEventListener('submit', async function (e) {
         e.preventDefault();
-        const fileInput = uploadForm.querySelector('input[name="document"]');
         if (!fileInput.files.length) return;
         const file = fileInput.files[0];
 
@@ -79,6 +95,7 @@ function setupUploadForm() {
             const data = await res.json();
             window.formType = data.form_type;
             document.getElementById('form-area').innerHTML = renderFields(data.fields);
+            document.getElementById('edit-form').style.display = 'block';
             document.getElementById('spinner').style.display = 'none';
             document.getElementById('save-btn').style.display = 'block';
             document.querySelector('.form-section').classList.remove('loading');

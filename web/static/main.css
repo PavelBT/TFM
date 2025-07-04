@@ -89,7 +89,11 @@ button {
 .subsection { margin-left: 1em; }
 
 .result-container { display: flex; gap: 2em; }
-.form-section { position: relative; }
+.form-section {
+    position: relative;
+    padding: 1em;
+    border-radius: 8px;
+}
 .form-section.loading { background: rgba(0,0,0,0.05); }
 
 @media (max-width: 768px) {
