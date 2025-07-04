@@ -90,6 +90,7 @@ button {
 
 .result-container { display: flex; gap: 2em; }
 .form-section { position: relative; }
+.form-section.loading { background: rgba(0,0,0,0.05); }
 
 @media (max-width: 768px) {
     .result-container { flex-direction: column; }
@@ -97,8 +98,11 @@ button {
 
 .form-section, .preview-section { flex: 1; }
 
-#image-container { overflow: hidden; cursor: grab; }
+#image-container { overflow: hidden; cursor: grab; border: 1px solid #ccc; }
 #image-container img { transform-origin: top left; }
+
+#zoom-pan-controls { margin-top: 0.5em; }
+#zoom-pan-controls button { margin-right: 0.25em; }
 
 table { width: 100%; border-collapse: collapse; }
 th, td { padding: 0.5em; border: 1px solid #ddd; text-align: left; }

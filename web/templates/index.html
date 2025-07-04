@@ -6,11 +6,11 @@
         <input type="file" name="document" accept="image/*,.pdf" required>
         <button type="submit">Enviar</button>
     </form>
-    <div id="result-container" class="result-container" {% if not fields %}style="display:none;"{% endif %}>
-        <div class="form-section">
-            <div id="spinner"></div>
-            <h2>Editar Datos</h2>
-            <form id="edit-form">
+        <div id="result-container" class="result-container" {% if not fields %}style="display:none;"{% endif %}>
+            <div class="form-section">
+                <div id="spinner"></div>
+                <h2>Editar Datos</h2>
+                <form id="edit-form">
                 <div id="form-area">
                 {% if fields %}
                     {% macro render_form(data, prefix='') %}
@@ -33,6 +33,8 @@
                     </div>
                     {% endmacro %}
                     {{ render_form(fields) }}
+                {% else %}
+                    <input id="placeholder-field" type="text" disabled>
                 {% endif %}
                 </div>
                 <button type="button" id="save-btn" {% if not fields %}style="display:none;"{% endif %}>Guardar</button>
@@ -50,6 +52,15 @@
                     </div>
                 {% endif %}
             {% endif %}
+            </div>
+            <div id="zoom-pan-controls" style="display:none;">
+                <button type="button" id="zoom-in">+</button>
+                <button type="button" id="zoom-out">-</button>
+                <button type="button" id="pan-left">&#8592;</button>
+                <button type="button" id="pan-right">&#8594;</button>
+                <button type="button" id="pan-up">&#8593;</button>
+                <button type="button" id="pan-down">&#8595;</button>
+                <button type="button" id="reset-pan-zoom">Reset</button>
             </div>
         </div>
     </div>

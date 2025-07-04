@@ -32,14 +32,17 @@ function renderFields(data, prefix = '') {
 function showPreview(file) {
     const previewArea = document.getElementById('preview-area');
     previewArea.innerHTML = '';
+    const controls = document.getElementById('zoom-pan-controls');
     if (file.type === 'application/pdf') {
         const url = URL.createObjectURL(file);
         previewArea.innerHTML = `<iframe src="${url}" width="100%" height="600px"></iframe>`;
+        if (controls) controls.style.display = 'none';
     } else {
         const reader = new FileReader();
         reader.onload = e => {
             previewArea.innerHTML = `<div id="image-container"><img id="preview-image" ` +
                 `src="${e.target.result}" alt="Documento" style="max-width:100%;" /></div>`;
+            if (controls) controls.style.display = 'block';
             setupImagePanZoom();
         };
         reader.readAsDataURL(file);
@@ -58,6 +61,7 @@ function setupUploadForm() {
         document.getElementById('spinner').style.display = 'block';
         document.getElementById('result-container').style.display = 'flex';
         document.getElementById('save-btn').style.display = 'none';
+        document.querySelector('.form-section').classList.add('loading');
 
         showPreview(file);
         const fileUrl = await fileToDataURL(file);
@@ -77,10 +81,12 @@ function setupUploadForm() {
             document.getElementById('form-area').innerHTML = renderFields(data.fields);
             document.getElementById('spinner').style.display = 'none';
             document.getElementById('save-btn').style.display = 'block';
+            document.querySelector('.form-section').classList.remove('loading');
             setupSaveButton(window.formType, window.currentFileUrl);
         } catch (err) {
             console.error(err);
             document.getElementById('spinner').style.display = 'none';
+            document.querySelector('.form-section').classList.remove('loading');
             alert('Error al procesar el documento');
         }
     });
@@ -161,6 +167,18 @@ function setupImagePanZoom() {
     window.addEventListener('mouseup', () => {
         dragging = false;
     });
+
+    const controls = document.getElementById('zoom-pan-controls');
+    if (controls) {
+        controls.style.display = 'block';
+        controls.querySelector('#zoom-in').onclick = () => { scale = Math.min(scale + 0.1, 3); updateTransform(); };
+        controls.querySelector('#zoom-out').onclick = () => { scale = Math.max(scale - 0.1, 0.5); updateTransform(); };
+        controls.querySelector('#pan-left').onclick = () => { panX -= 20; updateTransform(); };
+        controls.querySelector('#pan-right').onclick = () => { panX += 20; updateTransform(); };
+        controls.querySelector('#pan-up').onclick = () => { panY -= 20; updateTransform(); };
+        controls.querySelector('#pan-down').onclick = () => { panY += 20; updateTransform(); };
+        controls.querySelector('#reset-pan-zoom').onclick = () => { scale = 1; panX = 0; panY = 0; updateTransform(); };
+    }
 }
 
 function init(formType, fileUrl) {
