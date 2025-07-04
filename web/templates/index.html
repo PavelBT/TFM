@@ -7,56 +7,60 @@
         <button type="submit">Enviar</button>
     </form>
     <div id="spinner"></div>
+    <div id="result-container" class="result-container" {% if not fields %}style="display:none;"{% endif %}>
+        <div class="form-section">
+            <h2>Editar Datos</h2>
+            <form id="edit-form">
+                <div id="form-area">
+                {% if fields %}
+                    {% macro render_form(data, prefix='') %}
+                    <div class="{{ 'subsection' if prefix }}">
+                        {% for key, value in data.items() %}
+                            {% set field_name = (prefix ~ '.' if prefix else '') ~ key %}
+                            {% if value is mapping %}
+                                <fieldset>
+                                    <legend class="section-title">{{ key.replace('_', ' ').capitalize() }}</legend>
+                                    {{ render_form(value, field_name) }}
+                                </fieldset>
+                            {% else %}
+                                <div>
+                                    <label class="field-key">{{ key.replace('_', ' ').capitalize() }}:
+                                        <input type="text" name="{{ field_name }}" value="{{ value }}">
+                                    </label>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endmacro %}
+                    {{ render_form(fields) }}
+                {% endif %}
+                </div>
+                <button type="button" id="save-btn" {% if not fields %}style="display:none;"{% endif %}>Guardar</button>
+            </form>
+        </div>
+        <div class="preview-section">
+            <h2>Visor de Documento</h2>
+            <div id="preview-area">
+            {% if file_url %}
+                {% if is_pdf %}
+                    <iframe src="{{ file_url }}" width="100%" height="600px"></iframe>
+                {% else %}
+                    <div id="image-container">
+                        <img id="preview-image" src="{{ file_url }}" alt="Documento" style="max-width:100%;" />
+                    </div>
+                {% endif %}
+            {% endif %}
+            </div>
+        </div>
+    </div>
     {% if error %}
         <div class="error">{{ error }}</div>
     {% endif %}
-    {% if fields %}
-        {% macro render_form(data, prefix='') %}
-        <div class="{{ 'subsection' if prefix }}">
-            {% for key, value in data.items() %}
-                {% set field_name = (prefix ~ '.' if prefix else '') ~ key %}
-                {% if value is mapping %}
-                    <fieldset>
-                        <legend class="section-title">{{ key.replace('_', ' ').capitalize() }}</legend>
-                        {{ render_form(value, field_name) }}
-                    </fieldset>
-                {% else %}
-                    <div>
-                        <label class="field-key">{{ key.replace('_', ' ').capitalize() }}:
-                            <input type="text" name="{{ field_name }}" value="{{ value }}">
-                        </label>
-                    </div>
-                {% endif %}
-            {% endfor %}
-        </div>
-        {% endmacro %}
-        <div class="result-container">
-            <div class="form-section">
-                <h2>Editar Datos</h2>
-                <form id="edit-form">
-                    {{ render_form(fields) }}
-                    <button type="button" id="save-btn">Guardar</button>
-                </form>
-            </div>
-            <div class="preview-section">
-                <h2>Visor de Documento</h2>
-                {% if file_url %}
-                    {% if is_pdf %}
-                        <iframe src="{{ file_url }}" width="100%" height="600px"></iframe>
-                    {% else %}
-                        <div id="image-container">
-                            <img id="preview-image" src="{{ file_url }}" alt="Documento" style="max-width:100%;" />
-                        </div>
-                    {% endif %}
-                {% endif %}
-            </div>
-        </div>
-    {% endif %}
 {% endblock %}
 {% block scripts %}
+<script src="{{ url_for('static', filename='main.js') }}"></script>
 <script>
     window.formType = "{{ form_type }}";
     window.fileUrl = "{{ file_url|default('') }}";
 </script>
-<script src="{{ url_for('static', filename='main.js') }}"></script>
 {% endblock %}
