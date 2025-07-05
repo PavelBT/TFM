@@ -68,8 +68,15 @@ def save():
     form_type = data.get("form_type")
     fields = data.get("fields", {})
     file_url = data.get("file_url")
-    db_client.save_form(form_type, fields, file_url)
-    return jsonify({"status": "ok"})
+    try:
+        db_client.save_form(form_type, fields, file_url)
+        return jsonify({"status": "ok", "message": "Registro guardado correctamente"})
+    except Exception as exc:  # pragma: no cover - just logging
+        logger.error("Error saving form: %s", exc)
+        return (
+            jsonify({"status": "error", "message": "Error al guardar en la base de datos"}),
+            500,
+        )
 
 
 @app.route("/applications", methods=["GET"])

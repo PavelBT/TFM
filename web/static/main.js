@@ -7,6 +7,15 @@ async function fileToDataURL(file) {
     });
 }
 
+function showAlert(message, success = true) {
+    const box = document.getElementById('alert-container');
+    if (!box) return;
+    box.textContent = message;
+    box.className = success ? 'alert alert-success' : 'alert alert-error';
+    box.style.display = 'block';
+    setTimeout(() => { box.style.display = 'none'; }, 3000);
+}
+
 function prettify(key) {
     const str = key.replace(/_/g, ' ');
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -141,9 +150,19 @@ function setupSaveButton(formType, fileUrl) {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
-        }).then(r => r.json()).then(() => {
-            alert('Datos enviados para guardar');
-        });
+        })
+            .then(res => res.json().then(data => ({ ok: res.ok, data })))
+            .then(({ ok, data }) => {
+                if (ok && data.status === 'ok') {
+                    showAlert(data.message || 'Registro guardado', true);
+                } else {
+                    throw new Error(data.message || 'Error al guardar');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                showAlert(err.message || 'Error al guardar', false);
+            });
     };
 }
 
