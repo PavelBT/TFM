@@ -3,9 +3,6 @@ FROM python:3.11-slim
 
 WORKDIR /web
 
-# Copiar código fuente de la interfaz web
-COPY . .
-
 # Instalar dependencias
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir flask requests sqlalchemy psycopg2-binary
@@ -13,4 +10,4 @@ RUN pip install --upgrade pip && \
 # Exponer puerto de Flask
 EXPOSE 5000
 
-CMD ["python", "app.py"]
+CMD ["python", "app.py", "--reload"]
