@@ -38,7 +38,7 @@ function renderFields(data, prefix = '') {
     return html;
 }
 
-function resetResult() {
+function resetResult(clearFileInput = true) {
     document.getElementById('preview-area').innerHTML = '';
     document.getElementById('form-area').innerHTML = '';
     const controls = document.getElementById('zoom-pan-controls');
@@ -48,7 +48,7 @@ function resetResult() {
     const resultContainer = document.getElementById('result-container');
     if (resultContainer) resultContainer.style.display = 'none';
     const fileInput = document.querySelector('#upload-form input[name="document"]');
-    if (fileInput) fileInput.value = '';
+    if (fileInput && clearFileInput) fileInput.value = '';
     window.formType = null;
     window.currentFileUrl = null;
 }
@@ -80,7 +80,8 @@ function setupUploadForm() {
     fileInput.addEventListener('change', () => {
         if (!fileInput.files.length) return;
         const file = fileInput.files[0];
-        resetResult();
+        // Keep the selected file in the input when resetting previous results
+        resetResult(false);
         document.getElementById('result-container').style.display = 'flex';
         showPreview(file);
     });
