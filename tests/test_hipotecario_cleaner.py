@@ -16,3 +16,20 @@ def test_transform_basic():
     assert result["contacto"]["telefono_celular"] == "5512345678"
     assert result["datos_personales"]["fecha_nacimiento"] == "1990-02-01"
 
+
+def test_transform_aliases():
+    cleaner = HipotecarioFieldCorrector()
+    data = {
+        "Nombre(s)": " Ana Maria ",
+        "1er apellido": "Lopez",
+        "2do apellido": "Hernandez",
+        "CURP": "LOAJ800101HDFRRN09",
+        "RFC con Homoclave": "ABCD900101XX1",
+    }
+    result = cleaner.transform(data)
+    assert result["datos_personales"]["nombre"] == "Ana Maria"
+    assert result["datos_personales"]["apellido_paterno"] == "Lopez"
+    assert result["datos_personales"]["apellido_materno"] == "Hernandez"
+    assert result["datos_personales"]["curp"] == "LOAJ800101HDFRRN09"
+    assert result["datos_personales"]["rfc"] == "ABCD900101XX1"
+
