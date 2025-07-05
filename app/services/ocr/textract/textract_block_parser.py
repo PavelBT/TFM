@@ -1,6 +1,7 @@
 from typing import Dict, List, Tuple
 import re
 from services.utils.logger import get_logger
+from trp import Document
 
 
 class TextractBlockParser:
@@ -8,20 +9,41 @@ class TextractBlockParser:
         self.logger = get_logger(self.__class__.__name__)
 
     @staticmethod
-    def _get_text(block: dict, block_map: dict) -> str:
-        text = ""
-        for rel in block.get("Relationships", []):
-            if rel["Type"] == "CHILD":
-                for child_id in rel["Ids"]:
-                    word = block_map[child_id]
-                    if word["BlockType"] in {"WORD", "CELL"}:
-                        text += word.get("Text", "") + " "
-                    elif (
-                        word["BlockType"] == "SELECTION_ELEMENT"
-                        and word.get("SelectionStatus") == "SELECTED"
-                    ):
-                        text += "[X] "
-        return text.strip()
+    def _default_geometry() -> dict:
+        return {
+            "BoundingBox": {
+                "Width": 1.0,
+                "Height": 1.0,
+                "Left": 0.0,
+                "Top": 0.0,
+            },
+            "Polygon": [
+                {"X": 0.0, "Y": 0.0},
+                {"X": 1.0, "Y": 0.0},
+                {"X": 1.0, "Y": 1.0},
+                {"X": 0.0, "Y": 1.0},
+            ],
+        }
+
+    @classmethod
+    def _prepare_blocks(cls, blocks: List[dict]) -> List[dict]:
+        prepared: List[dict] = []
+        has_page = any(b.get("BlockType") == "PAGE" for b in blocks)
+        if not has_page:
+            prepared.append(
+                {
+                    "Id": "page_0",
+                    "BlockType": "PAGE",
+                    "Geometry": cls._default_geometry(),
+                    "Confidence": 1.0,
+                }
+            )
+        for b in blocks:
+            new_b = b.copy()
+            new_b.setdefault("Confidence", 1.0)
+            new_b.setdefault("Geometry", cls._default_geometry())
+            prepared.append(new_b)
+        return prepared
 
     def _extract_from_line(self, text: str) -> Tuple[str, str] | None:
         if ':' in text:
@@ -54,43 +76,15 @@ class TextractBlockParser:
 
     def parse(self, blocks: List[dict]) -> Dict[str, str]:
         self.logger.info("Parsing %s blocks", len(blocks))
-        key_map = {}
-        value_map = {}
-        block_map = {}
-
-        for block in blocks:
-            block_id = block["Id"]
-            block_map[block_id] = block
-            if block["BlockType"] == "KEY_VALUE_SET":
-                if "KEY" in block.get("EntityTypes", []):
-                    key_map[block_id] = block
-                elif "VALUE" in block.get("EntityTypes", []):
-                    value_map[block_id] = block
-
+        processed = self._prepare_blocks(blocks)
+        doc = Document({"Blocks": processed})
         field_dict: Dict[str, str] = {}
-        for key_block_id, key_block in key_map.items():
-            key_text = self._get_text(key_block, block_map)
-            value_text = ""
-            for relationship in key_block.get("Relationships", []):
-                if relationship["Type"] == "VALUE":
-                    for value_id in relationship["Ids"]:
-                        value_block = value_map.get(value_id)
-                        if value_block:
-                            value_text = self._get_text(value_block, block_map)
-            if key_text:
-                # Prefer later non-empty values if existing value is empty or shorter
-                if key_text in field_dict:
-                    current = field_dict[key_text]
-                    if (
-                        value_text
-                        and (not current or len(value_text) > len(current))
-                    ):
-                        field_dict[key_text] = value_text
-                else:
-                    field_dict[key_text] = value_text
-
-        self.logger.info("Key-value pairs extracted: %s", len(field_dict))
-
+        for page in doc.pages:
+            for field in page.form.fields:
+                key = field.key.text.strip() if field.key else ""
+                value = field.value.text.strip() if field.value else ""
+                if key:
+                    field_dict[key] = value
         added = 0
         for block in blocks:
             if block.get("BlockType") == "LINE":
@@ -98,12 +92,10 @@ class TextractBlockParser:
                 kv = self._extract_from_line(text)
                 if kv:
                     k, v = kv
-                    if k not in field_dict or not field_dict[k]:
+                    if k not in field_dict:
                         field_dict[k] = v
                         added += 1
-
         line_blocks = [b for b in blocks if b.get("BlockType") == "LINE"]
         added += self._extract_adjacent_pairs(line_blocks, field_dict)
-
-        self.logger.info("Additional pairs from lines: %s", added)
+        self.logger.info("Extracted %s fields (%s from lines)", len(field_dict), added)
         return field_dict
