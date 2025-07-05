@@ -5,9 +5,9 @@ from services.field_correctors.banorte_credito_cleaner import BanorteCreditoFiel
 class BanorteCreditoPostProcessor(PostProcessor):
     """Apply structured cleaning and optional AI refinement."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.corrector = BanorteCreditoFieldCorrector()
 
     def process(self, fields: Dict[str, str]) -> Dict:
         structured = self.corrector.transform(fields)
-        return structured 
+        return structured

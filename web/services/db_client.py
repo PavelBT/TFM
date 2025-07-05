@@ -50,26 +50,30 @@ class DatabaseClient:
         from sqlalchemy import inspect
 
         inspector = inspect(self.engine)
-        columns = {col["name"] for col in inspector.get_columns("credit_applications")}
+        table = CreditApplication.__tablename__
+        columns = {col["name"] for col in inspector.get_columns(table)}
         statements = []
         if "email" not in columns:
-            statements.append("ALTER TABLE credit_applications ADD COLUMN email VARCHAR")
+            statements.append(f"ALTER TABLE {table} ADD COLUMN email VARCHAR")
         if "telefono_celular" not in columns:
-            statements.append("ALTER TABLE credit_applications ADD COLUMN telefono_celular VARCHAR")
+            statements.append(f"ALTER TABLE {table} ADD COLUMN telefono_celular VARCHAR")
         if "telefono_casa" not in columns:
-            statements.append("ALTER TABLE credit_applications ADD COLUMN telefono_casa VARCHAR")
+            statements.append(f"ALTER TABLE {table} ADD COLUMN telefono_casa VARCHAR")
+        if "plazo_credito" not in columns:
+            statements.append(f"ALTER TABLE {table} ADD COLUMN plazo_credito VARCHAR")
 
         if statements:
             with self.engine.begin() as conn:
                 for stmt in statements:
                     conn.execute(text(stmt))
 
-    def list_applications(self) -> list[CreditApplication]:
-        """Return all stored credit applications."""
+    def list_applications(self, form_type: str = "credito_personal") -> list:
+        """Return stored credit applications for the given form type."""
         session: Session = self.SessionLocal()
         try:
             return (
                 session.query(CreditApplication)
+                .filter(CreditApplication.tipo_credito == form_type)
                 .order_by(CreditApplication.id.desc())
                 .all()
             )
@@ -92,6 +96,7 @@ class DatabaseClient:
                 fecha_nacimiento=_extract(fields, "fecha_nacimiento"),
                 monto_solicitado=_extract(fields, "monto_solicitado"),
                 ingresos_mensuales=_extract(fields, "ingresos_mensuales"),
+                plazo_credito=_extract(fields, "plazo_credito"),
                 riesgo_score=_extract(fields, "riesgo_score"),
                 riesgo_clase=_extract(fields, "riesgo_clase"),
                 extra_data=fields,

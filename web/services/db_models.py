@@ -37,6 +37,7 @@ class CreditApplication(Base):
     ingresos_mensuales = Column(Numeric(12, 2))
     riesgo_score = Column(Numeric(6, 2))
     riesgo_clase = Column(String)
+    plazo_credito = Column(String)
     extra_data = Column(JSONB)
     file_url = Column(String)
     status = Column(String, default='nuevo')

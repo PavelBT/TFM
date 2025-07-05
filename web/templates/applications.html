@@ -2,6 +2,13 @@
 {% block title %}Consultas{% endblock %}
 {% block content %}
 <h1>Solicitudes de Crédito</h1>
+<form method="get">
+    <select name="type">
+        <option value="credito_personal" {% if form_type=='credito_personal' %}selected{% endif %}>Crédito personal</option>
+        <option value="credito_hipotecario" {% if form_type=='credito_hipotecario' %}selected{% endif %}>Crédito hipotecario</option>
+    </select>
+    <button type="submit">Filtrar</button>
+</form>
 <table>
     <thead>
         <tr>
