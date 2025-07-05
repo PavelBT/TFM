@@ -8,12 +8,17 @@ async function fileToDataURL(file) {
 }
 
 function showAlert(message, success = true) {
-    const box = document.getElementById('alert-container');
-    if (!box) return;
-    box.textContent = message;
-    box.className = success ? 'alert alert-success' : 'alert alert-error';
-    box.style.display = 'block';
-    setTimeout(() => { box.style.display = 'none'; }, 3000);
+    return new Promise(resolve => {
+        const box = document.getElementById('alert-container');
+        if (!box) return resolve();
+        box.textContent = message;
+        box.className = success ? 'alert alert-success' : 'alert alert-error';
+        box.style.display = 'block';
+        setTimeout(() => {
+            box.style.display = 'none';
+            resolve();
+        }, 3000);
+    });
 }
 
 function prettify(key) {
@@ -161,8 +166,8 @@ function setupSaveButton(formType, fileUrl) {
             .then(res => res.json().then(data => ({ ok: res.ok, data })))
             .then(({ ok, data }) => {
                 if (ok && data.status === 'ok') {
-                    showAlert(data.message || 'Registro guardado', true);
-                    resetResult();
+                    showAlert(data.message || 'Registro guardado', true)
+                        .then(() => setTimeout(resetResult, 1000));
                 } else {
                     throw new Error(data.message || 'Error al guardar');
                 }
