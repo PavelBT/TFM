@@ -10,5 +10,6 @@ class BanorteHipotecarioPostProcessor(PostProcessor):
         self.corrector = HipotecarioFieldCorrector()
 
     def process(self, fields: Dict[str, str]) -> Dict:
-        return self.corrector.transform(fields)
+        fields_corrected = self.corrector.transform(fields)
+        return fields_corrected
 
