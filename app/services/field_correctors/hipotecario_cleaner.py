@@ -15,10 +15,11 @@ class HipotecarioFieldCorrector(FieldCorrector):
         return self.basic.correct(key, value)
 
     def _clean_key(self, key: str) -> str:
-        key = re.sub(r"[:\-\.()]+", "", key).strip().lower()
+        key = re.sub(r"[:\-\.()/]+", "", key).strip().lower()
         key = "".join(
             c for c in unicodedata.normalize("NFKD", key) if not unicodedata.combining(c)
         )
+        key = re.sub(r"\s+", " ", key).strip()
         return key
 
     def transform(self, raw_data: Dict[str, str]) -> Dict:
@@ -30,8 +31,14 @@ class HipotecarioFieldCorrector(FieldCorrector):
         fecha_parts = {"dia": None, "mes": None, "ano": None}
 
         for key, value in raw_data.items():
+            if not value:
+                trailing = re.search(r"(\d[\d\s]{5,})$", key)
+                if trailing:
+                    value = trailing.group(1)
+                    key = key[: trailing.start()].strip()
+
             clean_key = self._clean_key(key)
-            if clean_key in {"nombre", "nombres"}:
+            if clean_key in {"nombre", "nombres", "nombre razon social"}:
                 normalized_key = "nombre"
             elif re.match(r"1(er)?\s*apellido", clean_key) or "apellido paterno" in clean_key:
                 normalized_key = "apellido_paterno"

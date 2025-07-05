@@ -33,3 +33,14 @@ def test_transform_aliases():
     assert result["datos_personales"]["curp"] == "LOAJ800101HDFRRN09"
     assert result["datos_personales"]["rfc"] == "ABCD900101XX1"
 
+
+def test_transform_razon_social_and_trailing_digits():
+    cleaner = HipotecarioFieldCorrector()
+    data = {
+        "Nombre / Razón social": "Juan Perez",
+        "Teléfono celular452 147 1121": "",
+    }
+    result = cleaner.transform(data)
+    assert result["datos_personales"]["nombre"] == "Juan Perez"
+    assert result["contacto"]["telefono_celular"] == "4521471121"
+
