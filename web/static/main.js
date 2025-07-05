@@ -45,6 +45,12 @@ function resetResult() {
     if (controls) controls.style.display = 'none';
     document.getElementById('save-btn').style.display = 'none';
     document.getElementById('edit-form').style.display = 'none';
+    const resultContainer = document.getElementById('result-container');
+    if (resultContainer) resultContainer.style.display = 'none';
+    const fileInput = document.querySelector('#upload-form input[name="document"]');
+    if (fileInput) fileInput.value = '';
+    window.formType = null;
+    window.currentFileUrl = null;
 }
 
 function showPreview(file) {
@@ -155,6 +161,7 @@ function setupSaveButton(formType, fileUrl) {
             .then(({ ok, data }) => {
                 if (ok && data.status === 'ok') {
                     showAlert(data.message || 'Registro guardado', true);
+                    resetResult();
                 } else {
                     throw new Error(data.message || 'Error al guardar');
                 }
