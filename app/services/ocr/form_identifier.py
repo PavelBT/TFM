@@ -10,7 +10,7 @@ class FormIdentifier:
     RULES = {
         "credito_personal": ["banorte", "credito", "personal"],
         "credito_hipotecario": ["credito", "hipotecario"],
-        "credito_tarjeta": ["banorte", "basica"],
+        "credito_tarjeta": ["basica"],
     }
 
     DEFAULT_TYPE = "unknown"

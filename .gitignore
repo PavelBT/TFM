@@ -2,8 +2,8 @@
 .env.*
 *.pem
 /models/
-.DS_Store
-__pycache__/
+**.DS_Store
+**/__pycache__/
 *.pt
 *.bin
 *.h5
