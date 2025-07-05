@@ -62,3 +62,14 @@ def test_parser_prefers_later_non_empty_value():
     parser = TextractBlockParser()
     result = parser.parse(blocks)
     assert result['E-mail'] == 'good@example.com'
+
+
+def test_parser_adjacent_lines_pairing():
+    blocks = [
+        {'Id': '1', 'BlockType': 'LINE', 'Text': 'Ingreso mensual'},
+        {'Id': '2', 'BlockType': 'LINE', 'Text': '$5,000'}
+    ]
+
+    parser = TextractBlockParser()
+    result = parser.parse(blocks)
+    assert result['Ingreso mensual'] == '$5,000'

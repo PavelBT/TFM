@@ -14,9 +14,12 @@ class TextractBlockParser:
             if rel["Type"] == "CHILD":
                 for child_id in rel["Ids"]:
                     word = block_map[child_id]
-                    if word["BlockType"] == "WORD":
-                        text += word["Text"] + " "
-                    elif word["BlockType"] == "SELECTION_ELEMENT" and word["SelectionStatus"] == "SELECTED":
+                    if word["BlockType"] in {"WORD", "CELL"}:
+                        text += word.get("Text", "") + " "
+                    elif (
+                        word["BlockType"] == "SELECTION_ELEMENT"
+                        and word.get("SelectionStatus") == "SELECTED"
+                    ):
                         text += "[X] "
         return text.strip()
 
@@ -32,6 +35,22 @@ class TextractBlockParser:
             if key and value:
                 return key, value
         return None
+
+    @staticmethod
+    def _extract_adjacent_pairs(lines: List[dict], field_dict: Dict[str, str]) -> int:
+        added = 0
+        for i in range(len(lines) - 1):
+            first = lines[i].get("Text", "").strip()
+            second = lines[i + 1].get("Text", "").strip()
+            if not first or not second or first in field_dict:
+                continue
+            if ":" in first or re.search(r"\s{2,}", first):
+                continue
+            if first not in field_dict and len(first.split()) <= 6:
+                if second and second not in field_dict.values():
+                    field_dict[first] = second
+                    added += 1
+        return added
 
     def parse(self, blocks: List[dict]) -> Dict[str, str]:
         self.logger.info("Parsing %s blocks", len(blocks))
@@ -82,6 +101,9 @@ class TextractBlockParser:
                     if k not in field_dict or not field_dict[k]:
                         field_dict[k] = v
                         added += 1
+
+        line_blocks = [b for b in blocks if b.get("BlockType") == "LINE"]
+        added += self._extract_adjacent_pairs(line_blocks, field_dict)
 
         self.logger.info("Additional pairs from lines: %s", added)
         return field_dict
