@@ -50,6 +50,7 @@ documents and visualize the resulting fields.
 | `GEMINI_MODEL` | Model name for Gemini OCR. |
 | `OCR_SERVICE` | Which OCR backend to use: `gemini` or `textract`. |
 | `AWS_REGION` | AWS region for Textract if using that backend. |
+| `S3_BUCKET` | Temporary S3 bucket for PDF processing with Textract. |
 | `DATABASE_URL` | Connection string for PostgreSQL. Defaults to the local container URL. |
 
 ## Running the stack

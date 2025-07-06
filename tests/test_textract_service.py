@@ -67,14 +67,19 @@ def test_factory_returns_textract():
 
 
 def test_textract_analyze(monkeypatch):
-    fake_client.analyze_document.return_value = SAMPLE_RESPONSE
+    fake_client.start_document_analysis.return_value = {"JobId": "1"}
+    fake_client.get_document_analysis.return_value = {
+        "JobStatus": "SUCCEEDED",
+        **SAMPLE_RESPONSE,
+    }
 
-    service = TextractOCRService()
+    service = TextractOCRService(bucket="bucket")
 
     async def sync_to_thread(func, *a, **k):
         return func(*a, **k)
 
     monkeypatch.setattr(asyncio, "to_thread", sync_to_thread)
+    monkeypatch.setattr(asyncio, "sleep", lambda *a, **k: None)
 
     headers = Headers({"content-type": "application/pdf"})
     upload = UploadFile(BytesIO(b"data"), filename="test.pdf", headers=headers)
@@ -82,12 +87,19 @@ def test_textract_analyze(monkeypatch):
 
     assert isinstance(result, OCRResponse)
     assert result.fields == {"Nombre": "Juan", "Edad": "30"}
-    fake_client.analyze_document.assert_called()
+    fake_client.start_document_analysis.assert_called()
+    fake_client.get_document_analysis.assert_called()
+    fake_client.put_object.assert_called()
+    fake_client.delete_object.assert_called()
 
 
 def test_processor_with_textract(monkeypatch):
-    fake_client.analyze_document.return_value = SAMPLE_RESPONSE
-    service = TextractOCRService()
+    fake_client.start_document_analysis.return_value = {"JobId": "1"}
+    fake_client.get_document_analysis.return_value = {
+        "JobStatus": "SUCCEEDED",
+        **SAMPLE_RESPONSE,
+    }
+    service = TextractOCRService(bucket="bucket")
 
     def get_service(name=None):
         return service
@@ -98,6 +110,7 @@ def test_processor_with_textract(monkeypatch):
         return func(*a, **k)
 
     monkeypatch.setattr(asyncio, "to_thread", sync_to_thread)
+    monkeypatch.setattr(asyncio, "sleep", lambda *a, **k: None)
 
     headers = Headers({"content-type": "application/pdf"})
     upload = UploadFile(BytesIO(b"data"), filename="test.pdf", headers=headers)
@@ -106,3 +119,7 @@ def test_processor_with_textract(monkeypatch):
     result = asyncio.run(processor.analyze(upload))
 
     assert result == {"form_type": "", "fields": {"Nombre": "Juan", "Edad": "30"}}
+    fake_client.start_document_analysis.assert_called()
+    fake_client.get_document_analysis.assert_called()
+    fake_client.put_object.assert_called()
+    fake_client.delete_object.assert_called()
