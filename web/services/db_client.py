@@ -55,10 +55,10 @@ class DatabaseClient:
         statements = []
         if "email" not in columns:
             statements.append(f"ALTER TABLE {table} ADD COLUMN email VARCHAR")
-        if "telefono_celular" not in columns:
-            statements.append(f"ALTER TABLE {table} ADD COLUMN telefono_celular VARCHAR")
-        if "telefono_casa" not in columns:
-            statements.append(f"ALTER TABLE {table} ADD COLUMN telefono_casa VARCHAR")
+        if "telefono_movil" not in columns:
+            statements.append(f"ALTER TABLE {table} ADD COLUMN telefono_movil VARCHAR")
+        if "telecono_casa" not in columns:
+            statements.append(f"ALTER TABLE {table} ADD COLUMN telecono_casa VARCHAR")
         if "plazo_credito" not in columns:
             statements.append(f"ALTER TABLE {table} ADD COLUMN plazo_credito VARCHAR")
 
@@ -91,8 +91,10 @@ class DatabaseClient:
                 rfc=_extract(fields, "rfc"),
                 curp=_extract(fields, "curp"),
                 email=_extract(fields, "email"),
-                telefono_celular=_extract(fields, "telefono_celular"),
-                telefono_casa=_extract(fields, "telefono_casa"),
+                telefono_movil=_extract(fields, "telefono_movil")
+                or _extract(fields, "telefono_celular"),
+                telecono_casa=_extract(fields, "telecono_casa")
+                or _extract(fields, "telefono_casa"),
                 fecha_nacimiento=_extract(fields, "fecha_nacimiento"),
                 monto_solicitado=_extract(fields, "monto_solicitado"),
                 ingresos_mensuales=_extract(fields, "ingresos_mensuales"),
