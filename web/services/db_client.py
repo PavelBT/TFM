@@ -57,8 +57,10 @@ class DatabaseClient:
             statements.append(f"ALTER TABLE {table} ADD COLUMN email VARCHAR")
         if "telefono_movil" not in columns:
             statements.append(f"ALTER TABLE {table} ADD COLUMN telefono_movil VARCHAR")
-        if "telecono_casa" not in columns:
-            statements.append(f"ALTER TABLE {table} ADD COLUMN telecono_casa VARCHAR")
+        if "telefono_casa" not in columns:
+            statements.append(f"ALTER TABLE {table} ADD COLUMN telefono_casa VARCHAR")
+        if "ingresos_mensuales" not in columns:
+            statements.append(f"ALTER TABLE {table} ADD COLUMN ingresos_mensuales NUMERIC(12, 2)")
         if "plazo_credito" not in columns:
             statements.append(f"ALTER TABLE {table} ADD COLUMN plazo_credito VARCHAR")
         if "file_url" not in columns:
