@@ -37,6 +37,8 @@ class GeminiOCRService(OCRService):
         self.refine_prompt = (
             "Refina el siguiente JSON extraído con OCR. "
             "Devuelve únicamente el JSON estructurado según las indicaciones."
+            "Deberas parsear los campos de seleccion y checkbox como listas, " \
+            "por ejemplo: plazo de credito: 24 meses , si 24: SELECTED, estado civial: casado, si casado: SELECTED " \
         )
 
         if genai:
