@@ -81,9 +81,9 @@ class GeminiOCRService(OCRService):
                 for section in payload.values():
                     if isinstance(section, list):
                         for item in section:
-                            label = item.get("label")
+                            label = item.get("label") or item.get("name") or item.get("key")
                             value = item.get("value")
-                            if label:
+                            if label is not None:
                                 fields[label] = value
                     elif isinstance(section, dict):
                         for label, value in section.items():
