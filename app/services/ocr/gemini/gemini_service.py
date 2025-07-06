@@ -2,6 +2,8 @@
 import os
 import asyncio
 import tempfile
+import json
+import re
 from fastapi import UploadFile
 from interfaces.ocr_service import OCRService
 from models import OCRResponse
@@ -57,13 +59,12 @@ class GeminiOCRService(OCRService):
 
         def _generate() -> str:
             uploaded = genai.upload_file(path=tmp_path, display_name=file.filename)
-            # Retrieve the file just like in the example
             genai.get_file(name=uploaded.name)
             response = self.model.generate_content(
                 [uploaded, self.prompt],
                 safety_settings=self.safety,
             )
-            print(response)
+            self.logger.debug("Gemini raw response: %s", response)
             return getattr(response, "text", "")
 
         text = await asyncio.to_thread(_generate)
@@ -71,4 +72,26 @@ class GeminiOCRService(OCRService):
             os.remove(tmp_path)
         except OSError:
             self.logger.warning("Temporary file could not be removed: %s", tmp_path)
-        return OCRResponse(form_name="text", fields={"text": text})
+
+        fields: dict[str, str] = {}
+        match = re.search(r"\{.*\}", text, re.S)
+        if match:
+            try:
+                payload = json.loads(match.group(0))
+                for section in payload.values():
+                    if isinstance(section, list):
+                        for item in section:
+                            label = item.get("label")
+                            value = item.get("value")
+                            if label:
+                                fields[label] = value
+                    elif isinstance(section, dict):
+                        for label, value in section.items():
+                            fields[label] = value
+            except Exception as exc:  # pragma: no cover - best effort
+                self.logger.warning("Failed to parse Gemini JSON: %s", exc)
+                fields = {"text": text}
+        else:
+            fields = {"text": text}
+
+        return OCRResponse(form_name="text", fields=fields)

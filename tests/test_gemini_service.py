@@ -29,7 +29,8 @@ def test_factory_returns_gemini():
 
 def test_gemini_analyze(monkeypatch):
     mock_model = MagicMock()
-    mock_response = MagicMock(text='hello')
+    mock_text = """```json\n{\n  \"datos personales\": [{\"label\": \"Nombre\", \"value\": \"Juan\"}]}\n```"""
+    mock_response = MagicMock(text=mock_text)
     mock_model.generate_content.return_value = mock_response
 
     fake_file = MagicMock()
@@ -49,7 +50,7 @@ def test_gemini_analyze(monkeypatch):
     result = asyncio.run(service.analyze(upload))
 
     assert isinstance(result, OCRResponse)
-    assert result.fields['text'] == 'hello'
+    assert result.fields == {"Nombre": "Juan"}
     fake_genai.upload_file.assert_called()
     fake_genai.get_file.assert_called()
     mock_model.generate_content.assert_called()
