@@ -62,6 +62,7 @@ refinement.
 | `OPENAI_MODEL` | Model name for GPT refiner. |
 | `GEMINI_API_KEY` | API key for Gemini OCR. |
 | `GEMINI_MODEL` | Model name for Gemini OCR. |
+| `GEMINI_PROMPT` | Prompt used when querying Gemini OCR. |
 | `HF_MODEL_NAME` | Model name for HuggingFace refiner. |
 | `TEXTRACT_MAX_RETRIES` | Maximum polling attempts for Textract jobs. |
 | `TEXTRACT_SLEEP_SECONDS` | Delay between Textract polling attempts. |
