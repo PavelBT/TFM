@@ -61,6 +61,8 @@ class DatabaseClient:
             statements.append(f"ALTER TABLE {table} ADD COLUMN telecono_casa VARCHAR")
         if "plazo_credito" not in columns:
             statements.append(f"ALTER TABLE {table} ADD COLUMN plazo_credito VARCHAR")
+        if "file_url" not in columns:
+            statements.append(f"ALTER TABLE {table} ADD COLUMN file_url VARCHAR")
 
         if statements:
             with self.engine.begin() as conn:
@@ -93,6 +95,7 @@ class DatabaseClient:
                 or _extract(fields, "telefono_celular"),
                 telefono_casa=_extract(fields, "telecono_casa")
                 or _extract(fields, "telefono_casa"),
+                file_url=file_url,
                 fecha_nacimiento=parse_date(
                     _extract(fields, "fecha_nacimiento") or ""
                 ),
