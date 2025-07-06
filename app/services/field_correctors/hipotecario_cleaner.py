@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 import re
 import unicodedata
 from interfaces.field_corrector import FieldCorrector
@@ -11,7 +11,7 @@ class HipotecarioFieldCorrector(FieldCorrector):
     def __init__(self) -> None:
         self.basic = BasicFieldCorrector()
 
-    def correct(self, key: str, value: str) -> Optional[str]:
+    def correct(self, key: str, value: Any) -> Optional[str]:
         return self.basic.correct(key, value)
 
     def _clean_key(self, key: str) -> str:
