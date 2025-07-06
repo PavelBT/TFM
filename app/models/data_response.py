@@ -1,8 +1,9 @@
-from typing import Dict, Union
+from typing import Dict, Any
 from pydantic import BaseModel
 
 
 class DataResponse(BaseModel):
     form_type: str
     filename: str
-    fields: Dict[str, Union[str, Dict[str, str], int, float, None]]
+    # Use a generic mapping for fields returned to clients
+    fields: Dict[str, Any]
