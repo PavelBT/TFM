@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subir y Procesar Documentos con Gemini AI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .navbar-brand img {
+            height: 40px;
+            margin-right: 10px;
+        }
+        .card {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+        .form-label {
+            font-weight: bold;
+        }
+        #loadingSpinner {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1050;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+        }
+        .pdf-preview-container, .ocr-result-container {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            min-height: 400px;
+            background-color: #fff;
+            padding: 15px;
+            overflow-y: auto;
+        }
+        .pdf-preview-container iframe {
+            width: 100%;
+            height: 380px;
+            border: none;
+        }
+        .ocr-result-container .structured-data h6 {
+            margin-top: 15px;
+            margin-bottom: 5px;
+            color: #007bff;
+        }
+        .ocr-result-container .structured-data ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .ocr-result-container .structured-data ul li {
+            padding: 3px 0;
+            border-bottom: 1px dotted #eee;
+        }
+        .ocr-result-container .structured-data table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .ocr-result-container .structured-data table th,
+        .ocr-result-container .structured-data table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .ocr-result-container .structured-data table th {
+            background-color: #f2f2f2;
+        }
+        .ocr-result-container pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: monospace;
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="https://via.placeholder.com/40" alt="Logo">
+                Procesador de Documentos AI
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#"><i class="fas fa-home me-1"></i>Inicio</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-file-alt me-1"></i>Documentos
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="#">Facturas</a></li>
+                            <li><a class="dropdown-item" href="#">Contratos</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">Configuración</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-info-circle me-1"></i>Acerca de</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-envelope me-1"></i>Contacto</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="card p-4">
+            <h2 class="mb-4 text-center text-primary"><i class="fas fa-upload me-2"></i>Cargar Documento PDF</h2>
+            <form id="uploadForm">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="documentType" class="form-label">Tipo de Documento:</label>
+                        <select class="form-select" id="documentType" required>
+                            <option value="">Seleccione un tipo</option>
+                            <option value="factura">Factura</option>
+                            <option value="contrato">Contrato</option>
+                            <option value="informe">Informe</option>
+                            <option value="recibo">Recibo</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="pdfFile" class="form-label">Seleccionar Archivo PDF:</label>
+                        <input class="form-control" type="file" id="pdfFile" accept="application/pdf" required>
+                    </div>
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-paper-plane me-2"></i>Subir y Procesar</button>
+                </div>
+            </form>
+        </div>
+
+        <hr class="my-5">
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card p-3 h-100">
+                    <h4 class="text-center text-secondary mb-3"><i class="fas fa-robot me-2"></i>Resultado OCR Estructurado</h4>
+                    <div class="ocr-result-container" id="ocrResult">
+                        <p class="text-muted text-center">Aquí aparecerá el texto estructurado del documento procesado por Gemini.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card p-3 h-100">
+                    <h4 class="text-center text-secondary mb-3"><i class="fas fa-file-pdf me-2"></i>Vista Previa del PDF</h4>
+                    <div class="pdf-preview-container" id="pdfPreview">
+                        <p class="text-muted text-center">Su PDF se mostrará aquí.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="loadingOverlay"></div>
+    <div id="loadingSpinner">
+        <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExYTlwbXN6cHBvc3FtdzBvZm9tdW9yZzhyN21paHJ4Y3U2dGk4cWcxZCZlcD12MV9pbnRlcm5uYWxfZ2lmX2J5X2lkJmN0PWc/3oEjI6SIIQAQEfXb4Q/giphy.gif" alt="Cargando..." width="100">
+        <p class="text-primary mt-2">Procesando documento con Gemini AI...</p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ¡IMPORTANTE! NUNCA EXPONGAS TU API_KEY DIRECTAMENTE EN CÓDIGO DEL LADO DEL CLIENTE EN PRODUCCIÓN.
+        // Para entornos de producción, esta llamada debe pasar por un backend propio para ocultar la clave.
+        const GEMINI_API_KEY = "AIzaSyDixjAtAw1c_l9WlcCRnW-hODCkfdSWahw"; // <-- REEMPLAZA ESTO CON TU CLAVE REAL
+        const MODEL_ID = "gemini-2.5-pro"; // Modelo recomendado para comprensión de documentos.
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_ID}:generateContent?key=${GEMINI_API_KEY}`;
+
+        // Función para codificar un archivo en Base64
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result.split(',')[1]); // Solo la parte Base64
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        // Función para transformar JSON en HTML estructurado
+        function displayStructuredJsonAsHtml(data, parentElement, level = 0) {
+            if (typeof data !== 'object' || data === null) {
+                const span = document.createElement('span');
+                span.textContent = data;
+                parentElement.appendChild(span);
+                return;
+            }
+
+            if (Array.isArray(data)) {
+                const ul = document.createElement('ul');
+                ul.classList.add('list-unstyled', 'ms-3'); // Bootstrap classes
+                data.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    li.innerHTML = '<strong>[${index}]</strong> ';
+                    const itemDiv = document.createElement('div');
+                    itemDiv.classList.add('ms-3');
+                    displayStructuredJsonAsHtml(item, itemDiv, level + 1);
+                    li.appendChild(itemDiv);
+                    ul.appendChild(li);
+                });
+                parentElement.appendChild(ul);
+            } else { // Es un objeto
+                const div = document.createElement('div');
+                div.classList.add('structured-data', `level-${level}`);
+                for (const key in data) {
+                    if (Object.hasOwnProperty.call(data, key)) {
+                        const value = data[key];
+                        const rowDiv = document.createElement('div');
+                        rowDiv.classList.add('row', 'mb-1');
+
+                        const keyCol = document.createElement('div');
+                        keyCol.classList.add('col-4', 'fw-bold');
+                        keyCol.textContent = key + ':';
+                        rowDiv.appendChild(keyCol);
+
+                        const valueCol = document.createElement('div');
+                        valueCol.classList.add('col-8');
+
+                        if (typeof value === 'object' && value !== null) {
+                            if (Array.isArray(value) && value.every(item => typeof item !== 'object')) {
+                                // Array de primitivos, mostrar simple
+                                valueCol.textContent = value.join(', ');
+                            } else {
+                                // Objeto o array complejo, recursivo
+                                valueCol.innerHTML = ''; // Limpiar si ya tiene texto
+                                displayStructuredJsonAsHtml(value, valueCol, level + 1);
+                            }
+                        } else {
+                            // Valor primitivo
+                            valueCol.textContent = value;
+                        }
+                        rowDiv.appendChild(valueCol);
+                        div.appendChild(rowDiv);
+                    }
+                }
+                parentElement.appendChild(div);
+            }
+        }
+
+
+        // JavaScript puro y jQuery para manejar el formulario y la petición AJAX
+        $(document).ready(function() {
+            $('#uploadForm').on('submit', async function(event) {
+                event.preventDefault(); // Evitar el envío normal del formulario
+
+                const documentType = $('#documentType').val();
+                const pdfFile = $('#pdfFile')[0].files[0];
+
+                if (!documentType || !pdfFile) {
+                    alert('Por favor, seleccione un tipo de documento y suba un archivo PDF.');
+                    return;
+                }
+
+                if (pdfFile.size > 20 * 1024 * 1024) { // Límite de 20MB para Base64 directamente
+                    alert('El archivo PDF es demasiado grande para ser enviado directamente (más de 20MB). Para archivos más grandes, debes usar la Gemini File API.');
+                    return;
+                }
+
+                // Mostrar el GIF de carga y el overlay
+                $('#loadingOverlay').show();
+                $('#loadingSpinner').show();
+                $('#ocrResult').html('<p class="text-muted text-center">Procesando documento...</p>'); // Limpiar y mostrar mensaje inicial
+
+                try {
+                    // 1. Codificar el PDF a Base64
+                    const base64Pdf = await fileToBase64(pdfFile);
+
+                    // 2. Preparar el cuerpo de la solicitud para la API de Gemini
+                    // Se usa el prompt exacto que proporcionaste, adaptando el tipo de documento.
+                    const promptText = 'Necesito que me devuelvas una estructura JSON clave valor bien detallada de lo que encuentres en este documento PDF de tipo ${documentType} aplicando OCR. Incluye, si aplica, campos como "numero_factura", "fecha_emision", "nombre_cliente", "direccion_cliente", "total_neto", "impuestos", "total_pagar", "lista_items" (con "descripcion", "cantidad", "precio_unitario", "subtotal" para cada item), "moneda", "notas", etc. Asegúrate de que el JSON sea válido y esté completo. Si no encuentras un campo, omítelo o ponlo como null.';
+
+                    const requestBody = {
+                        contents: [
+                            {
+                                "role": "user", // Rol del usuario
+                                "parts": [
+                                    {
+                                        // ¡AJUSTE FINAL AQUÍ! inlineData directamente como una "part"
+                                        "inlineData": {
+                                            "mimeType": "application/pdf",
+                                            "data": base64Pdf
+                                        }
+                                    },
+                                    {
+                                        "text": promptText // Tu prompt dinámico
+                                    },
+                                ]
+                            },
+                        ],
+                        // Configuración de generación, tal como la proporcionaste
+                        "generationConfig": {
+                            "thinkingConfig": {
+                                "thinkingBudget": -1, // -1 significa ilimitado o por defecto del modelo
+                            },
+                            "responseMimeType": "application/json", // Aunque pedimos JSON, esto asegura que no lo envuelva en markdown si no lo necesita.
+                        },
+                    };
+
+                    // 3. Realizar la llamada AJAX a la API de Gemini usando jQuery
+                    const response = await $.ajax({
+                        url: API_URL,
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(requestBody),
+                        dataType: 'json'
+                    });
+
+                    // Ocultar el GIF de carga y el overlay
+                    $('#loadingOverlay').hide();
+                    $('#loadingSpinner').hide();
+
+                    // 4. Mostrar el PDF en la vista previa
+                    const fileURL = URL.createObjectURL(pdfFile);
+                    $('#pdfPreview').html('<iframe src="${fileURL}" frameborder="0"></iframe>');
+
+                    // 5. Procesar y mostrar el resultado estructurado de Gemini
+                    if (response && response.candidates && response.candidates.length > 0) {
+                        const geminiText = response.candidates[0].content.parts[0].text;
+                        try {
+                            const jsonResult = JSON.parse(geminiText);
+                            // Limpiar el contenedor y mostrar el JSON como HTML estructurado
+                            $('#ocrResult').empty();
+                            displayStructuredJsonAsHtml(jsonResult, $('#ocrResult')[0]);
+                        } catch (e) {
+                            // Si Gemini no devuelve un JSON válido, mostrar el texto crudo
+                            $('#ocrResult').html('<p class="text-warning text-center">Gemini no devolvió un JSON válido. Mostrando texto plano:</p><pre>${geminiText}</pre>');
+                            console.warn("Gemini no devolvió un JSON válido:", geminiText, e);
+                        }
+                    } else {
+                        $('#ocrResult').html('<p class="text-danger text-center">No se obtuvo un resultado de OCR de Gemini o la respuesta está vacía.</p>');
+                    }
+
+                } catch (error) {
+                    // Ocultar el GIF de carga y el overlay en caso de error
+                    $('#loadingOverlay').hide();
+                    $('#loadingSpinner').hide();
+                    console.error('Error al procesar el documento con Gemini:', error);
+                    let errorMessage = 'Error al procesar el documento. Por favor, intente de nuevo.';
+                    if (error.responseJSON && error.responseJSON.error && error.responseJSON.error.message) {
+                        errorMessage += '\nDetalles: ' + error.responseJSON.error.message;
+                    } else if (error.statusText) {
+                         errorMessage += '\nDetalles: ' + error.statusText;
+                    }
+                    alert(errorMessage);
+                    $('#ocrResult').html('<p class="text-danger text-center">Error al procesar el documento. Revise la consola para más detalles.</p>');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
