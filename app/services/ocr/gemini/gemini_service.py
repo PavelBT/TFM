@@ -44,7 +44,7 @@ class GeminiOCRService(OCRService):
     def _load_prompt(self, prompt: str | None) -> str:
         if prompt is not None:
             return prompt
-        prompt_file = os.getenv("GEMINI_PROMPT_FILE", DEFAULT_PROMPT_FILE)
+        prompt_file = DEFAULT_PROMPT_FILE
         try:
             with open(prompt_file, "r", encoding="utf-8") as fh:
                 return fh.read()
