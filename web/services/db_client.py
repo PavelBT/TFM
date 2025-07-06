@@ -5,7 +5,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
 
 from services.utils.logger import get_logger
-from services.utils.normalization import normalize_key
+from services.utils.normalization import normalize_key, parse_money
 from services.db_models import Base, CreditApplication
 
 DEFAULT_DB_URL = "postgresql+psycopg2://user:password@db:5432/ocrdata"
@@ -96,8 +96,12 @@ class DatabaseClient:
                 telecono_casa=_extract(fields, "telecono_casa")
                 or _extract(fields, "telefono_casa"),
                 fecha_nacimiento=_extract(fields, "fecha_nacimiento"),
-                monto_solicitado=_extract(fields, "monto_solicitado"),
-                ingresos_mensuales=_extract(fields, "ingresos_mensuales"),
+                monto_solicitado=parse_money(
+                    _extract(fields, "monto_solicitado")
+                ),
+                ingresos_mensuales=parse_money(
+                    _extract(fields, "ingresos_mensuales")
+                ),
                 plazo_credito=_extract(fields, "plazo_credito"),
                 riesgo_score=_extract(fields, "riesgo_score"),
                 riesgo_clase=_extract(fields, "riesgo_clase"),
