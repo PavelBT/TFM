@@ -2,7 +2,7 @@
 
 import re
 import unicodedata
-from typing import Optional, Dict
+from typing import Optional, Dict, Any
 from interfaces.field_corrector import FieldCorrector
 from services.field_correctors.basic_field_corrector import BasicFieldCorrector
 
@@ -21,7 +21,7 @@ class BanorteCreditoFieldCorrector(FieldCorrector):
     def _is_selected(self, value: str) -> bool:
         return "[x]" in value.lower()
 
-    def correct(self, key: str, value: str) -> Optional[str]:
+    def correct(self, key: str, value: Any) -> Optional[str]:
         return self.basic.correct(key, value)
 
     def _init_structured(self) -> Dict:
