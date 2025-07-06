@@ -1,17 +1,21 @@
 {% extends "base.html" %}
 {% block title %}Consultas{% endblock %}
 {% block content %}
-<h1>Solicitudes de Crédito</h1>
-<form method="get">
-    <select name="type">
+<h1 class="h4 text-primary mb-3">Solicitudes de Crédito</h1>
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-4">
+    <select name="type" class="form-select">
         <option value="" {% if not form_type %}selected{% endif %}>Todos</option>
         <option value="credito_personal" {% if form_type=='credito_personal' %}selected{% endif %}>Crédito personal</option>
         <option value="credito_hipotecario" {% if form_type=='credito_hipotecario' %}selected{% endif %}>Crédito hipotecario</option>
         <option value="credito_tarjeta" {% if form_type=='credito_tarjeta' %}selected{% endif %}>Tarjeta de crédito</option>
     </select>
-    <button type="submit">Filtrar</button>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+    </div>
 </form>
-<table>
+<table class="table table-striped table-bordered">
     <thead>
         <tr>
             <th>Tipo</th>
@@ -59,7 +63,7 @@
                 {% endif %}
             </td>
             <td>
-                <button type="button" class="json-btn" data-json='{{ rec.extra_data | tojson }}'>Ver</button>
+                <button type="button" class="json-btn btn btn-sm btn-outline-primary" data-json='{{ rec.extra_data | tojson }}'>Ver</button>
             </td>
         </tr>
         {% endfor %}
