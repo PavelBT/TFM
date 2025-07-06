@@ -137,7 +137,9 @@ def test_processor_with_textract(monkeypatch):
 
     mock_refiner.refine.side_effect = refine
 
-    monkeypatch.setattr("services.ocr_processor.GeminiOCRService", lambda *a, **k: mock_refiner)
+    monkeypatch.setattr(
+        "services.ocr_processor.GeminiRefinerService", lambda *a, **k: mock_refiner
+    )
 
     async def sync_to_thread(func, *a, **k):
         return func(*a, **k)

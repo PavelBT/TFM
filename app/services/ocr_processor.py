@@ -1,8 +1,7 @@
 from typing import Dict
 from fastapi import UploadFile
 from services.factory import get_ocr_service
-from services.ocr.gemini import GeminiOCRService
-from services.ocr.textract import TextractOCRService
+from services.ocr.gemini import GeminiOCRService, GeminiRefinerService
 from services.utils.logger import get_logger
 from services.utils import postprocess_fields
 
@@ -13,13 +12,13 @@ class OCRProcessor:
     def __init__(self) -> None:
         self.logger = get_logger(self.__class__.__name__)
         self.ocr_service = get_ocr_service()
-        self.refiner: GeminiOCRService | None = None
+        self.refiner: GeminiRefinerService | None = None
         try:
             is_gemini = isinstance(self.ocr_service, GeminiOCRService)
         except TypeError:  # when patched with non-type
             is_gemini = False
         if not is_gemini:
-            self.refiner = GeminiOCRService()
+            self.refiner = GeminiRefinerService()
 
     async def analyze(self, file: UploadFile) -> Dict:
         """Analyze a file and return the extracted fields."""

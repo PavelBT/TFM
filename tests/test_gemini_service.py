@@ -17,7 +17,10 @@ sys.modules.setdefault('boto3', MagicMock())
 sys.modules.setdefault('trp', MagicMock())
 
 from services.factory import get_ocr_service  # noqa: E402
-from services.ocr.gemini.gemini_service import GeminiOCRService  # noqa: E402
+from services.ocr.gemini.ocr_service import GeminiOCRService  # noqa: E402
+from services.ocr.gemini.refiner_service import (
+    GeminiRefinerService,
+)  # noqa: E402
 from services.ocr_processor import OCRProcessor  # noqa: E402
 from models import OCRResponse  # noqa: E402
 from fastapi import UploadFile  # noqa: E402
@@ -133,7 +136,7 @@ def test_gemini_refine(monkeypatch):
 
     monkeypatch.setattr(asyncio, "to_thread", sync_to_thread)
 
-    service = GeminiOCRService(api_key='key')
+    service = GeminiRefinerService(api_key='key')
     service.model = mock_model
 
     result = asyncio.run(service.refine({"Nombre": "Ana"}))
