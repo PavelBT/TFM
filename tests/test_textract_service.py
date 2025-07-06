@@ -13,6 +13,28 @@ sys.modules.setdefault('google', google_pkg)
 sys.modules.setdefault('google.generativeai', fake_genai)
 sys.modules.setdefault('google.generativeai.types', fake_genai.types)
 sys.modules.setdefault('magic', MagicMock())
+fake_trp = types.ModuleType('trp')
+sys.modules['trp'] = fake_trp
+
+class DummyField:
+    def __init__(self, key: str, value: str):
+        self.key = types.SimpleNamespace(text=key)
+        self.value = types.SimpleNamespace(text=value)
+
+class DummyPage:
+    def __init__(self, fields: list[DummyField]):
+        self.form = types.SimpleNamespace(fields=fields)
+
+class DummyDocument:
+    def __init__(self, response):
+        self.pages = [
+            DummyPage([
+                DummyField("Nombre", "Juan"),
+                DummyField("Edad", "30"),
+            ])
+        ]
+
+fake_trp.Document = DummyDocument
 
 fake_boto3 = MagicMock()
 fake_client = MagicMock()
@@ -79,7 +101,11 @@ def test_textract_analyze(monkeypatch):
         return func(*a, **k)
 
     monkeypatch.setattr(asyncio, "to_thread", sync_to_thread)
-    monkeypatch.setattr(asyncio, "sleep", lambda *a, **k: None)
+
+    async def fake_sleep(*a, **k):
+        return None
+
+    monkeypatch.setattr(asyncio, "sleep", fake_sleep)
 
     headers = Headers({"content-type": "application/pdf"})
     upload = UploadFile(BytesIO(b"data"), filename="test.pdf", headers=headers)
@@ -110,7 +136,11 @@ def test_processor_with_textract(monkeypatch):
         return func(*a, **k)
 
     monkeypatch.setattr(asyncio, "to_thread", sync_to_thread)
-    monkeypatch.setattr(asyncio, "sleep", lambda *a, **k: None)
+
+    async def fake_sleep(*a, **k):
+        return None
+
+    monkeypatch.setattr(asyncio, "sleep", fake_sleep)
 
     headers = Headers({"content-type": "application/pdf"})
     upload = UploadFile(BytesIO(b"data"), filename="test.pdf", headers=headers)

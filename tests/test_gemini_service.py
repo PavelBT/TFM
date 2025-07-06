@@ -14,6 +14,7 @@ sys.modules.setdefault('google.generativeai', fake_genai)
 sys.modules.setdefault('google.generativeai.types', fake_genai.types)
 sys.modules.setdefault('magic', MagicMock())
 sys.modules.setdefault('boto3', MagicMock())
+sys.modules.setdefault('trp', MagicMock())
 
 from services.factory import get_ocr_service  # noqa: E402
 from services.ocr.gemini.gemini_service import GeminiOCRService  # noqa: E402
