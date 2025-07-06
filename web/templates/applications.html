@@ -12,29 +12,66 @@
 <table>
     <thead>
         <tr>
-            <th>ID</th>
-            <th>Fecha</th>
             <th>Tipo</th>
             <th>Nombre</th>
+            <th>Apellido paterno</th>
+            <th>Apellido materno</th>
+            <th>RFC</th>
+            <th>CURP</th>
+            <th>Email</th>
+            <th>Teléfono móvil</th>
+            <th>Teléfono casa</th>
+            <th>Fecha nacimiento</th>
+            <th>Monto solicitado</th>
+            <th>Ingresos mensuales</th>
+            <th>Riesgo score</th>
+            <th>Riesgo clase</th>
+            <th>Plazo crédito</th>
             <th>Status</th>
             <th>Documento</th>
+            <th>Datos</th>
         </tr>
     </thead>
     <tbody>
         {% for rec in records %}
         <tr>
-            <td>{{ rec.id }}</td>
-            <td>{{ rec.created_at.strftime('%Y-%m-%d') if rec.created_at }}</td>
             <td>{{ rec.tipo_credito }}</td>
-            <td>{{ rec.nombre }} {{ rec.apellido_paterno }}</td>
+            <td>{{ rec.nombre }}</td>
+            <td>{{ rec.apellido_paterno }}</td>
+            <td>{{ rec.apellido_materno }}</td>
+            <td>{{ rec.rfc }}</td>
+            <td>{{ rec.curp }}</td>
+            <td>{{ rec.email }}</td>
+            <td>{{ rec.telefono_movil }}</td>
+            <td>{{ rec.telecono_casa }}</td>
+            <td>{{ rec.fecha_nacimiento }}</td>
+            <td>{{ rec.monto_solicitado }}</td>
+            <td>{{ rec.ingresos_mensuales }}</td>
+            <td>{{ rec.riesgo_score }}</td>
+            <td>{{ rec.riesgo_clase }}</td>
+            <td>{{ rec.plazo_credito }}</td>
             <td>{{ rec.status }}</td>
             <td>
                 {% if rec.file_url %}
                     <a class="table-link" href="{{ rec.file_url }}" target="_blank">&#128196;</a>
                 {% endif %}
             </td>
+            <td>
+                <button type="button" class="json-btn" data-json='{{ rec.extra_data | tojson }}'>Ver</button>
+            </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
+<div id="json-modal">
+    <div class="content">
+        <button type="button" class="close-btn" id="close-json">Cerrar</button>
+        <pre></pre>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='applications.js') }}"></script>
 {% endblock %}
