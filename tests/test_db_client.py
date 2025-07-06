@@ -110,3 +110,21 @@ def test_money_fields_are_parsed(monkeypatch):
     assert kwargs["riesgo_score"] == "0.77"
 
 
+def test_plazo_credito_fallback(monkeypatch):
+    """plazo_credito uses plazo_meses or plazo_anios when provided."""
+    monkeypatch.setattr(DatabaseClient, "_ensure_columns", lambda self: None)
+    mock_model = MagicMock()
+    monkeypatch.setattr(db_client, "CreditApplication", mock_model)
+    db = DatabaseClient()
+    session_mock = MagicMock()
+    db.SessionLocal = MagicMock(return_value=session_mock)
+
+    fields = {"informacion_credito": {"plazo_meses": "12"}}
+    db.save_form("credito_personal", fields, None)
+    assert mock_model.call_args.kwargs["plazo_credito"] == "12"
+
+    fields = {"informacion_credito": {"plazo_anios": "8"}}
+    db.save_form("credito_hipotecario", fields, None)
+    assert mock_model.call_args.kwargs["plazo_credito"] == "8"
+
+
