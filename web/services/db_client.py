@@ -91,7 +91,7 @@ class DatabaseClient:
                 email=_extract(fields, "email"),
                 telefono_movil=_extract(fields, "telefono_movil")
                 or _extract(fields, "telefono_celular"),
-                telecono_casa=_extract(fields, "telecono_casa")
+                telefono_casa=_extract(fields, "telecono_casa")
                 or _extract(fields, "telefono_casa"),
                 fecha_nacimiento=parse_date(
                     _extract(fields, "fecha_nacimiento") or ""
@@ -109,7 +109,6 @@ class DatabaseClient:
                 riesgo_score=_extract(fields, "riesgo_score"),
                 riesgo_clase=_extract(fields, "riesgo_clase"),
                 extra_data=fields,
-                file_url=file_url,
                 status="nuevo",
             )
             session.add(record)

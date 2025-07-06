@@ -31,7 +31,7 @@ class CreditApplication(Base):
     curp = Column(String)
     email = Column(String)
     telefono_movil = Column(String)
-    telecono_casa = Column(String)
+    telefono_casa = Column(String)
     fecha_nacimiento = Column(Date)
     monto_solicitado = Column(Numeric(12, 2))
     ingresos_mensuales = Column(Numeric(12, 2))
@@ -39,6 +39,5 @@ class CreditApplication(Base):
     riesgo_clase = Column(String)
     plazo_credito = Column(String)
     extra_data = Column(JSONB)
-    file_url = Column(String)
     status = Column(String, default='nuevo')
 
