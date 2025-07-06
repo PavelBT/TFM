@@ -1,12 +1,12 @@
 Extrae la información clave del siguiente documento en español y devuélvela exclusivamente en formato JSON estructurado, siguiendo exactamente las secciones y alias indicados.
 Si algún campo no aparece en el documento, plasmalo en el mismo formato siempre dentro de una seccion existente (no incluyas claves vacías ni valores `null`).
 
-Puden ser 2 tipos de documentos: "credito_personal" o "credito_hipotecario", si no es ninguno de estos, devuelve el campo "form_name" con el valor "desconocido".
+Puden ser 2 tipos de documentos: "credito_personal", "credito_hipotecario" o "solicitud_tarjeta", si no es ninguno de estos, devuelve el campo "form_name" con el valor "desconocido".
 Todas las fechas deben ser devueltas como una sola cadena en el formato "dd/mm/aaaa". Por ejemplo:
 
 "fecha_nacimiento": "01/01/1990"
 
-La estructura deseada es (ejemkplo para "credito_personal"):
+La estructura deseada es (ejemplo para "credito_personal"):
 
 {
   "form_name": "credito_personal",
@@ -78,6 +78,9 @@ La estructura deseada es (ejemkplo para "credito_personal"):
   ]
 }
 
-para el caso de credito_hipotecario, deberas agregar la secciones: datos_inmueble, informacion_vendedor y servicios_adicionales.
+- para el caso de credito_hipotecario, deberas agregar la secciones: informacion_conyuge (solo di aparece informacion, usar el mismo formato y alias de datos_personales), datos_inmueble, informacion_vendedor y servicios_adicionales.
+
+- para el caso de solicitud_tarjeta los datos extraidos deberas organizar y usar los alias de los formatos anteriores
+deberas complemetar la infomacion financiera con los datos de la renta, y una nueva seccion "beneficiarios".
 
 Responde exclusivamente con un JSON válido. No expliques nada. Usa el idioma y formato textual original del documento.
