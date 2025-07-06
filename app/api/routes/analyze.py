@@ -1,13 +1,9 @@
-import os
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from models.data_response import DataResponse
 from services.ocr_processor import OCRProcessor
 
-SERVICE_NAME = os.getenv("OCR_SERVICE", "aws")
-REFINER_TYPE = os.getenv("REFINER_TYPE")
-
 router = APIRouter()
-processor = OCRProcessor(SERVICE_NAME, REFINER_TYPE)
+processor = OCRProcessor()
 
 
 @router.post("/analyze", response_model=DataResponse)

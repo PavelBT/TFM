@@ -1,9 +1,8 @@
 # OCR Processing Service
 
 This project provides an OCR API and minimal web interface. Documents are
-processed using an OCR backend (AWS Textract by default) and the extracted
-fields are optionally refined using AI models. A set of cleaners normalises the
-data to return a structured JSON response.
+processed using a Gemini based OCR service and the extracted fields are
+returned as structured JSON.
 
 ## Table of Contents
 
@@ -21,14 +20,9 @@ data to return a structured JSON response.
 ## Overview
 
 The service exposes a FastAPI endpoint that accepts PDF or image files.  Each
-document is sent to an OCR backend which extracts the key/value pairs.  The
-fields are cleaned, optionally sent through an AI model for further refinement
-and returned as structured JSON.  A small Flask application provides a basic
-HTML form to upload documents and visualize the resulting fields.
-
-Supported OCR providers and refiners can be configured through environment
-variables.  By default the stack relies on AWS Textract and does not apply AI
-refinement.
+document is sent to Gemini which extracts key/value pairs and returns them in a
+JSON structure.  A small Flask application provides a basic HTML form to upload
+documents and visualize the resulting fields.
 
 ## Requirements
 
@@ -52,20 +46,9 @@ refinement.
 
 | Variable | Description |
 | -------- | ----------- |
-| `OCR_SERVICE` | Name of the OCR backend (`aws` by default). |
-| `REFINER_TYPE` | Optional AI refiner (`gpt` or `huggingface`). |
-| `AWS_ACCESS_KEY_ID` | AWS credential for Textract/S3. |
-| `AWS_SECRET_ACCESS_KEY` | AWS credential for Textract/S3. |
-| `AWS_REGION` | AWS region used by Textract. |
-| `AWS_BUCKET` | S3 bucket for temporary uploads. |
-| `OPENAI_API_KEY` | API key for GPT refiner (if used). |
-| `OPENAI_MODEL` | Model name for GPT refiner. |
 | `GEMINI_API_KEY` | API key for Gemini OCR. |
 | `GEMINI_MODEL` | Model name for Gemini OCR. |
 | `GEMINI_PROMPT` | Prompt used when querying Gemini OCR. |
-| `HF_MODEL_NAME` | Model name for HuggingFace refiner. |
-| `TEXTRACT_MAX_RETRIES` | Maximum polling attempts for Textract jobs. |
-| `TEXTRACT_SLEEP_SECONDS` | Delay between Textract polling attempts. |
 | `DATABASE_URL` | Connection string for PostgreSQL. Defaults to the local container URL. |
 
 ## Running the stack
@@ -96,15 +79,14 @@ curl -F "file=@path/to/document.pdf" http://localhost:8000/api/analyze
 ```
 
 The response contains the detected form type, the original file name and a
-dictionary of cleaned fields:
+dictionary of extracted fields:
 
 ```json
 {
-  "form_type": "credito_personal",
+  "form_type": "text",
   "filename": "document.pdf",
   "fields": {
-    "datos_personales": {"nombre": "Juan"},
-    "contacto": {"email": "test@mail.com"}
+    "Nombre": "Juan"
   }
 }
 ```
@@ -127,7 +109,6 @@ pytest -q
 ```
 app/          # FastAPI service and OCR processing logic
 web/          # Flask UI to upload files
-ai_models/    # Optional HuggingFace-based refiner service
 tests/        # Unit tests for core functionality
 docker-compose.yml
 ```
