@@ -48,6 +48,8 @@ documents and visualize the resulting fields.
 | -------- | ----------- |
 | `GEMINI_API_KEY` | API key for Gemini OCR. |
 | `GEMINI_MODEL` | Model name for Gemini OCR. |
+| `OCR_SERVICE` | Which OCR backend to use: `gemini` or `textract`. |
+| `AWS_REGION` | AWS region for Textract if using that backend. |
 | `DATABASE_URL` | Connection string for PostgreSQL. Defaults to the local container URL. |
 
 ## Running the stack

@@ -6,6 +6,7 @@ requests
 pydantic
 python-multipart
 python-magic
+amazon-textract-response-parser
 transformers
 torch
 protobuf>=3.20
