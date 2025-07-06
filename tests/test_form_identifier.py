@@ -3,7 +3,7 @@ from services.ocr.form_identifier import FormIdentifier
 
 
 def test_extract_and_identify_form():
-    with open('app/examples/analyzeDocResponse.json', encoding='utf-8') as f:
+    with open('app/examples/analyzeDocCreditoPersonal.json', encoding='utf-8') as f:
         data = json.load(f)
     form_name = FormIdentifier.extract_name_from_blocks(data['Blocks'])
     assert 'CRÉDITO PERSONAL BANORTE' in form_name
