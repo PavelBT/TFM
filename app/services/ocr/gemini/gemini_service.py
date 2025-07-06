@@ -10,6 +10,14 @@ from services.utils.logger import get_logger
 try:
     import google.generativeai as genai
     from google.generativeai.types import HarmCategory, HarmBlockThreshold
+
+    # Configure the Google Generative AI library
+    genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+    models = genai.list_models()
+
+    for m in models:
+        print(m.name, m.supported_generation_methods)
+
 except Exception:  # pragma: no cover - optional dependency may not be installed
     genai = None
 
@@ -22,8 +30,8 @@ class GeminiOCRService(OCRService):
             or os.getenv("GEMINI_API_KEY")
             or os.getenv("GOOGLE_AI_STUDIO_API_KEY", "")
         )
-        self.model_name = model_name or os.getenv("GEMINI_MODEL", "gemini-2.5-pro-exp-03-25")
-        self.prompt = prompt or os.getenv("GEMINI_PROMPT", "Extract the text from the document")
+        self.model_name = model_name or os.getenv("GEMINI_MODEL", "gemini-2.0-pro-exp-02-05")
+        self.prompt = "Analyze the given document and carefully extract the information, the language of the document is Spanish, the output format is JSON in plaintext organized by categories (example: {'datos personales': {'nombre': 'claudia', 'apellido': 'perez', ...} }): datos personales, contacto, empleo y finanzas (monto del credito, salario mensual, plazo del credito) ." if prompt is None else prompt
         if genai:
             genai.configure(api_key=self.api_key)
             self.model = genai.GenerativeModel(self.model_name)
@@ -55,6 +63,7 @@ class GeminiOCRService(OCRService):
                 [uploaded, self.prompt],
                 safety_settings=self.safety,
             )
+            print(response)
             return getattr(response, "text", "")
 
         text = await asyncio.to_thread(_generate)
