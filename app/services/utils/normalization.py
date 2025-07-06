@@ -1,6 +1,7 @@
 import re
 import unicodedata
 from typing import Optional
+from datetime import datetime, date
 
 def normalize_key(key: str) -> str:
     """Normalize dictionary keys to snake_case."""
@@ -51,3 +52,22 @@ def parse_money(amount: str) -> Optional[str]:
         return f"{float(amt):.2f}"
     except ValueError:
         return None
+
+
+def parse_date(value: str) -> Optional[date]:
+    """Parse common date formats and return a ``date`` object.
+
+    Accepts ``dd/mm/aaaa``, ``dd-mm-aaaa`` and ``yyyy-mm-dd``. Returns ``None``
+    when the value cannot be parsed or is empty.
+    """
+
+    if not value:
+        return None
+
+    value = value.strip()
+    for fmt in ("%d/%m/%Y", "%d-%m-%Y", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(value, fmt).date()
+        except ValueError:
+            continue
+    return None
