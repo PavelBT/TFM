@@ -14,6 +14,7 @@ sys.modules.setdefault('google.generativeai', fake_genai)
 sys.modules.setdefault('google.generativeai.types', fake_genai.types)
 sys.modules.setdefault('magic', MagicMock())
 sys.modules.setdefault('boto3', MagicMock())
+sys.modules.setdefault('trp', MagicMock())
 
 from services.factory import get_ocr_service  # noqa: E402
 from services.ocr.gemini.gemini_service import GeminiOCRService  # noqa: E402
@@ -119,3 +120,23 @@ def test_processor_cleans_fields(monkeypatch):
     result = asyncio.run(processor.analyze(upload))
 
     assert result == {"form_type": "", "fields": {"Nombre": "Ana"}}
+
+
+def test_gemini_refine(monkeypatch):
+    mock_model = MagicMock()
+    mock_text = """```json\n{\n  \"form_name\": \"credito\", \n  \"Nombre\": \"Ana\"\n}\n```"""
+    mock_response = MagicMock(text=mock_text)
+    mock_model.generate_content.return_value = mock_response
+
+    async def sync_to_thread(func, *a, **k):
+        return func(*a, **k)
+
+    monkeypatch.setattr(asyncio, "to_thread", sync_to_thread)
+
+    service = GeminiOCRService(api_key='key')
+    service.model = mock_model
+
+    result = asyncio.run(service.refine({"Nombre": "Ana"}))
+
+    assert result == OCRResponse(form_name="credito", fields={"Nombre": "Ana"})
+    mock_model.generate_content.assert_called()
