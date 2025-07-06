@@ -117,7 +117,7 @@ function setupUploadForm() {
         const file = fileInput.files[0];
         // Keep the selected file in the input when resetting previous results
         resetResult(false);
-        document.getElementById('result-container').style.display = 'block';
+        document.getElementById('result-container').style.display = 'flex';
         showPreview(file);
     });
     uploadForm.addEventListener('submit', async function (e) {
@@ -127,7 +127,7 @@ function setupUploadForm() {
 
         document.getElementById('loadingOverlay').style.display = 'block';
         document.getElementById('loadingSpinner').style.display = 'block';
-        document.getElementById('result-container').style.display = 'block';
+        document.getElementById('result-container').style.display = 'flex';
         document.getElementById('save-btn').style.display = 'none';
         document.querySelector('.form-section').classList.add('loading');
 
@@ -282,7 +282,7 @@ function init(formType, fileUrl) {
     if (formType && fileUrl) {
         setupSaveButton(formType, fileUrl);
         setupImagePanZoom();
-        document.getElementById('result-container').style.display = 'block';
+        document.getElementById('result-container').style.display = 'flex';
     }
 }
 
