@@ -1,8 +1,9 @@
 # app/models/ocr_response.py
 from pydantic import BaseModel
-from typing import Dict, Union
+from typing import Dict, Any
 
 
 class OCRResponse(BaseModel):
     form_name: str
-    fields: Dict[str, Union[str, Dict[str, str], int, float, None]]
+    # Allow nested dictionaries or mixed value types extracted from OCR
+    fields: Dict[str, Any]
