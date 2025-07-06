@@ -33,7 +33,11 @@ class GeminiOCRService(OCRService):
             or os.getenv("GOOGLE_AI_STUDIO_API_KEY", "")
         )
         self.model_name = model_name or os.getenv("GEMINI_MODEL", "gemini-2.0-pro-exp-02-05")
-        self.prompt = "Analyze the given document and carefully extract the information, the language of the document is Spanish, the output format is JSON in plaintext organized by categories (example: {'datos personales': {'nombre': 'claudia', 'apellido': 'perez', ...} }): datos personales, contacto, empleo y finanzas (monto del credito, salario mensual, plazo del credito) ." if prompt is None else prompt
+        self.prompt = "Analyze the given document and carefully extract the information,\
+            the language of the document is Spanish, the output format is JSON in plaintext,\
+            you should identify the form_name only credito_personal, credito_hipotecario, solicitud_credito or desconocido,\
+            containing the key <form_name> in first level. all text is in Spanish."
+        
         if genai:
             genai.configure(api_key=self.api_key)
             self.model = genai.GenerativeModel(self.model_name)
@@ -68,6 +72,8 @@ class GeminiOCRService(OCRService):
             return getattr(response, "text", "")
 
         text = await asyncio.to_thread(_generate)
+        print("Gemini response text:", text) ## Debugging line
+
         try:
             os.remove(tmp_path)
         except OSError:
