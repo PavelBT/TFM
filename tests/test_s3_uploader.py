@@ -3,7 +3,7 @@ import sys
 
 
 sys.modules.setdefault('boto3', MagicMock())
-from services.ocr.textract.s3_uploader import S3Uploader
+from services.ocr.textract.s3_uploader import S3Uploader  # noqa: E402
 
 
 def test_s3_uploader_calls():

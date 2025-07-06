@@ -1,7 +1,7 @@
 # app/services/field_correctors/basic_field_corrector.py
 
 import re
-from typing import Optional
+from typing import Optional, Any
 from interfaces.field_corrector import FieldCorrector
 
 
@@ -30,7 +30,11 @@ class BasicFieldCorrector(FieldCorrector):
             return "".join(corrected)
         return text
 
-    def correct(self, key: str, value: str) -> Optional[str]:
+    def correct(self, key: str, value: Any) -> Optional[str]:
+        if value is None:
+            return None
+        if not isinstance(value, str):
+            value = str(value)
         value = re.sub(r"\s+", " ", value).strip()
         if not value:
             return None
