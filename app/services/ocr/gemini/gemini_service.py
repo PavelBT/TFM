@@ -29,7 +29,15 @@ class GeminiOCRService(OCRService):
         )
         self.model_name = model_name or os.getenv("GEMINI_MODEL", "gemini-2.0-pro-exp-02-05")
         self.prompt_system = self._load_prompt(prompt)
-        self.prompt = "Identifica y extra los datos precisos del fomulario. Devuelve un JSON con los campos y sus valores. Si no hay datos, devuelve un JSON vacío."
+        self.prompt = (
+            "Identifica y extra los datos precisos del fomulario. "
+            "Devuelve un JSON con los campos y sus valores. Si no hay datos, "
+            "devuelve un JSON vacío."
+        )
+        self.refine_prompt = (
+            "Refina el siguiente JSON extraído con OCR. "
+            "Devuelve únicamente el JSON estructurado según las indicaciones."
+        )
 
         if genai:
             genai.configure(api_key=self.api_key)
@@ -69,6 +77,14 @@ class GeminiOCRService(OCRService):
         self.logger.debug("Gemini raw response: %s", response)
         return getattr(response, "text", "")
 
+    def _generate_refine(self, data: str, prompt: str) -> str:
+        response = self.model.generate_content(
+            [prompt, data],
+            safety_settings=self.safety,
+        )
+        self.logger.debug("Gemini refine response: %s", response)
+        return getattr(response, "text", "")
+
     def _cleanup_temp_file(self, path: str) -> None:
         try:
             os.remove(path)
@@ -105,4 +121,18 @@ class GeminiOCRService(OCRService):
         form_name = fields.pop("form_name", "")
 
         return OCRResponse(form_name=form_name, fields=fields)
+
+    async def refine(self, fields: dict, prompt: str | None = None) -> OCRResponse:
+        """Refine extracted fields using Gemini."""
+        self.logger.info("Refining fields with Gemini")
+        if not genai or not self.model:
+            raise RuntimeError(
+                "google-generativeai library is required for GeminiOCRService"
+            )
+        payload = json.dumps(fields, ensure_ascii=False)
+        user_prompt = prompt or self.refine_prompt
+        text = await asyncio.to_thread(self._generate_refine, payload, user_prompt)
+        parsed = self._parse_text(text)
+        form_name = parsed.pop("form_name", "")
+        return OCRResponse(form_name=form_name, fields=parsed)
     
