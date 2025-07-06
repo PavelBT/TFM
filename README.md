@@ -60,6 +60,8 @@ refinement.
 | `AWS_BUCKET` | S3 bucket for temporary uploads. |
 | `OPENAI_API_KEY` | API key for GPT refiner (if used). |
 | `OPENAI_MODEL` | Model name for GPT refiner. |
+| `GEMINI_API_KEY` | API key for Gemini OCR. |
+| `GEMINI_MODEL` | Model name for Gemini OCR. |
 | `HF_MODEL_NAME` | Model name for HuggingFace refiner. |
 | `TEXTRACT_MAX_RETRIES` | Maximum polling attempts for Textract jobs. |
 | `TEXTRACT_SLEEP_SECONDS` | Delay between Textract polling attempts. |

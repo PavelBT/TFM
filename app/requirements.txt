@@ -12,3 +12,4 @@ protobuf>=3.20
 sentencepiece
 openai
 python-dotenv
+google-generativeai

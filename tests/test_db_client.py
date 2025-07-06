@@ -9,8 +9,8 @@ sys.modules.setdefault('sqlalchemy.dialects', MagicMock())
 sys.modules.setdefault('sqlalchemy.dialects.postgresql', MagicMock())
 sys.modules.setdefault('services.db_models', MagicMock())
 
-from web.services import db_client
-from web.services.db_client import _extract, DatabaseClient
+from web.services import db_client  # noqa: E402
+from web.services.db_client import _extract, DatabaseClient  # noqa: E402
 
 
 def test_extract_with_spaces():
