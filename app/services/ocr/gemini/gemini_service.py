@@ -102,7 +102,7 @@ class GeminiOCRService(OCRService):
             self._cleanup_temp_file(tmp_path)
 
         fields = self._parse_text(text)
-        form_name = fields["form_name"]
+        form_name = fields.pop("form_name", "")
 
         return OCRResponse(form_name=form_name, fields=fields)
     
