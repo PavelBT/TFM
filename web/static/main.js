@@ -125,7 +125,8 @@ function setupUploadForm() {
         if (!fileInput.files.length) return;
         const file = fileInput.files[0];
 
-        document.getElementById('spinner').style.display = 'block';
+        document.getElementById('loadingOverlay').style.display = 'block';
+        document.getElementById('loadingSpinner').style.display = 'block';
         document.getElementById('result-container').style.display = 'flex';
         document.getElementById('save-btn').style.display = 'none';
         document.querySelector('.form-section').classList.add('loading');
@@ -147,13 +148,15 @@ function setupUploadForm() {
             window.formType = data.form_type;
             document.getElementById('form-area').innerHTML = renderFields(data.fields);
             document.getElementById('edit-form').style.display = 'block';
-            document.getElementById('spinner').style.display = 'none';
+            document.getElementById('loadingOverlay').style.display = 'none';
+            document.getElementById('loadingSpinner').style.display = 'none';
             document.getElementById('save-btn').style.display = 'block';
             document.querySelector('.form-section').classList.remove('loading');
             setupSaveButton(window.formType, window.currentFileUrl);
         } catch (err) {
             console.error(err);
-            document.getElementById('spinner').style.display = 'none';
+            document.getElementById('loadingOverlay').style.display = 'none';
+            document.getElementById('loadingSpinner').style.display = 'none';
             document.querySelector('.form-section').classList.remove('loading');
             alert('Error al procesar el documento');
         }
