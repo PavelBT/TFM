@@ -1,29 +1,14 @@
 body {
     font-family: Arial, sans-serif;
     margin: 0;
-    background-color: #f9f9f9;
+    background-color: #f8f9fa;
     color: #333;
 }
 
 .container {
-    width: 90%;
+    width: 100%;
+    max-width: 1200px;
     margin: 2em auto;
-}
-
-nav {
-    background: #2c3e50;
-    padding: 0.5em 1em;
-    display: flex;
-    gap: 1em;
-}
-
-nav a {
-    color: white;
-    text-decoration: none;
-}
-
-nav a:hover {
-    text-decoration: underline;
 }
 
 form {
@@ -38,24 +23,14 @@ input[type="file"] {
     margin: 0.5em 0;
 }
 
-button {
-    background-color: #2c3e50;
-    color: white;
-    padding: 0.5em 1em;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
 
-#save-btn {
-    display: block;
-    margin: 1em auto 0;
-}
+
+
 
 #spinner {
     display: none;
     border: 6px solid #f3f3f3;
-    border-top: 6px solid #2c3e50;
+    border-top: 6px solid #0d6efd;
     border-radius: 50%;
     width: 48px;
     height: 48px;
@@ -115,9 +90,7 @@ button {
 #zoom-pan-controls { margin-top: 0.5em; }
 #zoom-pan-controls button { margin-right: 0.25em; }
 
-table { width: 100%; border-collapse: collapse; }
-th, td { padding: 0.5em; border: 1px solid #ddd; text-align: left; }
-th { background-color: #f5f5f5; }
+
 .table-link { color: #2c3e50; text-decoration: none; }
 
 /* Alert styles */
