@@ -4,8 +4,10 @@
 <h1>Solicitudes de Crédito</h1>
 <form method="get">
     <select name="type">
+        <option value="" {% if not form_type %}selected{% endif %}>Todos</option>
         <option value="credito_personal" {% if form_type=='credito_personal' %}selected{% endif %}>Crédito personal</option>
         <option value="credito_hipotecario" {% if form_type=='credito_hipotecario' %}selected{% endif %}>Crédito hipotecario</option>
+        <option value="credito_tarjeta" {% if form_type=='credito_tarjeta' %}selected{% endif %}>Tarjeta de crédito</option>
     </select>
     <button type="submit">Filtrar</button>
 </form>

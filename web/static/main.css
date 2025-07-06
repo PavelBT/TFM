@@ -101,6 +101,13 @@ button {
 }
 
 .form-section, .preview-section { flex: 1; }
+.preview-section {
+    position: sticky;
+    top: 1em;
+    align-self: flex-start;
+    max-height: 90vh;
+    overflow: auto;
+}
 
 #image-container { overflow: hidden; cursor: grab; border: 1px solid #ccc; }
 #image-container img { transform-origin: top left; }

@@ -102,9 +102,9 @@ def save():
 @app.route("/applications", methods=["GET"])
 def list_applications():
     """Display stored credit applications."""
-    form_type = request.args.get("type", "credito_personal")
+    form_type = request.args.get("type")
     if form_type not in VALID_FORMS:
-        form_type = "credito_personal"
+        form_type = None
     records = db_client.list_applications(form_type)
     return render_template(
         "applications.html", records=records, form_type=form_type

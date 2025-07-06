@@ -14,10 +14,10 @@
         <div id="result-container" class="result-container" {% if not fields %}style="display:none;"{% endif %}>
             <div class="form-section">
                 <div id="spinner"></div>
-                <h2>Editar Datos</h2>
                 {% if form_type %}
-                <h3>{{ FORM_NAMES.get(form_type, form_type.replace('_', ' ').title()) }}</h3>
+                <h2>{{ FORM_NAMES.get(form_type, form_type.replace('_', ' ').title()) }}</h2>
                 {% endif %}
+                <h3>Editar Datos</h3>
                 <form id="edit-form" {% if not fields %}style="display:none;"{% endif %}>
                 <div id="form-area">
                 {% if fields %}
