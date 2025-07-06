@@ -84,3 +84,29 @@ def test_store_both_phone_numbers(monkeypatch):
     assert kwargs["telecono_casa"] == "555"
 
 
+def test_money_fields_are_parsed(monkeypatch):
+    """Money fields are parsed but riesgo_score is not."""
+    monkeypatch.setattr(DatabaseClient, "_ensure_columns", lambda self: None)
+    mock_model = MagicMock()
+    monkeypatch.setattr(db_client, "CreditApplication", mock_model)
+    parse_mock = MagicMock(side_effect=lambda v: f"parsed-{v}")
+    monkeypatch.setattr(db_client, "parse_money", parse_mock)
+
+    db = DatabaseClient()
+    session_mock = MagicMock()
+    db.SessionLocal = MagicMock(return_value=session_mock)
+
+    fields = {
+        "monto_solicitado": "$1,000",
+        "ingresos_mensuales": "2,000",
+        "riesgo_score": "0.77",
+    }
+    db.save_form("credito_personal", fields, None)
+
+    assert parse_mock.call_count == 2
+    kwargs = mock_model.call_args.kwargs
+    assert kwargs["monto_solicitado"] == "parsed-$1,000"
+    assert kwargs["ingresos_mensuales"] == "parsed-2,000"
+    assert kwargs["riesgo_score"] == "0.77"
+
+
