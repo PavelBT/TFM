@@ -41,6 +41,27 @@ fake_client = MagicMock()
 fake_boto3.client.return_value = fake_client
 sys.modules['boto3'] = fake_boto3
 
+fake_trp = types.ModuleType('trp')
+
+class _Field:
+    def __init__(self, key, value):
+        self.key = types.SimpleNamespace(text=key)
+        self.value = types.SimpleNamespace(text=value)
+
+
+class _Page:
+    def __init__(self, fields):
+        self.form = types.SimpleNamespace(fields=fields)
+
+
+class Document:
+    def __init__(self, response):
+        self.pages = [_Page([_Field("Nombre", "Juan"), _Field("Edad", "30")])]
+
+
+fake_trp.Document = Document
+sys.modules['trp'] = fake_trp
+
 import importlib
 import services.ocr.textract.textract_service as textract_service_module
 importlib.reload(textract_service_module)
@@ -132,6 +153,17 @@ def test_processor_with_textract(monkeypatch):
 
     monkeypatch.setattr("services.ocr_processor.get_ocr_service", get_service)
 
+    mock_refiner = MagicMock()
+
+    async def refine(fields, prompt=None):
+        return OCRResponse(form_name="credito", fields=fields)
+
+    mock_refiner.refine.side_effect = refine
+
+    monkeypatch.setattr(
+        "services.ocr_processor.GeminiRefinerService", lambda *a, **k: mock_refiner
+    )
+
     async def sync_to_thread(func, *a, **k):
         return func(*a, **k)
 
@@ -148,7 +180,8 @@ def test_processor_with_textract(monkeypatch):
     processor = OCRProcessor()
     result = asyncio.run(processor.analyze(upload))
 
-    assert result == {"form_type": "", "fields": {"Nombre": "Juan", "Edad": "30"}}
+    assert result == {"form_type": "credito", "fields": {"Nombre": "Juan", "Edad": "30"}}
+    mock_refiner.refine.assert_called_with({"Nombre": "Juan", "Edad": "30"})
     fake_client.start_document_analysis.assert_called()
     fake_client.get_document_analysis.assert_called()
     fake_client.put_object.assert_called()
