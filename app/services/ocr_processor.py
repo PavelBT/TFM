@@ -24,6 +24,7 @@ class OCRProcessor:
         processed = postprocessor.process(raw.fields)
 
         refined = {}
+        self.refiner_type = None ### borrar
         if self.refiner_type:
             try:
                 refiner_service = get_ai_refiner(self.refiner_type)

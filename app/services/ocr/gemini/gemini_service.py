@@ -36,9 +36,10 @@ class GeminiOCRService(OCRService):
         self.prompt = "Analyze the given document and carefully extract the information,\
             the language of the document is Spanish, the output format is JSON in plaintext,\
             you should identify the form_name only credito_personal, credito_hipotecario, solicitud_credito or desconocido,\
-            containing the key <form_name> in first level. all text is in Spanish."
+            containing the key <form_name> in first position. all text is in Spanish. Always the otput is a JSON with structured data by form section."
         
         if genai:
+            
             genai.configure(api_key=self.api_key)
             self.model = genai.GenerativeModel(self.model_name)
             self.safety = {
