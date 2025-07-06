@@ -18,6 +18,11 @@
     <div id="result-container" class="row mt-4" {% if not fields %}style="display:none;"{% endif %}>
         <div class="col-md-6">
             <div class="card p-3 h-100 form-section">
+                <div class="loading-overlay" id="loadingOverlay"></div>
+                <div id="loadingSpinner">
+                    <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExYTlwbXN6cHBvc3FtdzBvZm9tdW9yZzhyN21paHJ4Y3U2dGk4cWcxZCZlcD12MV9pbnRlcm5uYWxfZ2lmX2J5X2lkJmN0PWc/3oEjI6SIIQAQEfXb4Q/giphy.gif" alt="Cargando..." width="100">
+                    <p class="text-primary mt-2">Procesando documento...</p>
+                </div>
                 <h4 class="text-center text-secondary mb-3">Editar Datos</h4>
                 <form id="edit-form" {% if not fields %}style="display:none;"{% endif %}>
                 <div id="form-area">
