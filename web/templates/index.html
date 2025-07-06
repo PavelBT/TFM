@@ -1,4 +1,9 @@
 {% extends "base.html" %}
+{% set FORM_NAMES = {
+    'credito_personal': 'Solicitud de Crédito Personal',
+    'credito_hipotecario': 'Solicitud de Crédito Hipotecario',
+    'credito_tarjeta': 'Solicitud de Tarjeta de Crédito'
+} %}
 {% block title %}Inicio{% endblock %}
 {% block content %}
     <h1>Sube un documento de solicitud</h1>
@@ -10,6 +15,9 @@
             <div class="form-section">
                 <div id="spinner"></div>
                 <h2>Editar Datos</h2>
+                {% if form_type %}
+                <h3>{{ FORM_NAMES.get(form_type, form_type.replace('_', ' ').title()) }}</h3>
+                {% endif %}
                 <form id="edit-form" {% if not fields %}style="display:none;"{% endif %}>
                 <div id="form-area">
                 {% if fields %}
