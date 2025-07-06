@@ -8,3 +8,5 @@
 *.bin
 *.h5
 *.ckpt
+node_modules/
+web/static/custom.css.map

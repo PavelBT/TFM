@@ -6,14 +6,18 @@
 } %}
 {% block title %}Inicio{% endblock %}
 {% block content %}
-    <h1>Sube un documento de solicitud</h1>
-    <form id="upload-form" action="/" method="post" enctype="multipart/form-data">
-        <input type="file" name="document" accept="image/*,.pdf" required>
-        <button type="submit">Enviar</button>
+    <h1 class="mb-3">Sube un documento de solicitud</h1>
+    <form id="upload-form" action="/" method="post" enctype="multipart/form-data" class="mb-4">
+        <div class="mb-3">
+            <input type="file" class="form-control" name="document" accept="image/*,.pdf" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Enviar</button>
     </form>
         <div id="result-container" class="result-container" {% if not fields %}style="display:none;"{% endif %}>
             <div class="form-section">
-                <div id="spinner"></div>
+                <div id="spinner" class="spinner-border text-primary" role="status" style="display:none;">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
                 <h2>Editar Datos</h2>
                 {% if form_type %}
                 <h3>{{ FORM_NAMES.get(form_type, form_type.replace('_', ' ').title()) }}</h3>
@@ -62,7 +66,7 @@
                     {{ render_form(fields) }}
                 {% endif %}
                 </div>
-                <button type="button" id="save-btn" {% if not fields %}style="display:none;"{% endif %}>Guardar</button>
+                <button type="button" id="save-btn" class="btn btn-success mt-3" {% if not fields %}style="display:none;"{% endif %}>Guardar</button>
             </form>
         </div>
         <div class="preview-section">
