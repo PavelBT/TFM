@@ -54,3 +54,32 @@ def test_gemini_analyze(monkeypatch):
     fake_genai.upload_file.assert_called()
     fake_genai.get_file.assert_called()
     mock_model.generate_content.assert_called()
+
+
+def test_gemini_analyze_name_key(monkeypatch):
+    mock_model = MagicMock()
+    mock_text = """```json\n{\n  \"datos\": [{\"name\": \"Monto\", \"value\": \"100\"}]}\n```"""
+    mock_response = MagicMock(text=mock_text)
+    mock_model.generate_content.return_value = mock_response
+
+    fake_file = MagicMock()
+    fake_genai.upload_file.return_value = fake_file
+    fake_genai.get_file.return_value = fake_file
+
+    async def sync_to_thread(func, *a, **k):
+        return func(*a, **k)
+
+    monkeypatch.setattr(asyncio, "to_thread", sync_to_thread)
+
+    service = GeminiOCRService(api_key='key')
+    service.model = mock_model
+
+    headers = Headers({'content-type': 'image/png'})
+    upload = UploadFile(BytesIO(b'data'), filename='test.png', headers=headers)
+    result = asyncio.run(service.analyze(upload))
+
+    assert isinstance(result, OCRResponse)
+    assert result.fields == {"Monto": "100"}
+    fake_genai.upload_file.assert_called()
+    fake_genai.get_file.assert_called()
+    mock_model.generate_content.assert_called()
