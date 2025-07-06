@@ -1,0 +1,113 @@
+{
+  "form_name": "credito_hipotecario",
+  "datos_solicitud": {
+    "fecha_solicitud": "30/06/2023",
+    "sucursal": "875",
+    "cliente_banorte": false
+  },
+  "informacion_credito": {
+    "esquema": "Cofinavit",
+    "tipo_producto": "Mejoramiento Hipotecario",
+    "destino_credito": "",
+    "monto_solicitado": "2,000,000",
+    "plazo_anios": "15",
+    "impresion_parcial_numero_credito": false,
+    "nombre_en_estado_cuenta": false
+  },
+  "datos_personales": {
+    "nombre": "Jorge Alberto",
+    "apellido_paterno": "Ramírez",
+    "apellido_materno": "Ponce",
+    "rfc": "RAPJ860524",
+    "curp": "RAPJ860524 HMUMNR",
+    "nacionalidad": "Mexicana",
+    "lugar_nacimiento": "Morelia, Mich.",
+    "no_imss": "8468726519-5",
+    "genero": "M",
+    "estado_civil": "Divorciado",
+    "titulo_profesion": "Arquitecto",
+    "tipo_actividad_empresarial": false,
+    "telefono_casa": "4433061825",
+    "telefono_celular": "4433458320",
+    "email": "jorge.ramirez20@gmail.com"
+  },
+  "domicilio": {
+    "tipo_domicilio": "En renta",
+    "direccion": "Laguna de Parras N°525",
+    "colonia": "Ejidal Ocolusen",
+    "alcaldia_municipio": "Morelia",
+    "ciudad": "",
+    "estado": "Michoacán",
+    "pais": "",
+    "cp": "",
+    "antiguedad_actual": "5 años 3 meses",
+    "antiguedad_anterior": "",
+    "domicilio_anterior": ""
+  },
+  "empleo": {
+    "empresa": "SM Arquitectos",
+    "giro_empresa": "",
+    "ocupacion": "Empleado",
+    "puesto": "Imágen Creativo",
+    "sueldo_mensual": "",
+    "otros_ingresos": "",
+    "fuente_otros_ingresos": "",
+    "jefe_nombre_puesto": "",
+    "telefono_oficina": "443258740",
+    "telefono_oficina_alt": "",
+    "direccion_laboral": "Av. Acueducto No. 1689",
+    "colonia_laboral": "Electricistas",
+    "alcaldia_municipio_laboral": "Morelia",
+    "ciudad_laboral": "",
+    "estado_laboral": "Michoacán",
+    "cp_laboral": "59382",
+    "antiguedad_actual": "5 años 3 meses",
+    "antiguedad_anterior": "3 años",
+    "empleo_anterior": "Urbanismo"
+  },
+  "datos_economicos": {
+    "ingresos_mensuales_bruto": "85,000.00",
+    "ingresos_mensuales_neto": "80,000.",
+    "otros_ingresos": "",
+    "total_ingresos": "80,000",
+    "fuente_otros_ingresos": "",
+    "informacion_bienes_inmuebles_no": "",
+    "informacion_bienes_inmuebles_valor_estimado": "",
+    "informacion_bienes_inmuebles_valor_gravado": ""
+  },
+  "referencias_personales": [
+    {
+      "apellido_paterno": "Espinosa",
+      "apellido_materno": "Prado",
+      "nombre": "Roberto",
+      "telefono": "443-5420691",
+      "horario_llamada": "",
+      "parentesco": ""
+    },
+    {
+      "apellido_paterno": "Pantola",
+      "apellido_materno": "Quevedo",
+      "nombre": "Lupsa",
+      "telefono": "443-6391421",
+      "horario_llamada": "",
+      "parentesco": ""
+    }
+  ],
+  "datos_inmueble": {
+    "valor_estimado": "4,500,000.00",
+    "entidad_federativa": "Michoacán"
+  },
+  "informacion_vendedor": {
+    "nombre_razon_social": "Aurora Ramirez Escalera",
+    "telefono": "443-3248961",
+    "parentesco_solicitante": "Ninguno"
+  },
+  "servicios_adicionales": {
+    "contrata_paquete_integral": false,
+    "domiciliacion_pago_credito": false,
+    "poliza_seguro_vida_diferente_banorte": false,
+    "poliza_seguro_danos_diferente_banorte": false,
+    "poliza_seguro_obra_civil_diferente_banorte": false,
+    "autoriza_contratacion_polizas_banorte": false
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "form_name": "credito_personal",
+  "datos_solicitud": {
+    "fecha_solicitud": "28/05/2025",
+    "folio": "",
+    "cliente_id": "",
+    "ejecutivo_nombre": "",
+    "numero_nomina": "",
+    "zona": ""
+  },
+  "informacion_credito": {
+    "monto_solicitado": "100,000.00",
+    "plazo_meses": "24"
+  },
+  "datos_personales": {
+    "nombre": "Claudia",
+    "apellido_paterno": "González",
+    "apellido_materno": "Reyes",
+    "fecha_nacimiento": "01/01/1990",
+    "pais_nacimiento": "Mexico",
+    "nacionalidad": "Mexican",
+    "genero": "Femenino",
+    "tipo_solicitud": "Asalariado",
+    "rfc": "GORC900101x25",
+    "curp": "GORC900101MMN SRROG",
+    "grado_estudios": "Licenciatura",
+    "telefono_casa": "443 321 6514",
+    "telefono_celular": "443 319 8781",
+    "email": "Claudia.gonzalez90@gmail.com",
+    "tipo_identificacion": "Pasaporte",
+    "folio_identificacion": "G3545917",
+    "estado_civil": "Soltero (a)",
+    "regimen_matrimonial": ""
+  },
+  "domicilio": {
+    "tipo_propiedad": "Propia",
+    "direccion": "Jose Salgado 95",
+    "colonia": "Nueva Chapultepec I",
+    "municipio": "Morelia",
+    "ciudad": "Morelia",
+    "estado": "Mich",
+    "pais": "Mexico",
+    "cp": "58280",
+    "anios_residencia": "2",
+    "domicilio_anterior": ""
+  },
+  "empleo": {
+    "empresa": "CNDH",
+    "giro_empresa": "Organismo Autónomo",
+    "ocupacion": "Asistente licenciatura",
+    "puesto": "Asistente Gerente",
+    "sueldo_mensual": "40,000",
+    "otros_ingresos": "Sí",
+    "fuente_otros_ingresos": "",
+    "fecha_ingreso": "01/05/2015",
+    "jefe_nombre_puesto": "Carlos Lopez Santoyo",
+    "telefono_oficina": "44 3 22 51501",
+    "telefono_oficina_alt": "",
+    "direccion_laboral": "Av. del Estudiante #102 Col. Matamoros. Morelia, Mich. 58240",
+    "empleo_anterior": ""
+  },
+  "referencias_personales": [
+    {
+      "nombre_completo": "Myriam Torres Rodriguez",
+      "telefono": "4431301986",
+      "horario_llamada": "8 am - 4pm",
+      "parentesco": "Amiga"
+    },
+    {
+      "nombre_completo": "Diego Reyes Prado",
+      "telefono": "4433198133",
+      "horario_llamada": "8am - 4pm",
+      "parentesco": "Primo"
+    },
+    {
+      "nombre_completo": "Luis Gonzalez Perez",
+      "telefono": "4433296317",
+      "horario_llamada": "8am - 4pm",
+      "parentesco": "Padre"
+    }
+  ]
+}
