@@ -5,6 +5,11 @@ body {
     color: #333;
 }
 
+.main-container {
+    width: 90%;
+    margin: 2em auto;
+}
+
 
 form {
     background: #fff;
@@ -50,19 +55,14 @@ button {
 }
 .subsection { margin-left: 1em; }
 
-.result-container { display: flex; gap: 2em; }
 .form-section {
     position: relative;
     padding: 1em;
     border-radius: 8px;
 }
-.form-section.loading { background: rgba(0,0,0,0.05); }
-
-@media (max-width: 768px) {
-    .result-container { flex-direction: column; }
+.form-section.loading {
+    background: rgba(0, 0, 0, 0.05);
 }
-
-.form-section, .preview-section { flex: 1; }
 
 #image-container { overflow: hidden; cursor: grab; border: 1px solid #ccc; }
 #image-container img { transform-origin: top left; }
