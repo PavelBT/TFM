@@ -84,6 +84,19 @@ class GeminiOCRService(OCRService):
                 json_string = json_string[:-len("```")].strip()
 
             parsed_json = json.loads(json_string)
+
+            if isinstance(parsed_json, dict) and len(parsed_json) == 1:
+                sole = next(iter(parsed_json.values()))
+                if isinstance(sole, list):
+                    flat = {}
+                    for item in sole:
+                        if isinstance(item, dict):
+                            key = item.get("label") or item.get("name")
+                            if key is not None:
+                                flat[key] = item.get("value")
+                    if flat:
+                        return flat
+
             return parsed_json
         except json.JSONDecodeError as e:
             self.logger.error("JSON parsing error: %s", e)
@@ -102,7 +115,7 @@ class GeminiOCRService(OCRService):
             self._cleanup_temp_file(tmp_path)
 
         fields = self._parse_text(text)
-        form_name = fields["form_name"]
+        form_name = fields.pop("form_name", "")
 
         return OCRResponse(form_name=form_name, fields=fields)
     

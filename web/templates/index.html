@@ -22,6 +22,25 @@
                                     <legend class="section-title">{{ key.replace('_', ' ').capitalize() }}</legend>
                                     {{ render_form(value, field_name) }}
                                 </fieldset>
+                            {% elif value is sequence and value is not string %}
+                                <fieldset>
+                                    <legend class="section-title">{{ key.replace('_', ' ').capitalize() }}</legend>
+                                    {% for item in value %}
+                                        {% set item_name = field_name ~ '[' ~ loop.index0 ~ ']' %}
+                                        {% if item is mapping %}
+                                            <fieldset>
+                                                <legend class="section-title">{{ key.replace('_', ' ').capitalize() }} {{ loop.index }}</legend>
+                                                {{ render_form(item, item_name) }}
+                                            </fieldset>
+                                        {% else %}
+                                            <div>
+                                                <label class="field-key">{{ key.replace('_', ' ').capitalize() }} {{ loop.index }}:
+                                                    <input type="text" name="{{ item_name }}" value="{{ item }}">
+                                                </label>
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </fieldset>
                             {% else %}
                                 <div>
                                     <label class="field-key">{{ key.replace('_', ' ').capitalize() }}:

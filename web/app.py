@@ -1,6 +1,7 @@
 # web/app.py
 from flask import Flask, render_template, request, jsonify
 import base64
+import json
 import requests
 from services.utils.logger import get_logger
 from services.db_client import DatabaseClient
@@ -11,6 +12,24 @@ logger.info("Starting Flask app...")
 db_client = DatabaseClient()
 
 VALID_FORMS = {"credito_personal", "credito_hipotecario", "credito_tarjeta"}
+
+
+def _parse_json_strings(value):
+    """Recursively convert JSON-like strings to Python objects."""
+    if isinstance(value, dict):
+        return {k: _parse_json_strings(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_parse_json_strings(v) for v in value]
+    if isinstance(value, str):
+        stripped = value.strip()
+        if (stripped.startswith('{') and stripped.endswith('}')) or (
+            stripped.startswith('[') and stripped.endswith(']')
+        ):
+            try:
+                return _parse_json_strings(json.loads(stripped))
+            except json.JSONDecodeError:
+                pass
+    return value
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -44,9 +63,10 @@ def index():
 
                     b64_file = base64.b64encode(file_bytes).decode("utf-8")
                     file_url = f"data:{file.mimetype};base64,{b64_file}"
+                    fields = _parse_json_strings(data.get("fields", {}))
                     return render_template(
                         "index.html",
-                        fields=data.get("fields", {}),
+                        fields=fields,
                         file_url=file_url,
                         is_pdf=file.mimetype == "application/pdf",
                         form_type=form_type,

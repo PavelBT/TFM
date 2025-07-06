@@ -26,13 +26,43 @@ function prettify(key) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+function maybeParseJSON(value) {
+    if (typeof value !== 'string') return value;
+    const trimmed = value.trim();
+    if ((trimmed.startsWith('{') && trimmed.endsWith('}')) ||
+        (trimmed.startsWith('[') && trimmed.endsWith(']')))
+    {
+        try {
+            return JSON.parse(trimmed);
+        } catch (_) {
+            return value;
+        }
+    }
+    return value;
+}
+
 function renderFields(data, prefix = '') {
     let html = `<div class="${prefix ? 'subsection' : ''}">`;
     Object.entries(data).forEach(([key, value]) => {
         const fieldName = prefix ? `${prefix}.${key}` : key;
+        value = maybeParseJSON(value);
         if (value && typeof value === 'object' && !Array.isArray(value)) {
             html += `<fieldset><legend class="section-title">${prettify(key)}</legend>`;
             html += renderFields(value, fieldName);
+            html += `</fieldset>`;
+        } else if (Array.isArray(value)) {
+            html += `<fieldset><legend class="section-title">${prettify(key)}</legend>`;
+            value.forEach((item, idx) => {
+                const itemName = `${fieldName}[${idx}]`;
+                if (item && typeof item === 'object') {
+                    html += `<fieldset><legend class="section-title">${prettify(key)} ${idx + 1}</legend>`;
+                    html += renderFields(item, itemName);
+                    html += `</fieldset>`;
+                } else {
+                    html += `<div><label class="field-key">${prettify(key)} ${idx + 1}:` +
+                        ` <input type="text" name="${itemName}" value="${item}"></label></div>`;
+                }
+            });
             html += `</fieldset>`;
         } else {
             html += `<div><label class="field-key">${prettify(key)}:` +
@@ -130,20 +160,34 @@ function setupUploadForm() {
     });
 }
 
+function parsePath(key) {
+    return key
+        .replace(/\[(\d+)\]/g, ".$1")
+        .split('.')
+        .map(k => (k.match(/^\d+$/) ? Number(k) : k));
+}
+
 function buildPayload(form) {
     const result = {};
     const data = new FormData(form);
     for (const [key, value] of data.entries()) {
-        const keys = key.split('.');
+        const path = parsePath(key);
         let obj = result;
-        keys.forEach((k, idx) => {
-            if (idx === keys.length - 1) {
-                obj[k] = value;
+        for (let i = 0; i < path.length; i++) {
+            const part = path[i];
+            const isLast = i === path.length - 1;
+            if (isLast) {
+                obj[part] = value;
             } else {
-                if (!obj[k]) obj[k] = {};
-                obj = obj[k];
+                const nextPart = path[i + 1];
+                if (typeof nextPart === 'number') {
+                    if (!Array.isArray(obj[part])) obj[part] = [];
+                } else {
+                    if (!obj[part]) obj[part] = {};
+                }
+                obj = obj[part];
             }
-        });
+        }
     }
     return result;
 }
