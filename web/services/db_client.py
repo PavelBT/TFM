@@ -67,16 +67,14 @@ class DatabaseClient:
                 for stmt in statements:
                     conn.execute(text(stmt))
 
-    def list_applications(self, form_type: str = "credito_personal") -> list:
-        """Return stored credit applications for the given form type."""
+    def list_applications(self, form_type: Optional[str] = None) -> list:
+        """Return stored credit applications, optionally filtered by form type."""
         session: Session = self.SessionLocal()
         try:
-            return (
-                session.query(CreditApplication)
-                .filter(CreditApplication.tipo_credito == form_type)
-                .order_by(CreditApplication.id.desc())
-                .all()
-            )
+            query = session.query(CreditApplication)
+            if form_type:
+                query = query.filter(CreditApplication.tipo_credito == form_type)
+            return query.order_by(CreditApplication.id.desc()).all()
         finally:
             session.close()
 
