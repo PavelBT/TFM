@@ -48,7 +48,6 @@ documents and visualize the resulting fields.
 | -------- | ----------- |
 | `GEMINI_API_KEY` | API key for Gemini OCR. |
 | `GEMINI_MODEL` | Model name for Gemini OCR. |
-| `GEMINI_PROMPT` | Prompt used when querying Gemini OCR. |
 | `DATABASE_URL` | Connection string for PostgreSQL. Defaults to the local container URL. |
 
 ## Running the stack
