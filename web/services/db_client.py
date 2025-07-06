@@ -104,7 +104,10 @@ class DatabaseClient:
                 ingresos_mensuales=parse_money(
                     _extract(fields, "ingresos_mensuales")
                 ),
-                plazo_credito=_extract(fields, "plazo_credito"),
+                plazo_credito=
+                    _extract(fields, "plazo_credito")
+                    or _extract(fields, "plazo_meses")
+                    or _extract(fields, "plazo_anios"),
                 riesgo_score=_extract(fields, "riesgo_score"),
                 riesgo_clase=_extract(fields, "riesgo_clase"),
                 extra_data=fields,
