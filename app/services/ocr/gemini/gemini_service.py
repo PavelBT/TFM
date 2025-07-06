@@ -28,11 +28,12 @@ class GeminiOCRService(OCRService):
             or os.getenv("GOOGLE_AI_STUDIO_API_KEY", "")
         )
         self.model_name = model_name or os.getenv("GEMINI_MODEL", "gemini-2.0-pro-exp-02-05")
-        self.prompt = self._load_prompt(prompt)
+        self.prompt_system = self._load_prompt(prompt)
+        self.prompt = "Identifica y extra los datos precisos del fomulario. Devuelve un JSON con los campos y sus valores. Si no hay datos, devuelve un JSON vacío."
 
         if genai:
             genai.configure(api_key=self.api_key)
-            self.model = genai.GenerativeModel(self.model_name)
+            self.model = genai.GenerativeModel(self.model_name, system_instruction=self.prompt_system)
             self.safety = {
                 HarmCategory.HARM_CATEGORY_HATE_SPEECH: HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
                 HarmCategory.HARM_CATEGORY_HARASSMENT: HarmBlockThreshold.BLOCK_NONE,
@@ -64,6 +65,7 @@ class GeminiOCRService(OCRService):
             [uploaded, self.prompt],
             safety_settings=self.safety,
         )
+
         self.logger.debug("Gemini raw response: %s", response)
         return getattr(response, "text", "")
 
@@ -74,28 +76,19 @@ class GeminiOCRService(OCRService):
             self.logger.warning("Temporary file could not be removed: %s", path)
 
     def _parse_text(self, text: str) -> dict[str, str]:
-        fields: dict[str, str] = {}
-        match = re.search(r"\{.*\}", text, re.S)
-        if match:
-            try:
-                payload = json.loads(match.group(0))
-                for section in payload.values():
-                    if isinstance(section, list):
-                        for item in section:
-                            label = item.get("label") or item.get("name") or item.get("key")
-                            value = item.get("value")
-                            if label is not None:
-                                fields[label] = value
-                    elif isinstance(section, dict):
-                        for label, value in section.items():
-                            fields[label] = value
-            except Exception as exc:  # pragma: no cover - best effort
-                self.logger.warning("Failed to parse Gemini JSON: %s", exc)
-                fields = {"text": text}
-        else:
-            fields = {"text": text}
-        return fields
+        try:
+            json_string = text.strip() # Elimina espacios en blanco al inicio/fin
+            if json_string.startswith("```json"):
+                json_string = json_string[len("```json"):].strip()
+            if json_string.endswith("```"):
+                json_string = json_string[:-len("```")].strip()
 
+            parsed_json = json.loads(json_string)
+            return parsed_json
+        except json.JSONDecodeError as e:
+            self.logger.error("JSON parsing error: %s", e)
+            return {}
+        
     async def analyze(self, file: UploadFile) -> OCRResponse:
         self.logger.info("Analyzing file with Gemini: %s", file.filename)
         if not genai or not self.model:
@@ -109,4 +102,7 @@ class GeminiOCRService(OCRService):
             self._cleanup_temp_file(tmp_path)
 
         fields = self._parse_text(text)
-        return OCRResponse(form_name="text", fields=fields)
+        form_name = fields["form_name"]
+
+        return OCRResponse(form_name=form_name, fields=fields)
+    
