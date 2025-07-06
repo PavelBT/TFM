@@ -64,7 +64,7 @@ def test_casa_field(monkeypatch):
 
     db.save_form("credito_personal", {"telefono_casa": "123"}, None)
 
-    assert mock_model.call_args.kwargs["telecono_casa"] == "123"
+    assert mock_model.call_args.kwargs["telefono_casa"] == "123"
 
 
 def test_store_both_phone_numbers(monkeypatch):
@@ -81,7 +81,7 @@ def test_store_both_phone_numbers(monkeypatch):
 
     kwargs = mock_model.call_args.kwargs
     assert kwargs["telefono_movil"] == "777"
-    assert kwargs["telecono_casa"] == "555"
+    assert kwargs["telefono_casa"] == "555"
 
 
 def test_money_fields_are_parsed(monkeypatch):
@@ -126,5 +126,19 @@ def test_plazo_credito_fallback(monkeypatch):
     fields = {"informacion_credito": {"plazo_anios": "8"}}
     db.save_form("credito_hipotecario", fields, None)
     assert mock_model.call_args.kwargs["plazo_credito"] == "8"
+
+
+def test_save_file_url(monkeypatch):
+    """file_url is stored on the model when provided."""
+    monkeypatch.setattr(DatabaseClient, "_ensure_columns", lambda self: None)
+    mock_model = MagicMock()
+    monkeypatch.setattr(db_client, "CreditApplication", mock_model)
+    db = DatabaseClient()
+    session_mock = MagicMock()
+    db.SessionLocal = MagicMock(return_value=session_mock)
+
+    db.save_form("credito_personal", {}, "testurl")
+
+    assert mock_model.call_args.kwargs["file_url"] == "testurl"
 
 

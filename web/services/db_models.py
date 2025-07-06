@@ -32,6 +32,7 @@ class CreditApplication(Base):
     email = Column(String)
     telefono_movil = Column(String)
     telefono_casa = Column(String)
+    file_url = Column(String)
     fecha_nacimiento = Column(Date)
     monto_solicitado = Column(Numeric(12, 2))
     ingresos_mensuales = Column(Numeric(12, 2))
