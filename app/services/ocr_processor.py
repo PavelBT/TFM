@@ -42,6 +42,7 @@ class OCRProcessor:
         cleaned = postprocess_fields(raw.fields)
 
         if refiner:
+            self.logger.info("Starting refiner for %s", file.filename)
             refined = await refiner.refine(cleaned)
             return {"form_type": refined.form_name, "fields": refined.fields}
 
