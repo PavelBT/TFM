@@ -112,6 +112,24 @@ function setupUploadForm() {
     const uploadForm = document.getElementById('upload-form');
     if (!uploadForm) return;
     const fileInput = uploadForm.querySelector('input[name="document"]');
+    // Temporary controls for OCR comparison
+    const refinerCheckbox = uploadForm.querySelector('#use-refiner');
+    const ocrRadios = uploadForm.querySelectorAll('input[name="ocr_service"]');
+
+    function updateRefinerState() {
+        const selected = uploadForm.querySelector('input[name="ocr_service"]:checked');
+        if (selected && selected.value === 'gemini') {
+            if (refinerCheckbox) {
+                refinerCheckbox.checked = true;
+                refinerCheckbox.disabled = true;
+            }
+        } else if (refinerCheckbox) {
+            refinerCheckbox.disabled = false;
+        }
+    }
+
+    ocrRadios.forEach(r => r.addEventListener('change', updateRefinerState));
+    updateRefinerState();
     fileInput.addEventListener('change', () => {
         if (!fileInput.files.length) return;
         const file = fileInput.files[0];
@@ -136,6 +154,11 @@ function setupUploadForm() {
 
         const formData = new FormData();
         formData.append('file', file);
+        const selected = uploadForm.querySelector('input[name="ocr_service"]:checked');
+        if (selected) formData.append('ocr_service', selected.value);
+        if (refinerCheckbox) {
+            formData.append('use_refiner', refinerCheckbox.checked ? 'true' : 'false');
+        }
 
         try {
             const res = await fetch('http://localhost:8000/api/analyze', {

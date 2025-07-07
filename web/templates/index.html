@@ -9,6 +9,21 @@
     <div class="card p-2 mb-4">
         <h1 class="h4 p-4 text-primary text-center">Sube un documento de solicitud</h1>
         <form id="upload-form" action="/" method="post" enctype="multipart/form-data" class="row g-3 align-items-end">
+            <!-- Opciones temporales para comparar OCR -->
+            <div class="col-12">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="ocr_service" id="ocr-gemini" value="gemini" checked>
+                    <label class="form-check-label" for="ocr-gemini">Gemini</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="ocr_service" id="ocr-textract" value="textract">
+                    <label class="form-check-label" for="ocr-textract">Textract</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="use-refiner" name="use_refiner" checked>
+                    <label class="form-check-label" for="use-refiner">Usar refiner</label>
+                </div>
+            </div>
             <div class="col-md-9">
                 <input class="form-control" type="file" name="document" accept="image/*,.pdf" required>
             </div>

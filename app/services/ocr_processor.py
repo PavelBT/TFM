@@ -11,22 +11,39 @@ class OCRProcessor:
 
     def __init__(self) -> None:
         self.logger = get_logger(self.__class__.__name__)
-        self.ocr_service = get_ocr_service()
-        self.refiner: GeminiRefinerService | None = None
-        try:
-            is_gemini = isinstance(self.ocr_service, GeminiOCRService)
-        except TypeError:  # when patched with non-type
-            is_gemini = False
-        if not is_gemini:
-            self.refiner = GeminiRefinerService()
+        # Service and refiner are selected per request. This allows
+        # temporary runtime configuration while comparing OCR engines.
 
-    async def analyze(self, file: UploadFile) -> Dict:
-        """Analyze a file and return the extracted fields."""
+    async def analyze(
+        self,
+        file: UploadFile,
+        ocr_service: str | None = None,
+        use_refiner: bool | None = None,
+    ) -> Dict:
+        """Analyze a file and return the extracted fields.
+
+        Parameters are optional and override environment defaults. This is
+        temporary code used during the OCR comparison phase.
+        """
+
         self.logger.info("Starting analysis for %s", file.filename)
-        raw = await self.ocr_service.analyze(file)
+
+        service = get_ocr_service(ocr_service)
+        is_gemini = isinstance(service, GeminiOCRService)
+
+        if use_refiner is None:
+            use_refiner = not is_gemini
+
+        refiner: GeminiRefinerService | None = None
+        if use_refiner and not is_gemini:
+            refiner = GeminiRefinerService()
+
+        raw = await service.analyze(file)
         cleaned = postprocess_fields(raw.fields)
-        if self.refiner:
-            refined = await self.refiner.refine(cleaned)
+
+        if refiner:
+            refined = await refiner.refine(cleaned)
             return {"form_type": refined.form_name, "fields": refined.fields}
+
         return {"form_type": raw.form_name, "fields": cleaned}
 
