@@ -138,7 +138,8 @@ function setupUploadForm() {
         formData.append('file', file);
 
         try {
-            const res = await fetch('http://localhost:8000/api/analyze', {
+        const apiHost = `${window.location.protocol}//${window.location.hostname}:8000`;
+        const res = await fetch(`${apiHost}/api/analyze`, {
                 method: 'POST',
                 body: formData
             });
