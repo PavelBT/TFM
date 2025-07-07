@@ -82,6 +82,33 @@ def index():
     return render_template("index.html", fields={}, file_url=None, form_type=None, error=None)
 
 
+@app.route("/api/analyze", methods=["POST"])
+def analyze_api():
+    """Proxy file analysis to the internal API."""
+    file = request.files.get("file")
+    if not file:
+        return jsonify({"detail": "No file uploaded."}), 400
+
+    try:
+        file_bytes = file.read()
+        files = {"file": (file.filename, file_bytes, file.mimetype)}
+        data = {}
+        ocr_service = request.form.get("ocr_service")
+        if ocr_service:
+            data["ocr_service"] = ocr_service
+        use_refiner = request.form.get("use_refiner")
+        if use_refiner is not None:
+            data["use_refiner"] = use_refiner
+        response = requests.post("http://api:8000/api/analyze", files=files, data=data)
+        if response.ok:
+            return jsonify(response.json())
+        logger.error("Error en la API: %s %s", response.status_code, response.text)
+        return jsonify({"detail": "Error al procesar el documento"}), 500
+    except Exception as exc:  # pragma: no cover - just logging
+        logger.error("Fallo la solicitud a la API: %s", exc)
+        return jsonify({"detail": "Error al procesar el documento"}), 500
+
+
 @app.route("/save", methods=["POST"])
 def save():
     data = request.get_json() or {}

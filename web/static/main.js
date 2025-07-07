@@ -161,8 +161,8 @@ function setupUploadForm() {
         }
 
         try {
-        const apiHost = `${window.location.protocol}//${window.location.hostname}:8000`;
-        const res = await fetch(`${apiHost}/api/analyze`, {
+
+        const res = await fetch('/api/analyze', {
                 method: 'POST',
                 body: formData
             });
