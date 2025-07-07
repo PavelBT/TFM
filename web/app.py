@@ -11,6 +11,15 @@ logger = get_logger(__name__)
 logger.info("Starting Flask app...")
 db_client = DatabaseClient()
 
+
+@app.template_filter("ordered_items")
+def ordered_items(value):
+    """Return mapping items as a list to preserve order in templates."""
+    try:
+        return list(value.items())
+    except AttributeError:
+        return []
+
 VALID_FORMS = {"credito_personal", "credito_hipotecario", "credito_tarjeta"}
 
 
