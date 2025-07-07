@@ -7,17 +7,27 @@ from services.utils import postprocess_fields
 
 
 class OCRProcessor:
-    """Coordinates OCR extraction."""
+    """Coordinates OCR extraction.
 
-    def __init__(self) -> None:
+    This class temporarily allows overriding the OCR backend and the
+    refiner usage via parameters instead of relying solely on environment
+    variables. Environment variables remain supported and unchanged.
+    """
+
+    def __init__(self, service_name: str | None = None, use_refiner: bool | None = None) -> None:
         self.logger = get_logger(self.__class__.__name__)
-        self.ocr_service = get_ocr_service()
+        self.ocr_service = get_ocr_service(service_name)
         self.refiner: GeminiRefinerService | None = None
-        try:
-            is_gemini = isinstance(self.ocr_service, GeminiOCRService)
-        except TypeError:  # when patched with non-type
-            is_gemini = False
-        if not is_gemini:
+
+        if use_refiner is None:
+            # Default behaviour: use refiner only when OCR service is not Gemini
+            try:
+                is_gemini = isinstance(self.ocr_service, GeminiOCRService)
+            except TypeError:  # when patched with non-type
+                is_gemini = False
+            if not is_gemini:
+                self.refiner = GeminiRefinerService()
+        elif use_refiner:
             self.refiner = GeminiRefinerService()
 
     async def analyze(self, file: UploadFile) -> Dict:

@@ -143,3 +143,20 @@ def test_gemini_refine(monkeypatch):
 
     assert result == OCRResponse(form_name="credito", fields={"Nombre": "Ana"})
     mock_model.generate_content.assert_called()
+
+
+def test_processor_custom_refiner_choice(monkeypatch):
+    """Processor should respect the use_refiner flag."""
+    service = GeminiOCRService(api_key="key")
+
+    def get_service(name=None):
+        assert name == "gemini"
+        return service
+
+    monkeypatch.setattr("services.ocr_processor.get_ocr_service", get_service)
+
+    proc_no_refiner = OCRProcessor(service_name="gemini", use_refiner=False)
+    assert proc_no_refiner.refiner is None
+
+    proc_with_refiner = OCRProcessor(service_name="gemini", use_refiner=True)
+    assert isinstance(proc_with_refiner.refiner, GeminiRefinerService)

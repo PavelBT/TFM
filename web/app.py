@@ -2,6 +2,7 @@
 from flask import Flask, render_template, request, jsonify
 import base64
 import json
+import os
 import requests
 from services.utils.logger import get_logger
 from services.db_client import DatabaseClient
@@ -34,6 +35,7 @@ def _parse_json_strings(value):
 @app.route("/", methods=["GET", "POST"])
 def index():
     logger.info("Received request: %s", request.method)
+    ocr_default = os.getenv("OCR_SERVICE", "gemini")
     # Si es una solicitud POST, procesar el archivo
     if request.method == "POST":
         file = request.files["document"]
@@ -41,7 +43,11 @@ def index():
             try:
                 file_bytes = file.read()
                 files = {"file": (file.filename, file_bytes, file.mimetype)}
-                response = requests.post("http://api:8000/api/analyze", files=files)
+                data = {
+                    "ocr_service": request.form.get("ocr_service"),
+                    "use_refiner": "true" if request.form.get("use_refiner") else "false",
+                }
+                response = requests.post("http://api:8000/api/analyze", files=files, data=data)
                 if response.ok:
                     data = response.json()
                     form_type = data.get("form_type")
@@ -59,6 +65,7 @@ def index():
                             error=msg,
                             file_url=None,
                             form_type=None,
+                            ocr_default=ocr_default,
                         )
 
                     b64_file = base64.b64encode(file_bytes).decode("utf-8")
@@ -72,14 +79,28 @@ def index():
                         form_type=form_type,
                     )
                 logger.error("Error en la API: %s %s", response.status_code, response.text)
-                return render_template("index.html", fields={}, error="Error al procesar el documento.")
+                return render_template(
+                    "index.html",
+                    fields={},
+                    error="Error al procesar el documento.",
+                    ocr_default=ocr_default,
+                )
             except Exception as exc:
                 logger.error("Fallo la solicitud a la API: %s", exc)
-                return render_template("index.html", fields={}, error="Error al procesar el documento.")
+                return render_template(
+                    "index.html", fields={}, error="Error al procesar el documento.", ocr_default=ocr_default
+                )
 
     logger.info("Rendering index.html")
     # Si es una solicitud GET, renderizar el formulario
-    return render_template("index.html", fields={}, file_url=None, form_type=None, error=None)
+    return render_template(
+        "index.html",
+        fields={},
+        file_url=None,
+        form_type=None,
+        error=None,
+        ocr_default=ocr_default,
+    )
 
 
 @app.route("/save", methods=["POST"])

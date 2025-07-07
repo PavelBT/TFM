@@ -136,6 +136,11 @@ function setupUploadForm() {
 
         const formData = new FormData();
         formData.append('file', file);
+        // Temporary options sent to the API: selected OCR backend and refiner flag
+        const serviceInput = uploadForm.querySelector('input[name="ocr_service"]:checked');
+        const useRefinerInput = uploadForm.querySelector('input[name="use_refiner"]');
+        if (serviceInput) formData.append('ocr_service', serviceInput.value);
+        if (useRefinerInput) formData.append('use_refiner', useRefinerInput.checked ? 'true' : 'false');
 
         try {
             const res = await fetch('http://localhost:8000/api/analyze', {

@@ -8,6 +8,12 @@
 {% block content %}
     <h1>Sube un documento de solicitud</h1>
     <form id="upload-form" action="/" method="post" enctype="multipart/form-data">
+        {# Temporary controls to compare OCR services and refiner usage #}
+        <div class="options">
+            <label><input type="radio" name="ocr_service" value="gemini" {% if ocr_default == 'gemini' %}checked{% endif %}> Gemini</label>
+            <label><input type="radio" name="ocr_service" value="textract" {% if ocr_default == 'textract' %}checked{% endif %}> Textract</label>
+            <label><input type="checkbox" name="use_refiner" checked> Usar refiner</label>
+        </div>
         <input type="file" name="document" accept="image/*,.pdf" required>
         <button type="submit">Enviar</button>
     </form>
