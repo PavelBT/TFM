@@ -111,6 +111,26 @@ function showPreview(file) {
 function setupUploadForm() {
     const uploadForm = document.getElementById('upload-form');
     if (!uploadForm) return;
+    const serviceRadios = uploadForm.querySelectorAll('input[name="ocr_service"]');
+    const refinerCheckbox = uploadForm.querySelector('input[name="use_refiner"]');
+    serviceRadios.forEach(r => {
+        r.addEventListener('change', () => {
+            if (r.checked && r.value === 'gemini') {
+                if (refinerCheckbox) {
+                    refinerCheckbox.checked = false;
+                    refinerCheckbox.disabled = true;
+                }
+            } else if (r.checked && r.value !== 'gemini') {
+                if (refinerCheckbox) refinerCheckbox.disabled = false;
+            }
+        });
+    });
+    // Apply initial state based on the default selection
+    const checkedRadio = uploadForm.querySelector('input[name="ocr_service"]:checked');
+    if (checkedRadio && checkedRadio.value === 'gemini' && refinerCheckbox) {
+        refinerCheckbox.checked = false;
+        refinerCheckbox.disabled = true;
+    }
     const fileInput = uploadForm.querySelector('input[name="document"]');
     fileInput.addEventListener('change', () => {
         if (!fileInput.files.length) return;
