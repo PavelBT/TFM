@@ -3,6 +3,7 @@ body {
     margin: 0;
     background-color: #f8f9fa;
     color: #333;
+    padding-top: 70px; /* space for fixed navbar */
 }
 
 .container {
@@ -92,6 +93,7 @@ input[type="file"] {
 
 
 .table-link { color: #2c3e50; text-decoration: none; }
+.small-table { font-size: 0.875rem; }
 
 /* Alert styles */
 .alert {
