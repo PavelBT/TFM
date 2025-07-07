@@ -161,7 +161,7 @@ function setupUploadForm() {
         }
 
         try {
-            const res = await fetch('http://localhost:8000/api/analyze', {
+        const res = await fetch('/api/analyze', {
                 method: 'POST',
                 body: formData
             });
