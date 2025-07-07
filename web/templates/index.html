@@ -23,7 +23,7 @@
             {% if form_type %}
             <h2 class="h5 mb-3">{{ FORM_NAMES.get(form_type, form_type.replace('_', ' ').title()) }}</h2>
             {% endif %}
-            <h3 class="h4">Editar Datos</h3>
+            <h4 class="text-center mb-3">Editar Datos</h4>
             <form id="edit-form" {% if not fields %}style="display:none;"{% endif %}>
             <div id="form-area">
                 {% if fields %}
@@ -68,13 +68,13 @@
                     {{ render_form(fields) }}
                 {% endif %}
                 </div>
-                <div class="text-end mt-3">
+                <div class="text-center mt-3">
                     <button type="button" id="save-btn" class="btn btn-primary" {% if not fields %}style="display:none;"{% endif %}>Guardar</button>
                 </div>
             </form>
         </div>
         <div class="preview-section col-md-6">
-            <h2 class="h4">Visor de Documento</h2>
+            <h4 class="text-center mb-3">Visor de Documento</h4>
             <div id="preview-area">
             {% if file_url %}
                 {% if is_pdf %}
