@@ -44,7 +44,7 @@
                 {% if fields %}
                     {% macro render_form(data, prefix='') %}
                     <div class="{{ 'subsection' if prefix }}">
-                        {% for key, value in data.items() %}
+                        {% for key, value in data|ordered_items %}
                             {% set field_name = (prefix ~ '.' if prefix else '') ~ key %}
                             {% if value is mapping %}
                                 <fieldset>
