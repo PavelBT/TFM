@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "📦 Actualizando código desde GitHub..."
-git pull origin main
+git pull origin
 
 echo "🧹 Deteniendo contenedores actuales..."
 docker-compose down
